@@ -1,0 +1,25 @@
+{
+    "presets": [
+        [
+            "@babel/preset-env",
+            {
+                "useBuiltIns": false,
+                "targets": "supports rtcpeerconnection",
+                "bugfixes": true,
+                "exclude": [
+                    "@babel/plugin-transform-regenerator"
+                ]
+            }
+        ],
+        "solid"
+    ],
+    "plugins": [
+        [
+            "module:fast-async",
+            {
+                "runtimePattern": "async-rt-injected\\.js"
+            }
+        ],
+        "babel-plugin-solid-undestructure"
+    ]
+}
