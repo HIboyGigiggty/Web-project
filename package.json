@@ -34,7 +34,9 @@
     "fast-async": "^7.0.6",
     "solid-app-router": "^0.3.2",
     "solid-js": "^1.3.15",
-    "solid-supabase": "^0.2.5"
+    "solid-styled-jsx": "^0.27.1",
+    "solid-supabase": "^0.2.5",
+    "styled-jsx": "3.4.4"
   },
   "scripts": {
     "build": "webpack --mode=production --node-env=production",
