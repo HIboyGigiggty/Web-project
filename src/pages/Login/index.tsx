@@ -2,7 +2,7 @@ import type { Component } from "solid-js"
 import { createSupabaseAuth } from "solid-supabase"
 
 
-const Room: Component = () => {
+const Login: Component = () => {
     const auth = createSupabaseAuth();
     let signInWithGithub = async () => {
         const { user, session, error } = await auth.signIn({
@@ -10,13 +10,10 @@ const Room: Component = () => {
         });
         console.log("user", user);
     };
-    let signOut = async () => {
-        const { error } = await auth.signOut();
-    };
     return (<>
-        <input type="button" value={"Sig In"} onClick={signInWithGithub} /><br></br>
-        <input type="button" value={"Sig Out"} onClick={signOut}></input>
+        <h1>Sign in with...</h1>
+        <input type="button" value={"GitHub"} onClick={signInWithGithub} /><br></br>
     </>)
 }
 
-export default Room;
+export default Login;
