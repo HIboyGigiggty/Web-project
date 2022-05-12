@@ -17,7 +17,7 @@
         [
             "module:fast-async",
             {
-                "runtimePattern": "async-rt-injected\\.js"
+                "useRuntimeModule": true
             }
         ],
         "babel-plugin-solid-undestructure",

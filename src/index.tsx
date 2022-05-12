@@ -7,7 +7,6 @@ import { Router } from 'solid-app-router'
 import "solid-styled-jsx";
 
 import './index.styl'
-import './async-rt-injected'
 import "@fontsource/roboto"
 
 render(() => (
