@@ -1,21 +1,22 @@
 import type { Component } from "solid-js"
-import supabase_conf from "../../configs/supabase_conf";
-import supabase_client from "../../supabase_client";
+import { createSupabaseAuth } from "solid-supabase"
 
 
 const Room: Component = () => {
+    const auth = createSupabaseAuth();
+    let signInWithGithub = async () => {
+        const { user, session, error } = await auth.signIn({
+            provider: 'github',
+        });
+        console.log("user", user);
+    };
+    let signOut = async () => {
+        const { error } = await auth.signOut();
+    };
     return (<>
-        <input type="button" value={"Sig In"} onClick={signInwithGithub} /><br></br>
+        <input type="button" value={"Sig In"} onClick={signInWithGithub} /><br></br>
         <input type="button" value={"Sig Out"} onClick={signOut}></input>
     </>)
-}
-let signInwithGithub = async function () {
-    const { user, session, error } = await supabase_client.auth.signIn({
-        provider: 'github',
-    })
-}
-async function signOut() {
-    const { error } = await supabase_client.auth.signOut()
 }
 
 export default Room;
