@@ -1,6 +1,6 @@
-import type { Component } from "solid-js"
+import { Component, Show } from "solid-js"
 import { createSupabaseAuth } from "solid-supabase"
-
+import { Navigate } from "solid-app-router";
 
 const Login: Component = () => {
     const auth = createSupabaseAuth();
@@ -8,11 +8,12 @@ const Login: Component = () => {
         const { user, session, error } = await auth.signIn({
             provider: 'github',
         });
-        console.log("user", user);
     };
     return (<>
         <h1>Sign in with...</h1>
-        <input type="button" value={"GitHub"} onClick={signInWithGithub} /><br></br>
+        <Show when={!auth.user()} fallback={<Navigate href="/user" />}>
+            <input type="button" value={"GitHub"} onClick={signInWithGithub} /><br></br>
+        </Show>
     </>)
 }
 
