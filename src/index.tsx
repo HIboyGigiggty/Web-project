@@ -8,13 +8,12 @@ import "solid-styled-jsx";
 
 import './index.styl'
 import './async-rt-injected'
+import "@fontsource/roboto"
 
-import("@fontsource/roboto").then(() => {
-    render(() => (
-        <SupabaseProvider client={supabase_client}>
-            <Router>
-                <App />
-            </Router>
-        </SupabaseProvider>
-    ), document.getElementById("app") as HTMLElement);
-})
+render(() => (
+    <SupabaseProvider client={supabase_client}>
+        <Router>
+            <App />
+        </Router>
+    </SupabaseProvider>
+), document.getElementById("app") as HTMLElement);
