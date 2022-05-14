@@ -40,3 +40,17 @@ service_role key: ******
 ````
 
 Then edit the runtime option of supabase in "src/configs/supabase_conf.ts" to use the local depolyment.
+
+## Analyze Bundle Size
+
+Webpack have configured to generate bundle size detail when doing production bundle.
+
+````shell
+yarn build
+````
+
+You will discover the new "stats.json" under dist directory. Use [webpack bundle analyzer](https://github.com/webpack-contrib/webpack-bundle-analyzer) to visualise:
+
+````shell
+yarn webpack-bundle-analyzer dist/stats.json
+````

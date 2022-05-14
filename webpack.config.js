@@ -6,6 +6,7 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const WorkboxWebpackPlugin = require("workbox-webpack-plugin");
 const { ProgressPlugin } = require("webpack");
 const PnpWebpackPlugin = require("pnp-webpack-plugin")
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 const isProduction = process.env.NODE_ENV == "production";
 
@@ -93,6 +94,12 @@ module.exports = () => {
       clientsClaim: true,
       skipWaiting: true,
     }));
+    
+    config.plugins.push(new BundleAnalyzerPlugin({
+      analyzerMode: "disabled",
+      generateStatsFile: true,
+    }));
+    
   } else {
     config.mode = "development";
     config.devtool = 'inline-source-map';
