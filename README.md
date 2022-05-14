@@ -1,15 +1,15 @@
-# 🚀 Welcome to your new awesome project!
+# Magicbroad
 
-This project has been created using **webpack-cli**, you can now run
+The magic broad appears everywhere.
 
-```
-npm run build
-```
 
-or
+## Build & Develop
+You should configure some options before you start. see [HACKING](./HACKING.md).
 
-```
-yarn build
-```
+We use [yarn classic](https://classic.yarnpkg.com) to manage packages. We have planned to migrate to yarn v2 soon.
 
-to bundle your application
+````shell
+yarn && yarn build
+````
+
+See `package.json` for some helper scripts.
