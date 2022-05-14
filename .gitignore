@@ -6,3 +6,4 @@ src/configs/
 # Supabase
 **/supabase/.branches
 **/supabase/.temp
+**/supabase/config.toml
