@@ -11,7 +11,7 @@ const Login: Component = () => {
     };
     return (<>
         <h1>Sign in with...</h1>
-        <Show when={!auth.user()} fallback={<Navigate href="/user" />}>
+        <Show when={!auth.user()} fallback={<Navigate href="/" />}>
             <input type="button" value={"GitHub"} onClick={signInWithGithub} /><br></br>
         </Show>
     </>)
