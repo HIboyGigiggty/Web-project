@@ -50,5 +50,6 @@
   "sideEffects": [
     "**/*.css",
     "**/*.styl"
-  ]
+  ],
+  "packageManager": "yarn@3.2.1"
 }
