@@ -1,10 +1,9 @@
 import Button from "@suid/material/Button";
-import TextField from "@suid/material/TextField";
 import { Navigate, useNavigate } from "solid-app-router";
 import { Component, createResource, Show, For } from "solid-js";
 import { createSupabase, createSupabaseAuth } from "solid-supabase";
 
-const Room: Component = () => {
+const Index: Component = () => {
     const auth = createSupabaseAuth();
     const supabase = createSupabase();
     const navigate = useNavigate();
@@ -41,4 +40,4 @@ const Room: Component = () => {
     </Show>
 }
 
-export default Room;
+export default Index;
