@@ -3,21 +3,26 @@ import TextField from "@suid/material/TextField";
 import { Navigate, useNavigate } from "solid-app-router";
 import { Component, createResource, Show, For, createSignal } from "solid-js";
 import { createSupabase, createSupabaseAuth } from "solid-supabase";
+import BroadClient from "../../helpers/BroadClient";
+
+const useBroadClient = () => {
+    const supabase = createSupabase();
+
+    return new BroadClient(supabase);
+}
 
 const Index: Component = () => {
     const auth = createSupabaseAuth();
     const supabase = createSupabase();
     const navigate = useNavigate();
+    const broadCli = useBroadClient();
+
     let [roomName, setRoomName] = createSignal<string>("")
 
     let getAllRooms = async () => {
-        const user = auth.user();
+        let user = auth.user();
         if (user) {
-            let response = await supabase.from("rooms").select("id, owner, name, created_at").eq("owner", user.id);
-            if (response.error) {
-                throw response.error;
-            }
-            return response.data;
+            return await broadCli.getAllRooms();
         } else {
             navigate("/login")
         }
@@ -29,13 +34,7 @@ const Index: Component = () => {
         console.log("creating");
         let user = auth.user();
         if (user) {
-            const {data, error}= await supabase.from("rooms").insert({
-                name: roomName(),
-                owner: user.id,
-            });
-            if (error){
-                throw error;
-            }
+            await broadCli.createRoom(roomName());
             setRoomName("");
             await refetch();
         } else {
