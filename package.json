@@ -38,6 +38,7 @@
   },
   "dependencies": {
     "@fontsource/roboto": "^4.5.5",
+    "@solid-primitives/raf": "^2.1.0",
     "@suid/icons-material": "^0.1.0",
     "@suid/material": "^0.1.0",
     "@supabase/supabase-js": "^1.35.1",

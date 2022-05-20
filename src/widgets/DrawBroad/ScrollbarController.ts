@@ -73,6 +73,8 @@ export class ScrollbarController {
         return [start, end];
     }
 
+    /// Check if the mouse hit the x-axis scroll bar.
+    /// `hitX` and `hitY` use screen basis, you need to multiply factor to the position from events.
     isHitScrollX(hitX: number, hitY: number) : boolean {
         if (this.prevX) {
             let [x, y, w, h] = this.prevX;
@@ -87,6 +89,8 @@ export class ScrollbarController {
         }
     }
 
+    /// Check if the mouse hit the y-axis scroll bar.
+    /// `hitX` and `hitY` use screen basis, you need to multiply factor to the position from events.
     isHitScrollY(hitX: number, hitY: number) : boolean {
         if (this.prevY) {
             let [x, y, w, h] = this.prevY;

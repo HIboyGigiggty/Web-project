@@ -1,8 +1,9 @@
 import { Accessor, batch, Component, createEffect, createSignal, mergeProps, onCleanup, onMount, Setter, Signal } from "solid-js";
 import "./draw_broad.styl";
 import chroma from "chroma-js";
-import { useWindowSize } from "./utils";
+import { useDevicePixelRatio, useWindowSize } from "./utils";
 import ScrollbarController from "./ScrollbarController";
+import createRAF from "@solid-primitives/raf";
 
 const requestIdleCallback = window.requestIdleCallback || function (fn: () => void, _: any) { setTimeout(fn, 1) };
 
@@ -84,6 +85,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
     let mouseDown = false;
     let lineWidth = 0;
     let points: DrawPoint[] = [];
+    let isBufferDirty = true;
 
     const [windowSize] = useWindowSize();
 
@@ -91,6 +93,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
     const viewpointX = () => scrollCtl.getRangeX()[0];
     const viewpointY = () => scrollCtl.getRangeY()[0];
     const [viewpointScale, setViewpointScale] = createSignal<number>(1); // TODO: implement scale
+    const devicePixelRatio = useDevicePixelRatio();
 
     const drawAxisX = () => {
         if (!ctx2d) return;
@@ -148,7 +151,11 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
 
         drawAxisX();
         drawAxisY();
+
+        isBufferDirty = false;
     };
+
+    const [bufferSyncRunning, bufferSyncStart, bufferSyncEnd] = createRAF(() => isBufferDirty? syncViewpointWithOffScreen(): undefined);
 
     const updateViewpointSize = () => {
         let {width, height} = windowSize();
@@ -156,6 +163,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         element.height = height;
         scrollCtl.setX([ctl.offscreen.width, 0, width]);
         scrollCtl.setY([ctl.offscreen.height, 0, height]);
+        isBufferDirty = true;
     };
 
     const draw = function (stroke: DrawPoint[]) {
@@ -190,7 +198,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
           context.stroke();
         }
 
-        syncViewpointWithOffScreen();
+        isBufferDirty = true;
       };
 
     const onDrawStart = (e: any) => {
@@ -199,7 +207,10 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         }
         e.preventDefault();
 
-        if (!scrollCtl.isHitScroll(e.pageX, e.pageY)) {
+        const pageX = e.pageX * devicePixelRatio();
+        const pageY = e.pageY * devicePixelRatio();
+
+        if (!scrollCtl.isHitScroll(pageX, pageY)) {
             let pressure = 0.1;
             let x: number, y: number;
             const hasForce = e.touches && e.touches[0] && typeof e.touches[0]["force"] !== "undefined";
@@ -207,12 +218,12 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
                 if (e.touches[0]["force"] > 0) {
                     pressure = e.touches[0]["force"];
                 }
-                x = e.touches[0].pageX * 2;
-                y = e.touches[0].pageY * 2;
+                x = e.touches[0].pageX * devicePixelRatio();
+                y = e.touches[0].pageY * devicePixelRatio();
             } else {
                 pressure = 1;
-                x = e.pageX * 2;
-                y = e.pageY * 2;
+                x = e.pageX * devicePixelRatio();
+                y = e.pageY * devicePixelRatio();
             }
     
             mouseDown = true;
@@ -230,33 +241,38 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
                 }
                 merged.onStart(points, ev);
             }
-        } else if (scrollCtl.isHitScrollX(e.pageX, e.pageY)) {
+        } else if (scrollCtl.isHitScrollX(pageX, pageY)) {
             mouseOverX = true;
-            dragStartX = e.pageX;
-        } else if (scrollCtl.isHitScrollY(e.pageX, e.pageY)) {
+            dragStartX = pageX;
+        } else if (scrollCtl.isHitScrollY(pageX, pageY)) {
             mouseOverY = true;
-            dragStartY = e.pageY;
+            dragStartY = pageY;
         }
     };
 
     const onDrawMoving = (e: any) => {
+        const pageX = e.pageX * devicePixelRatio();
+        const pageY = e.pageY * devicePixelRatio();
+        mouseOverX = scrollCtl.isHitScrollX(pageX, pageY);
+        // console.log("scrollCtl.prevX", scrollCtl.prevX, "mouseOverX", mouseOverX);
+        mouseOverY = scrollCtl.isHitScrollY(pageX, pageY);
         if (dragStartX) {
             e.preventDefault();
-            const offest = (e.pageX - (dragStartX || 0)) * scrollCtl.getXOfTotal();
+            const offest = (pageX - (dragStartX || 0)) * scrollCtl.getXOfTotal();
             const progress = scrollCtl.getProgressX();
             if (!((progress >= 1 && offest > 0) || (progress <= 0 && offest < 0))) {
                 scrollCtl.setX(([total, start, end]) => [total, Math.min(start + offest, total), Math.min(end + offest, total)]);
             }
-            dragStartX = e.pageX;
+            dragStartX = pageX;
             drawAxisX();
         } else if (dragStartY) {
             e.preventDefault();
-            const offest = (e.pageY - (dragStartY || 0)) * scrollCtl.getYOfTotal();
+            const offest = (pageY - (dragStartY || 0)) * scrollCtl.getYOfTotal();
             const progress = scrollCtl.getProgressY();
             if (!((progress >= 1 && offest > 0) || (progress <= 0 && offest < 0))) {
                 scrollCtl.setY(([total, start, end]) => [total, Math.min(start + offest, total), Math.min(end + offest, total)]);
             }
-            dragStartY = e.pageY;
+            dragStartY = pageY;
             drawAxisY();
         } else if (mouseDown) {
             e.preventDefault();
@@ -267,12 +283,12 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
                 if (e.touches[0]["force"] > 0) {
                     pressure = e.touches[0]["force"]
                 }
-                x = e.touches[0].pageX * 2
-                y = e.touches[0].pageY * 2
+                x = e.touches[0].pageX * devicePixelRatio();
+                y = e.touches[0].pageY * devicePixelRatio();
             } else {
                 pressure = 1.0
-                x = e.pageX * 2
-                y = e.pageY * 2
+                x = e.pageX * devicePixelRatio();
+                y = e.pageY * devicePixelRatio();
             }
     
             // smoothen line width
@@ -291,6 +307,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
                 merged.onDrawing(points, ev);
             }
         }
+        isBufferDirty = true;
     };
 
     const onDrawEnd = (e: any) => {
@@ -301,12 +318,12 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
             if (e.touches[0]["force"] > 0) {
                 pressure = e.touches[0]["force"]
             }
-            x = e.touches[0].pageX * 2
-            y = e.touches[0].pageY * 2
+            x = e.touches[0].pageX * devicePixelRatio();
+            y = e.touches[0].pageY * devicePixelRatio();
         } else {
             pressure = 1.0
-            x = e.pageX * 2
-            y = e.pageY * 2
+            x = e.pageX * devicePixelRatio();
+            y = e.pageY * devicePixelRatio();
         }
         dragStartX = undefined;
         dragStartY = undefined;
@@ -372,6 +389,8 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
             body.classList.remove("draw-broad-body");
         }
     });
+
+    onMount(() => bufferSyncStart());
 
     return <>
     <canvas

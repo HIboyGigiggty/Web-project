@@ -1633,6 +1633,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@solid-primitives/raf@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "@solid-primitives/raf@npm:2.1.0"
+  dependencies:
+    "@solid-primitives/utils": ^1.0.0
+  peerDependencies:
+    solid-js: ^1.3.0
+  checksum: 03b21288ce1c1dc04e48ef6d74d3ccff5d48f78ecb9d219edb682c550a7e0c30f78949e5fc1ba4729b4cf0d0db7c13d33070ba09e6a82d7dfda68b399ebb9e5c
+  languageName: node
+  linkType: hard
+
+"@solid-primitives/utils@npm:^1.0.0":
+  version: 1.5.2
+  resolution: "@solid-primitives/utils@npm:1.5.2"
+  peerDependencies:
+    solid-js: ^1.3.1
+  checksum: 6db2ee1f343da0024c1061daba29455d0b2fca0dd5df423cebd4518908b12f6523955f2bfd42c664415eb8740ff3599f99fd8eb7ac1f301109d068850a7828a0
+  languageName: node
+  linkType: hard
+
 "@suid/base@npm:0.1.0":
   version: 0.1.0
   resolution: "@suid/base@npm:0.1.0"
@@ -5849,6 +5869,7 @@ __metadata:
     "@babel/plugin-syntax-jsx": ^7.16.7
     "@babel/preset-env": ^7.16.11
     "@fontsource/roboto": ^4.5.5
+    "@solid-primitives/raf": ^2.1.0
     "@suid/icons-material": ^0.1.0
     "@suid/material": ^0.1.0
     "@supabase/supabase-js": ^1.35.1

@@ -1,4 +1,4 @@
-import { Signal, createSignal, onMount, onCleanup } from "solid-js";
+import { Signal, createSignal, onMount, onCleanup, Accessor } from "solid-js";
 
 export const useWindowSize = (): Signal<{width: number, height: number}> => {
     const [size, setSize] = createSignal<{width: number, height: number}>({
@@ -22,3 +22,32 @@ export const useWindowSize = (): Signal<{width: number, height: number}> => {
 
     return [size, setSize];
 }
+
+export const useDevicePixelRatio = (): Accessor<number> => {
+    const [ratio, setRatio] = createSignal<number>(window.devicePixelRatio);
+
+    let currentQueryList: MediaQueryList | undefined;
+
+    const updateRatio = () => {
+        setRatio(window.devicePixelRatio);
+        if (currentQueryList) {
+            currentQueryList.removeEventListener("change", updateRatio);
+            currentQueryList = undefined;
+        }
+        currentQueryList = window.matchMedia(`(resolution: ${ratio}dppx)`);
+        currentQueryList.addEventListener("change", updateRatio, {once: true});
+    };
+
+    onMount(() => {
+        updateRatio();
+    });
+
+    onCleanup(() => {
+        if (currentQueryList) {
+            currentQueryList.removeEventListener("change", updateRatio);
+            currentQueryList = undefined;
+        }
+    });
+    
+    return ratio;
+};
