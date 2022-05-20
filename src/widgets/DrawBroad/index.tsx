@@ -81,12 +81,12 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
     let dragStartY: number | undefined;
     let mouseOverX = false;
     let mouseOverY = false;
+    let mouseDown = false;
+    let lineWidth = 0;
+    let points: DrawPoint[] = [];
 
     const [windowSize] = useWindowSize();
 
-    const [mouseDown, setMouseDown] = createSignal<boolean>(false);
-    const [lineWidth, setLineWidth] = createSignal<number>(0);
-    const [points, setPoints] = createSignal<DrawPoint[]>([]);
     const [touchType, setTouchType] = createSignal<TouchType>();
     const viewpointX = () => scrollCtl.getRangeX()[0];
     const viewpointY = () => scrollCtl.getRangeY()[0];
@@ -215,11 +215,11 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
                 y = e.pageY * 2;
             }
     
-            setMouseDown(true);
+            mouseDown = true;
     
-            setLineWidth(Math.log(pressure + 1) * ctl.lineWidthFactor());
-            setPoints(points => {points.push({ x, y, lineWidth: lineWidth(), color: ctl.color() }); return points;})
-            draw(points());
+            lineWidth = Math.log(pressure+1) * ctl.lineWidthFactor();
+            points.push({ x, y, lineWidth: lineWidth, color: ctl.color() });
+            draw(points);
             if (merged.onStart) {
                 let ev: DrawEvent = {x, y, pressure, hasForce: hasForce || false};
                 const touch = e.touches ? e.touches[0] : null;
@@ -228,7 +228,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
                     setTouchType(type)
                     ev.touch = {...touch, type: type}
                 }
-                merged.onStart(points(), ev);
+                merged.onStart(points, ev);
             }
         } else if (scrollCtl.isHitScrollX(e.pageX, e.pageY)) {
             mouseOverX = true;
@@ -258,7 +258,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
             }
             dragStartY = e.pageY;
             drawAxisY();
-        } else if (mouseDown()) {
+        } else if (mouseDown) {
             e.preventDefault();
             let pressure = 0.1;
             let x: number, y: number;
@@ -276,9 +276,9 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
             }
     
             // smoothen line width
-            setLineWidth(lineWidth => Math.log(pressure + 1) * ctl.lineWidthFactor() * 0.2 + lineWidth * 0.8)
-            setPoints(points => {points.push({x, y, lineWidth: lineWidth(), color: ctl.color()}); return points;})
-            draw(points());
+            lineWidth = Math.log(pressure + 1) * ctl.lineWidthFactor() * 0.2 + lineWidth * 0.8;
+            points.push({x, y, lineWidth: lineWidth, color: ctl.color()});
+            draw(points);
     
             if (merged.onDrawing) {
                 let ev: DrawEvent = {x, y, pressure, hasForce: hasForce || false};
@@ -288,7 +288,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
                     setTouchType(type)
                     ev.touch = {...touch, type: type}
                 }
-                merged.onDrawing(points(), ev);
+                merged.onDrawing(points, ev);
             }
         }
     };
@@ -312,12 +312,10 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         dragStartY = undefined;
 
         batch(() => {
-            setMouseDown(false);
-            setPoints([]);
-            setLineWidth(0);
-            draw(points());
-            drawAxisX();
-            drawAxisY();
+            mouseDown = false;
+            points = [];
+            lineWidth = 0;
+            draw(points);
             if (merged.onEnd) {
                 let ev: DrawEvent = {x, y, pressure, hasForce: hasForce || false};
                 const touch = e.touches ? e.touches[0] : null;
