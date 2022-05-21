@@ -356,24 +356,22 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         dragStartX = undefined;
         dragStartY = undefined;
 
-        batch(() => {
-            mouseDown = false;
-            points = [];
-            lineWidth = 0;
-            draw(points);
-            if (merged.onEnd) {
-                let ev: DrawEvent = {x: x + viewpointX(), y: y + viewpointY(), pressure, hasForce: hasForce || false};
-                const touch = e.touches ? e.touches[0] : null;
-                if (touch) {
-                    const type = touch.touchType == 'direct' ? TouchType.direct: TouchType.stylus;
-                    setTouchType(type)
-                    ev.touch = {...touch, type: type}
-                } else {
-                    setTouchType(undefined);
-                }
-                merged.onEnd(ev);
+        mouseDown = false;
+        points = [];
+        lineWidth = 0;
+        draw(points);
+        if (merged.onEnd) {
+            let ev: DrawEvent = {x: x + viewpointX(), y: y + viewpointY(), pressure, hasForce: hasForce || false};
+            const touch = e.touches ? e.touches[0] : null;
+            if (touch) {
+                const type = touch.touchType == 'direct' ? TouchType.direct: TouchType.stylus;
+                setTouchType(type)
+                ev.touch = {...touch, type: type}
+            } else {
+                setTouchType(undefined);
             }
-        });
+            merged.onEnd(ev);
+        }
     };
 
     const onWheel = (e: WheelEvent) => {
