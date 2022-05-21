@@ -414,6 +414,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
     };
 
     const onHandDragStart = (e: any) => {
+        e.preventDefault();
         const pageX = e.pageX * devicePixelRatio();
         const pageY = e.pageY * devicePixelRatio();
         dragStartX = pageX;
@@ -446,6 +447,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
     };
 
     const onHandDragEnd = (e: any) => {
+        e.preventDefault();
         dragStartX = undefined;
         dragStartY = undefined;
         isBufferDirty = true;
