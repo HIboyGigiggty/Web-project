@@ -102,14 +102,24 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
     const [viewpointScale, setViewpointScale] = createSignal<number>(1); // TODO: implement scale
     const devicePixelRatio = useDevicePixelRatio();
 
+    const getScrollbarColor = (dragStart: number | undefined) => {
+        return chroma('black').alpha(dragStart ? 1 : 0.5).hex();
+    };
+
+    const getScrollbarWidth = (mouseOver: boolean, dragStart: number | undefined) => {
+        const widthFactor = touchType() === undefined? 1 : devicePixelRatio();
+        const bar_width = Math.round((mouseOver? 20: 12) * widthFactor);
+        const another_axis = (bar_width + ((mouseOver || dragStart)? 0: 2));
+        return [bar_width, another_axis];
+    };
+
     const drawAxisX = () => {
         if (!ctx2d) return;
         if (scrollCtl.getXOfTotal() < 1) {
             const {width, height} = windowSize();
             let [start, end] = scrollCtl.getDrawPositionX(width);
-            ctx2d.fillStyle = chroma('black').alpha(dragStartX ? 1 : 0.5).hex();
-            const bar_width = mouseOverX? 20: 12;
-            const x_height = (bar_width + (mouseOverX? 0: 2));
+            ctx2d.fillStyle = getScrollbarColor(dragStartX);
+            const [bar_width, x_height] = getScrollbarWidth(mouseOverX, dragStartX);
             const x: [number, number, number, number] = [start, height - x_height, end - start, bar_width];
             if (scrollCtl.prevX && scrollCtl.prevX != x) {
                 ctx2d.clearRect(...scrollCtl.prevX);
@@ -126,9 +136,8 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         if (scrollCtl.getYOfTotal() < 1) {
             const {width, height} = windowSize();
             let [start, end] = scrollCtl.getDrawPositionY(height);
-            ctx2d.fillStyle = chroma('black').alpha(dragStartY? 1: 0.5).hex();
-            const bar_width = mouseOverY? 20: 12;
-            const y_width = (bar_width + (mouseOverY? 0: 2));
+            ctx2d.fillStyle = getScrollbarColor(dragStartY);
+            const [bar_width, y_width] = getScrollbarWidth(mouseOverY, dragStartY);
             const y: [number, number, number, number] = [width - y_width, start, bar_width, end - start];
             if (scrollCtl.prevY && scrollCtl.prevY != y) {
                 ctx2d.clearRect(...scrollCtl.prevY);
@@ -259,6 +268,8 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
                     const type = touch.touchType == 'direct' ? TouchType.direct: TouchType.stylus;
                     setTouchType(type)
                     ev.touch = {...touch, type: type}
+                } else {
+                    setTouchType(undefined);
                 }
                 merged.onStart(points, ev);
             }
@@ -320,7 +331,6 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
                 const touch = e.touches ? e.touches[0] : null;
                 if (touch) {
                     const type = touch.touchType == 'direct' ? TouchType.direct: TouchType.stylus;
-                    setTouchType(type)
                     ev.touch = {...touch, type: type}
                 }
                 merged.onDrawing(points, ev);
@@ -358,6 +368,8 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
                     const type = touch.touchType == 'direct' ? TouchType.direct: TouchType.stylus;
                     setTouchType(type)
                     ev.touch = {...touch, type: type}
+                } else {
+                    setTouchType(undefined);
                 }
                 merged.onEnd(ev);
             }
