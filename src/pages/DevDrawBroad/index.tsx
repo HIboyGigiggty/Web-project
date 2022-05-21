@@ -1,4 +1,5 @@
 import Button from "@suid/material/Button";
+import TextField from "@suid/material/TextField";
 import { Component, createSignal, onCleanup, onMount } from "solid-js";
 import {default as DrawBroad, DrawBroadController, DrawPoint, DrawTool, TouchType} from "../../widgets/DrawBroad";
 
@@ -15,6 +16,14 @@ const DevDrawBroad: Component = () => {
             hasForce: {String(hasForce())}<br />
             Pressure: {pressure()}<br />
             Touch Type: {touchType()}<br />
+            <TextField
+                variant="standard"
+                label="Line Width Factor"
+                onChange={(e) => {
+                    e.preventDefault();
+                    broadCtl.setLineWidthFactor(new Number((e.target as HTMLInputElement).value).valueOf())
+                }}
+                value={broadCtl.lineWidthFactor().toString()}/><br />
             Scroll Range X: {broadCtl.scrollCtl.getRangeX().toString()}<br />
             Scroll Range Y: {broadCtl.scrollCtl.getRangeY().toString()}<br />
             Current Tool: {broadCtl.tool()}
