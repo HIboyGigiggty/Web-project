@@ -269,24 +269,21 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         }
         if (dragStartX) {
             e.preventDefault();
-            const offest = (pageX - (dragStartX || 0)) * scrollCtl.getXOfTotal() * devicePixelRatio();
+            const offest = Math.round((pageX - (dragStartX || 0)) * scrollCtl.getXOfTotal() * devicePixelRatio());
             if (scrollCtl.canScrollX(offest)) {
                 scrollCtl.setX(([total, start, end]) => [total, start + offest, end + offest]);
+                isBufferDirty = true;
                 bufferRefreshNeeded = true;
             }
-            isBufferDirty = true;
             dragStartX = pageX;
         } else if (dragStartY) {
             e.preventDefault();
-            const offest = (pageY - (dragStartY || 0)) * scrollCtl.getYOfTotal() * devicePixelRatio();
+            const offest = Math.round((pageY - (dragStartY || 0)) * scrollCtl.getYOfTotal() * devicePixelRatio());
             if (scrollCtl.canScrollY(offest)) {
                 scrollCtl.setY(([total, start, end]) => [total, start + offest, end + offest]);
-                bufferRefreshNeeded = true;
-            } else if (offest >= scrollCtl.getRangeY()[0]) {
-                scrollCtl.setY(([total, start, end]) => [total, 0, (end - start)]);
+                isBufferDirty = true;
                 bufferRefreshNeeded = true;
             }
-            isBufferDirty = true;
             dragStartY = pageY;
         } else if (mouseDown) {
             e.preventDefault();
@@ -372,8 +369,6 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
             merged.onTouchTypeChanged(type);
         }
     });
-
-    createEffect(() => syncViewpointWithOffScreen()); // update viewpoint when size updated
 
     createEffect(() => {
         updateViewpointSize();
