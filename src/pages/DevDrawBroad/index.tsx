@@ -6,6 +6,7 @@ const DevDrawBroad: Component = () => {
     const [hasForce, setHasForce] = createSignal<boolean>(false);
     const [pressure, setPressure] = createSignal<number>(0);
     const [touchType, setTouchType] = createSignal<TouchType>();
+    const broadCtl = new DrawBroadController('blue', 20);
 
     return <>
         <p style="position: absolute; z-index: 1;" class="noselect">
@@ -13,6 +14,8 @@ const DevDrawBroad: Component = () => {
             hasForce: {String(hasForce())}<br />
             Pressure: {pressure()}<br />
             Touch Type: {touchType()}<br />
+            Scroll Range X: {broadCtl.scrollCtl.getRangeX().toString()}<br />
+            Scroll Range Y: {broadCtl.scrollCtl.getRangeY().toString()}<br />
         </p>
         <DrawBroad
             onStart={(stroke, ev) => {
@@ -31,7 +34,7 @@ const DevDrawBroad: Component = () => {
                 setPressure(ev.pressure);
             }}
             onTouchTypeChanged={setTouchType}
-            ctl={new DrawBroadController('blue', 20)}
+            ctl={broadCtl}
             width={3000}
             height={3000}
         />
