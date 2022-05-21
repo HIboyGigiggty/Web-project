@@ -263,14 +263,8 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
             draw(points);
             if (merged.onStart) {
                 let ev: DrawEvent = {x, y, pressure, hasForce: hasForce || false};
-                const touch = e.touches ? e.touches[0] : null;
-                if (touch) {
-                    const type = touch.touchType == 'direct' ? TouchType.direct: TouchType.stylus;
-                    setTouchType(type)
-                    ev.touch = {...touch, type: type}
-                } else {
-                    setTouchType(undefined);
-                }
+                const touch = e.touches ? e.touches[0] : {};
+                ev.touch = {...touch, type: touchType()};
                 merged.onStart(points, ev);
             }
         }
@@ -478,6 +472,13 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
     };
 
     const onHandStart = (e: any) => {
+        const touch = e.touches ? e.touches[0] : null;
+        if (touch) {
+            const type = touch.touchType == 'direct' ? TouchType.direct: TouchType.stylus;
+            setTouchType(type)
+        } else {
+            setTouchType(undefined);
+        }
         if (ctl.tool() === DrawTool.pen) {
             onDrawStart(e);
         } else if (ctl.tool() === DrawTool.hand) {
