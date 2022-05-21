@@ -415,16 +415,40 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
 
     const onHandDragStart = (e: any) => {
         e.preventDefault();
-        const pageX = e.pageX * devicePixelRatio();
-        const pageY = e.pageY * devicePixelRatio();
+        let pageX: number;
+        let pageY: number;
+        if (typeof e.touches !== "undefined") {
+            if (e.touches.length == 1) {
+                const touch = e.touches[0];
+                pageX = touch.pageX * devicePixelRatio();
+                pageY = touch.pageY * devicePixelRatio();
+            } else {
+                return; // We could not accept multi-finger for dragging
+            }
+        } else {
+            pageX = e.pageX * devicePixelRatio();
+            pageY = e.pageY * devicePixelRatio();
+        }
         dragStartX = pageX;
         dragStartY = pageY;
     };
 
     const onHandDraging = (e: any) => {
-        const pageX = e.pageX * devicePixelRatio();
-        const pageY = e.pageY * devicePixelRatio();
         e.preventDefault();
+        let pageX: number;
+        let pageY: number;
+        if (typeof e.touches !== "undefined") {
+            if (e.touches.length == 1) {
+                const touch = e.touches[0];
+                pageX = touch.pageX * devicePixelRatio();
+                pageY = touch.pageY * devicePixelRatio();
+            } else {
+                return; // We could not accept multi-finger for dragging
+            }
+        } else {
+            pageX = e.pageX * devicePixelRatio();
+            pageY = e.pageY * devicePixelRatio();
+        }
         if (dragStartX) {
             const offestX = - Math.round((pageX - (dragStartX || 0)) * scrollCtl.getXOfTotal() * devicePixelRatio());
             if (scrollCtl.canScrollX(offestX)) {
