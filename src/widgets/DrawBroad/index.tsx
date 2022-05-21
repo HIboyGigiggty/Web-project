@@ -264,7 +264,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         const oldMouseOverY = mouseOverY;
         mouseOverX = (typeof dragStartX === "number" ? true : false) || scrollCtl.isHitScrollX(pageX, pageY);
         mouseOverY = (typeof dragStartY === "number" ? true : false) || scrollCtl.isHitScrollY(pageX, pageY);
-        if (oldMouseOverX != mouseOverX || oldMouseOverX != mouseOverY) {
+        if (oldMouseOverX != mouseOverX || oldMouseOverY != mouseOverY) {
             isBufferDirty = true;
         }
         if (dragStartX) {
