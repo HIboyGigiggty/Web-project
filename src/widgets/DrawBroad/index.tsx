@@ -260,8 +260,13 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
     const onDrawMoving = (e: any) => {
         const pageX = e.pageX * devicePixelRatio();
         const pageY = e.pageY * devicePixelRatio();
+        const oldMouseOverX = mouseOverX;
+        const oldMouseOverY = mouseOverY;
         mouseOverX = (typeof dragStartX === "number" ? true : false) || scrollCtl.isHitScrollX(pageX, pageY);
         mouseOverY = (typeof dragStartY === "number" ? true : false) || scrollCtl.isHitScrollY(pageX, pageY);
+        if (oldMouseOverX != mouseOverX || oldMouseOverX != mouseOverY) {
+            isBufferDirty = true;
+        }
         if (dragStartX) {
             e.preventDefault();
             const offest = (pageX - (dragStartX || 0)) * scrollCtl.getXOfTotal() * devicePixelRatio();
