@@ -496,7 +496,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
 
     createEffect(() => {
         if (ctl.tool() === DrawTool.hand) {
-            element.style.cursor = 'move';
+            element.style.cursor = 'grab';
         } else {
             element.style.cursor = 'default';
         }
