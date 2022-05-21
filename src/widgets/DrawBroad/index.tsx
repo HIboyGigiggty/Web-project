@@ -357,6 +357,45 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         });
     };
 
+    const onWheel = (e: WheelEvent) => {
+        if (mouseOverX) {
+            e.preventDefault();
+            const offest = e.deltaY;
+            if (scrollCtl.canScrollX(offest)) {
+                scrollCtl.setX(([total, start, end]) => [total, start + offest, end + offest]);
+                bufferRefreshNeeded = true;
+                isBufferDirty = true;
+            }
+        } else if (mouseOverY) {
+            e.preventDefault();
+            const offest = e.deltaY;
+            if (scrollCtl.canScrollY(offest)) {
+                scrollCtl.setY(([total, start, end]) => [total, start + offest, end + offest]);
+                bufferRefreshNeeded = true;
+                isBufferDirty = true;
+            }
+        } else if (e.shiftKey) {
+            e.preventDefault();
+            if (e.deltaX != 0) {
+                const offest = e.deltaX;
+                if (scrollCtl.canScrollX(offest)) {
+                    scrollCtl.setX(([total, start, end]) => [total, start + offest, end + offest]);
+                    bufferRefreshNeeded = true;
+                    isBufferDirty = true;
+                }
+            }
+
+            if (e.deltaY != 0) {
+                const offest = e.deltaY;
+                if (scrollCtl.canScrollY(offest)) {
+                    scrollCtl.setY(([total, start, end]) => [total, start + offest, end + offest]);
+                    bufferRefreshNeeded = true;
+                    isBufferDirty = true;
+                }
+            }
+        }
+    };
+
     onMount(() => {
         // setting up offscreen canvas
         ctl.offscreen.width = merged.width;
@@ -413,6 +452,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         onTouchCancel={onDrawEnd}
         onMouseUp={onDrawEnd}
         onContextMenu={(ev) => ev.preventDefault()}
+        onWheel={onWheel}
         class="draw-broad-canvas"
     /></>
 };
