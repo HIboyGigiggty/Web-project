@@ -108,6 +108,28 @@ export class ScrollbarController {
     isHitScroll(hitX: number, hitY: number): boolean {
         return this.isHitScrollX(hitX, hitY) || this.isHitScrollY(hitX, hitY);
     }
+
+    canScrollX(offest: number): boolean {
+        const [total, start, end] = this.x();
+        if ((start + offest) < 0) {
+            return false;
+        } else if ((end + offest) > total) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    canScrollY(offest: number): boolean {
+        const [total, start, end] = this.y();
+        if ((start + offest) < 0) {
+            return false;
+        } else if ((end + offest) > total) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 }
 
 export default ScrollbarController;

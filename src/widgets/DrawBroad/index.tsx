@@ -86,6 +86,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
     let lineWidth = 0;
     let points: DrawPoint[] = [];
     let isBufferDirty = true;
+    let bufferRefreshNeeded = false;
 
     const [windowSize] = useWindowSize();
 
@@ -137,6 +138,12 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         if (!ctx2d) return;
         const viewpointCtx = ctx2d;
         const offscreen = ctl.offscreen;
+        if (bufferRefreshNeeded) {
+            viewpointCtx.clearRect(
+                0, 0, element.width, element.height
+            );
+            bufferRefreshNeeded = false;
+        }
         viewpointCtx.drawImage(
             offscreen,
             viewpointX(),
@@ -229,7 +236,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
             mouseDown = true;
     
             lineWidth = Math.log(pressure+1) * ctl.lineWidthFactor();
-            points.push({ x, y, lineWidth: lineWidth, color: ctl.color() });
+            points.push({ x: x + viewpointX(), y: y + viewpointY(), lineWidth: lineWidth, color: ctl.color() });
             draw(points);
             if (merged.onStart) {
                 let ev: DrawEvent = {x, y, pressure, hasForce: hasForce || false};
@@ -253,27 +260,29 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
     const onDrawMoving = (e: any) => {
         const pageX = e.pageX * devicePixelRatio();
         const pageY = e.pageY * devicePixelRatio();
-        mouseOverX = scrollCtl.isHitScrollX(pageX, pageY);
-        // console.log("scrollCtl.prevX", scrollCtl.prevX, "mouseOverX", mouseOverX);
-        mouseOverY = scrollCtl.isHitScrollY(pageX, pageY);
+        mouseOverX = (typeof dragStartX === "number" ? true : false) || scrollCtl.isHitScrollX(pageX, pageY);
+        mouseOverY = (typeof dragStartY === "number" ? true : false) || scrollCtl.isHitScrollY(pageX, pageY);
         if (dragStartX) {
             e.preventDefault();
-            const offest = (pageX - (dragStartX || 0)) * scrollCtl.getXOfTotal();
-            const progress = scrollCtl.getProgressX();
-            if (!((progress >= 1 && offest > 0) || (progress <= 0 && offest < 0))) {
-                scrollCtl.setX(([total, start, end]) => [total, Math.min(start + offest, total), Math.min(end + offest, total)]);
+            const offest = (pageX - (dragStartX || 0)) * scrollCtl.getXOfTotal() * devicePixelRatio();
+            if (scrollCtl.canScrollX(offest)) {
+                scrollCtl.setX(([total, start, end]) => [total, start + offest, end + offest]);
+                bufferRefreshNeeded = true;
             }
+            isBufferDirty = true;
             dragStartX = pageX;
-            drawAxisX();
         } else if (dragStartY) {
             e.preventDefault();
-            const offest = (pageY - (dragStartY || 0)) * scrollCtl.getYOfTotal();
-            const progress = scrollCtl.getProgressY();
-            if (!((progress >= 1 && offest > 0) || (progress <= 0 && offest < 0))) {
-                scrollCtl.setY(([total, start, end]) => [total, Math.min(start + offest, total), Math.min(end + offest, total)]);
+            const offest = (pageY - (dragStartY || 0)) * scrollCtl.getYOfTotal() * devicePixelRatio();
+            if (scrollCtl.canScrollY(offest)) {
+                scrollCtl.setY(([total, start, end]) => [total, start + offest, end + offest]);
+                bufferRefreshNeeded = true;
+            } else if (offest >= scrollCtl.getRangeY()[0]) {
+                scrollCtl.setY(([total, start, end]) => [total, 0, (end - start)]);
+                bufferRefreshNeeded = true;
             }
+            isBufferDirty = true;
             dragStartY = pageY;
-            drawAxisY();
         } else if (mouseDown) {
             e.preventDefault();
             let pressure = 0.1;
@@ -293,8 +302,9 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
     
             // smoothen line width
             lineWidth = Math.log(pressure + 1) * ctl.lineWidthFactor() * 0.2 + lineWidth * 0.8;
-            points.push({x, y, lineWidth: lineWidth, color: ctl.color()});
+            points.push({x: x + viewpointX(), y: y + viewpointY(), lineWidth: lineWidth, color: ctl.color()});
             draw(points);
+            isBufferDirty = true;
     
             if (merged.onDrawing) {
                 let ev: DrawEvent = {x, y, pressure, hasForce: hasForce || false};
@@ -307,7 +317,6 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
                 merged.onDrawing(points, ev);
             }
         }
-        isBufferDirty = true;
     };
 
     const onDrawEnd = (e: any) => {
@@ -334,7 +343,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
             lineWidth = 0;
             draw(points);
             if (merged.onEnd) {
-                let ev: DrawEvent = {x, y, pressure, hasForce: hasForce || false};
+                let ev: DrawEvent = {x: x + viewpointX(), y: y + viewpointY(), pressure, hasForce: hasForce || false};
                 const touch = e.touches ? e.touches[0] : null;
                 if (touch) {
                     const type = touch.touchType == 'direct' ? TouchType.direct: TouchType.stylus;
