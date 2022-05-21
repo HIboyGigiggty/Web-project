@@ -5,8 +5,6 @@ import { useDevicePixelRatio, useWindowSize } from "./utils";
 import ScrollbarController from "./ScrollbarController";
 import createRAF from "@solid-primitives/raf";
 
-const requestIdleCallback = window.requestIdleCallback || function (fn: () => void, _: any) { setTimeout(fn, 1) };
-
 export interface DrawPoint {
     x: number,
     y: number,
@@ -86,7 +84,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
     let lineWidth = 0;
     let points: DrawPoint[] = [];
     let isBufferDirty = true;
-    let bufferRefreshNeeded = false;
+    let viewpointBufferRefreshNeeded = false;
 
     const [windowSize] = useWindowSize();
 
@@ -102,8 +100,8 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
             const {width, height} = windowSize();
             let [start, end] = scrollCtl.getDrawPositionX(width);
             ctx2d.fillStyle = chroma('black').alpha(dragStartX ? 1 : 0.5).hex();
-            const bar_width = mouseOverX? 16: 12;
-            const x_height = (bar_width + 2);
+            const bar_width = mouseOverX? 20: 12;
+            const x_height = (bar_width + (mouseOverX? 0: 2));
             const x: [number, number, number, number] = [start, height - x_height, end - start, bar_width];
             if (scrollCtl.prevX && scrollCtl.prevX != x) {
                 ctx2d.clearRect(...scrollCtl.prevX);
@@ -121,8 +119,8 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
             const {width, height} = windowSize();
             let [start, end] = scrollCtl.getDrawPositionY(height);
             ctx2d.fillStyle = chroma('black').alpha(dragStartY? 1: 0.5).hex();
-            const bar_width = mouseOverY? 16: 12;
-            const y_width = (bar_width + 2);
+            const bar_width = mouseOverY? 20: 12;
+            const y_width = (bar_width + (mouseOverY? 0: 2));
             const y: [number, number, number, number] = [width - y_width, start, bar_width, end - start];
             if (scrollCtl.prevY && scrollCtl.prevY != y) {
                 ctx2d.clearRect(...scrollCtl.prevY);
@@ -138,11 +136,11 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         if (!ctx2d) return;
         const viewpointCtx = ctx2d;
         const offscreen = ctl.offscreen;
-        if (bufferRefreshNeeded) {
+        if (viewpointBufferRefreshNeeded) {
             viewpointCtx.clearRect(
                 0, 0, element.width, element.height
             );
-            bufferRefreshNeeded = false;
+            viewpointBufferRefreshNeeded = false;
         }
         viewpointCtx.drawImage(
             offscreen,
@@ -170,6 +168,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         element.height = height;
         scrollCtl.setX([ctl.offscreen.width, 0, width]);
         scrollCtl.setY([ctl.offscreen.height, 0, height]);
+        viewpointBufferRefreshNeeded = true;
         isBufferDirty = true;
     };
 
@@ -273,7 +272,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
             if (scrollCtl.canScrollX(offest)) {
                 scrollCtl.setX(([total, start, end]) => [total, start + offest, end + offest]);
                 isBufferDirty = true;
-                bufferRefreshNeeded = true;
+                viewpointBufferRefreshNeeded = true;
             }
             dragStartX = pageX;
         } else if (dragStartY) {
@@ -282,7 +281,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
             if (scrollCtl.canScrollY(offest)) {
                 scrollCtl.setY(([total, start, end]) => [total, start + offest, end + offest]);
                 isBufferDirty = true;
-                bufferRefreshNeeded = true;
+                viewpointBufferRefreshNeeded = true;
             }
             dragStartY = pageY;
         } else if (mouseDown) {
@@ -363,7 +362,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
             const offest = e.deltaY;
             if (scrollCtl.canScrollX(offest)) {
                 scrollCtl.setX(([total, start, end]) => [total, start + offest, end + offest]);
-                bufferRefreshNeeded = true;
+                viewpointBufferRefreshNeeded = true;
                 isBufferDirty = true;
             }
         } else if (mouseOverY) {
@@ -371,7 +370,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
             const offest = e.deltaY;
             if (scrollCtl.canScrollY(offest)) {
                 scrollCtl.setY(([total, start, end]) => [total, start + offest, end + offest]);
-                bufferRefreshNeeded = true;
+                viewpointBufferRefreshNeeded = true;
                 isBufferDirty = true;
             }
         } else if (e.shiftKey) {
@@ -380,7 +379,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
                 const offest = e.deltaX;
                 if (scrollCtl.canScrollX(offest)) {
                     scrollCtl.setX(([total, start, end]) => [total, start + offest, end + offest]);
-                    bufferRefreshNeeded = true;
+                    viewpointBufferRefreshNeeded = true;
                     isBufferDirty = true;
                 }
             }
@@ -389,7 +388,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
                 const offest = e.deltaY;
                 if (scrollCtl.canScrollY(offest)) {
                     scrollCtl.setY(([total, start, end]) => [total, start + offest, end + offest]);
-                    bufferRefreshNeeded = true;
+                    viewpointBufferRefreshNeeded = true;
                     isBufferDirty = true;
                 }
             }
