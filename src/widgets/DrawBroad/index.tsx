@@ -34,6 +34,11 @@ export interface DrawEvent {
     touch?: TouchEvent,
 }
 
+export enum DrawTool {
+    'hand',
+    'pen',
+}
+
 export class DrawBroadController {
     color: Accessor<string>
     setColor: Setter<string>
@@ -42,10 +47,13 @@ export class DrawBroadController {
     lineWidthFactor: Accessor<number>
     setLineWidthFactor: Setter<number>
     scrollCtl: ScrollbarController
+    tool: Accessor<DrawTool>
+    setTool: Setter<DrawTool>
 
     constructor(defaultColor: string, lineWidthFactor: number) {
         [this.color, this.setColor] = createSignal<string>(defaultColor);
         [this.lineWidthFactor, this.setLineWidthFactor] = createSignal<number>(lineWidthFactor);
+        [this.tool, this.setTool] = createSignal<DrawTool>(DrawTool.pen);
         this.offscreen = document.createElement("canvas");
         const ctx2d = this.offscreen.getContext('2d');
         if (!ctx2d) {
@@ -395,6 +403,80 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         }
     };
 
+    const onHandDragStart = (e: any) => {
+        const pageX = e.pageX * devicePixelRatio();
+        const pageY = e.pageY * devicePixelRatio();
+        dragStartX = pageX;
+        dragStartY = pageY;
+    };
+
+    const onHandDraging = (e: any) => {
+        const pageX = e.pageX * devicePixelRatio();
+        const pageY = e.pageY * devicePixelRatio();
+        e.preventDefault();
+        if (dragStartX) {
+            const offestX = - Math.round((pageX - (dragStartX || 0)) * scrollCtl.getXOfTotal() * devicePixelRatio());
+            if (scrollCtl.canScrollX(offestX)) {
+                scrollCtl.setX(([total, start, end]) => [total, start + offestX, end + offestX]);
+                isBufferDirty = true;
+                viewpointBufferRefreshNeeded = true;
+            }
+            dragStartX = pageX;
+        }
+        if (dragStartY) {
+            const offestY = - Math.round((pageY - (dragStartY || 0)) * scrollCtl.getYOfTotal() * devicePixelRatio());
+            if (scrollCtl.canScrollY(offestY)) {
+                scrollCtl.setY(([total, start, end]) => [total, start + offestY, end + offestY]);
+                isBufferDirty = true;
+                viewpointBufferRefreshNeeded = true;
+            }
+            dragStartY = pageY;
+        }
+        viewpointBufferRefreshNeeded = true;
+    };
+
+    const onHandDragEnd = (e: any) => {
+        dragStartX = undefined;
+        dragStartY = undefined;
+        isBufferDirty = true;
+    };
+
+    const onHandStart = (e: any) => {
+        if (ctl.tool() === DrawTool.pen) {
+            onDrawStart(e);
+        } else if (ctl.tool() === DrawTool.hand) {
+            onHandDragStart(e);
+        }
+    }
+
+    const onHandMoving = (e: any) => {
+        if (ctl.tool() === DrawTool.pen) {
+            onDrawMoving(e);
+        } else if (ctl.tool() === DrawTool.hand) {
+            onHandDraging(e);
+        }
+    }
+
+    const onHandEnd = (e: any) => {
+        if (ctl.tool() === DrawTool.pen) {
+            onDrawEnd(e);
+        } else if (ctl.tool() === DrawTool.hand) {
+            onHandDragEnd(e);
+        }
+    }
+
+    {
+        const onTouchTypeChanged = merged.onTouchTypeChanged;
+        if (onTouchTypeChanged) {
+            createEffect(() => {
+                const newTouchType = touchType();
+                if (newTouchType) {
+                    onTouchTypeChanged(newTouchType);
+                }
+            });
+        }
+    }
+
     onMount(() => {
         // setting up offscreen canvas
         ctl.offscreen.width = merged.width;
@@ -410,6 +492,14 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
 
     createEffect(() => {
         updateViewpointSize();
+    });
+
+    createEffect(() => {
+        if (ctl.tool() === DrawTool.hand) {
+            element.style.cursor = 'move';
+        } else {
+            element.style.cursor = 'default';
+        }
     });
 
     onMount(() => {
@@ -443,13 +533,13 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
     <canvas
         // @ts-expect-error: the next line will be a error since we refer the uninitialised variable
         ref={element}
-        onTouchStart={onDrawStart}
-        onMouseDown={onDrawStart}
-        onTouchMove={onDrawMoving}
-        onMouseMove={onDrawMoving}
-        onTouchEnd={onDrawEnd}
-        onTouchCancel={onDrawEnd}
-        onMouseUp={onDrawEnd}
+        onTouchStart={onHandStart}
+        onMouseDown={onHandStart}
+        onTouchMove={onHandMoving}
+        onMouseMove={onHandMoving}
+        onTouchEnd={onHandEnd}
+        onTouchCancel={onHandEnd}
+        onMouseUp={onHandEnd}
         onContextMenu={(ev) => ev.preventDefault()}
         onWheel={onWheel}
         class="draw-broad-canvas"

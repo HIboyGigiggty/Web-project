@@ -1,5 +1,6 @@
+import Button from "@suid/material/Button";
 import { Component, createSignal, onCleanup, onMount } from "solid-js";
-import {default as DrawBroad, DrawBroadController, DrawPoint, TouchType} from "../../widgets/DrawBroad";
+import {default as DrawBroad, DrawBroadController, DrawPoint, DrawTool, TouchType} from "../../widgets/DrawBroad";
 
 const DevDrawBroad: Component = () => {
     const [currentPoint, setCurrentPoint] = createSignal<DrawPoint>();
@@ -16,6 +17,10 @@ const DevDrawBroad: Component = () => {
             Touch Type: {touchType()}<br />
             Scroll Range X: {broadCtl.scrollCtl.getRangeX().toString()}<br />
             Scroll Range Y: {broadCtl.scrollCtl.getRangeY().toString()}<br />
+            Current Tool: {broadCtl.tool()}
+            <Button onClick={() => broadCtl.setTool(DrawTool.hand)}>Hand</Button>
+            <Button onClick={() => broadCtl.setTool(DrawTool.pen)}>Pen</Button>
+            <br />
         </p>
         <DrawBroad
             onStart={(stroke, ev) => {
