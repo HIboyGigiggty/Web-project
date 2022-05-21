@@ -172,6 +172,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         isBufferDirty = true;
     };
 
+    /// Draw `stroke` on the broad. This function will mark buffer is dirty after drawing.
     const draw = function (stroke: DrawPoint[]) {
         const context = ctl.ctx2d;
         if (!context) {
@@ -305,7 +306,6 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
             lineWidth = Math.log(pressure + 1) * ctl.lineWidthFactor() * 0.2 + lineWidth * 0.8;
             points.push({x: x + viewpointX(), y: y + viewpointY(), lineWidth: lineWidth, color: ctl.color()});
             draw(points);
-            isBufferDirty = true;
     
             if (merged.onDrawing) {
                 let ev: DrawEvent = {x, y, pressure, hasForce: hasForce || false};
