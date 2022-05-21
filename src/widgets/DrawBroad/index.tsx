@@ -494,13 +494,6 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
     });
 
     createEffect(() => {
-        let type = touchType();
-        if (merged.onTouchTypeChanged && type) {
-            merged.onTouchTypeChanged(type);
-        }
-    });
-
-    createEffect(() => {
         updateViewpointSize();
     });
 
