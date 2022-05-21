@@ -216,7 +216,13 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         const pageX = e.pageX * devicePixelRatio();
         const pageY = e.pageY * devicePixelRatio();
 
-        if (!scrollCtl.isHitScroll(pageX, pageY)) {
+        if (scrollCtl.isHitScrollX(pageX, pageY)) {
+            mouseOverX = true;
+            dragStartX = pageX;
+        } else if (scrollCtl.isHitScrollY(pageX, pageY)) {
+            mouseOverY = true;
+            dragStartY = pageY;
+        } else {
             let pressure = 0.1;
             let x: number, y: number;
             const hasForce = e.touches && e.touches[0] && typeof e.touches[0]["force"] !== "undefined";
@@ -247,12 +253,6 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
                 }
                 merged.onStart(points, ev);
             }
-        } else if (scrollCtl.isHitScrollX(pageX, pageY)) {
-            mouseOverX = true;
-            dragStartX = pageX;
-        } else if (scrollCtl.isHitScrollY(pageX, pageY)) {
-            mouseOverY = true;
-            dragStartY = pageY;
         }
     };
 
