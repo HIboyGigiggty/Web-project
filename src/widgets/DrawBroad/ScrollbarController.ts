@@ -1,16 +1,22 @@
-import { Accessor, Setter, createSignal } from "solid-js"
+import { Accessor, Setter, createSignal } from "solid-js";
+
+export type ScrollRangePair = [number, number, number];
+
+export type BoxDescription = [number, number, number, number];
 
 export class ScrollbarController {
-    x: Accessor<[number, number, number]> // total, start, end
-    y: Accessor<[number, number, number]> // total, start, end
-    setX: Setter<[number, number, number]>
-    setY: Setter<[number, number, number]>
-    prevX: [number, number, number, number] | undefined
-    prevY: [number, number, number, number] | undefined
+    x: Accessor<ScrollRangePair>; // total, start, end
+    y: Accessor<ScrollRangePair>; // total, start, end
+    setX: Setter<ScrollRangePair>;
+    setY: Setter<ScrollRangePair>;
+    prevX: BoxDescription | undefined;
+    prevY: BoxDescription | undefined;
 
     constructor() {
-        [this.x, this.setX] = createSignal([1, 0, 1]);
-        [this.y, this.setY] = createSignal([1, 0, 1]);
+        const [x, setX] = createSignal<ScrollRangePair>([1, 0, 1]);
+        const [y, setY] = createSignal<ScrollRangePair>([1, 0, 1]);
+        [this.x, this.setX] = [x, setX];
+        [this.y, this.setY] = [y, setY];
     }
 
     setAxisX(total: number, start: number, end: number) {
@@ -25,7 +31,7 @@ export class ScrollbarController {
         // -------
         // ^ start
         //       ^ end
-        let [total, start, end] = this.x();
+        const [total, start, end] = this.x();
         if (start > end || start > total || end > total) {
             return [0, 0];
         }
@@ -36,7 +42,7 @@ export class ScrollbarController {
         // | <-start
         // |
         // | <-end
-        let [total, start, end] = this.y();
+        const [total, start, end] = this.y();
         if (start > end || start > total || end > total) {
             return [0, 0];
         }
@@ -44,32 +50,32 @@ export class ScrollbarController {
     }
 
     getXOfTotal(): number {
-        let [total, start, end] = this.x();
+        const [total, start, end] = this.x();
         return (end - start) / total;
     }
 
     getYOfTotal(): number {
-        let [total, start, end] = this.y();
+        const [total, start, end] = this.y();
         return (end - start) / total;
     }
 
     getProgressX(): number {
-        let [total, , end] = this.x();
+        const [total, , end] = this.x();
         return end / total;
     }
 
     getProgressY(): number {
-        let [total, , end] = this.y();
+        const [total, , end] = this.y();
         return end / total;
     }
 
     getRangeX(): [number, number] {
-        let [, start, end] = this.x();
+        const [, start, end] = this.x();
         return [start, end];
     }
 
     getRangeY(): [number, number] {
-        let [, start, end] = this.y();
+        const [, start, end] = this.y();
         return [start, end];
     }
 
@@ -77,7 +83,7 @@ export class ScrollbarController {
     /// `hitX` and `hitY` use screen basis, you need to multiply factor to the position from events.
     isHitScrollX(hitX: number, hitY: number) : boolean {
         if (this.prevX) {
-            let [x, y, w, h] = this.prevX;
+            const [x, y, w, h] = this.prevX;
             return (
                 hitX >= x &&
                 hitX <= x + w &&
@@ -93,7 +99,7 @@ export class ScrollbarController {
     /// `hitX` and `hitY` use screen basis, you need to multiply factor to the position from events.
     isHitScrollY(hitX: number, hitY: number) : boolean {
         if (this.prevY) {
-            let [x, y, w, h] = this.prevY;
+            const [x, y, w, h] = this.prevY;
             return (
                 hitX >= x &&
                 hitX <= x + w &&

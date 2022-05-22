@@ -1,4 +1,4 @@
-import { Accessor, batch, Component, createEffect, createSignal, mergeProps, onCleanup, onMount, Setter, Signal } from "solid-js";
+import { Accessor, Component, createEffect, createSignal, mergeProps, onCleanup, onMount, Setter } from "solid-js";
 import "./draw_broad.styl";
 import chroma from "chroma-js";
 import { useDevicePixelRatio, useWindowSize } from "./utils";
@@ -13,8 +13,8 @@ export interface DrawPoint {
 }
 
 export enum TouchType {
-    'direct',
-    'stylus',
+    "direct",
+    "stylus",
 }
 
 export interface TouchEvent {
@@ -35,51 +35,60 @@ export interface DrawEvent {
 }
 
 export enum DrawTool {
-    'hand',
-    'pen',
+    "hand",
+    "pen",
 }
 
 export class DrawBroadController {
-    color: Accessor<string>
-    setColor: Setter<string>
-    offscreen: HTMLCanvasElement
-    ctx2d: CanvasRenderingContext2D
-    lineWidthFactor: Accessor<number>
-    setLineWidthFactor: Setter<number>
-    scrollCtl: ScrollbarController
-    tool: Accessor<DrawTool>
-    setTool: Setter<DrawTool>
+    color: Accessor<string>;
+    setColor: Setter<string>;
+    offscreen: HTMLCanvasElement;
+    ctx2d: CanvasRenderingContext2D;
+    lineWidthFactor: Accessor<number>;
+    setLineWidthFactor: Setter<number>;
+    scrollCtl: ScrollbarController;
+    tool: Accessor<DrawTool>;
+    setTool: Setter<DrawTool>;
 
-    constructor(defaultColor: string, lineWidthFactor: number) {
-        [this.color, this.setColor] = createSignal<string>(defaultColor);
-        [this.lineWidthFactor, this.setLineWidthFactor] = createSignal<number>(lineWidthFactor);
-        [this.tool, this.setTool] = createSignal<DrawTool>(DrawTool.pen);
+    constructor(defaultColor: string, defaultLinedWidthFactor: number) {
+        const [color, setColor] = createSignal<string>(defaultColor);
+        [this.color, this.setColor] = [color, setColor];
+        const [lineWidthFactor, setLineWidthFactor] = createSignal<number>(defaultLinedWidthFactor);
+        [this.lineWidthFactor, this.setLineWidthFactor] = [lineWidthFactor, setLineWidthFactor];
+        const [tool, setTool] = createSignal<DrawTool>(DrawTool.pen);
+        [this.tool, this.setTool] = [tool, setTool];
         this.offscreen = document.createElement("canvas");
-        const ctx2d = this.offscreen.getContext('2d');
+        const ctx2d = this.offscreen.getContext("2d");
         if (!ctx2d) {
             throw new Error("unable get 2d context");
         }
         this.ctx2d = ctx2d;
         this.scrollCtl = new ScrollbarController();
     }
+
+    setOffscreenSize([width, height]: [number, number]) {
+        this.offscreen.width = width;
+        this.offscreen.height = height;
+    }
 }
 
 interface DrawBroadProps {
-    width?: number, // TODO: support update size on-the-fly
-    height?: number,
     onStart?: (stroke: DrawPoint[], ev: DrawEvent) => void,
     onDrawing?: (stroke: DrawPoint[], ev: DrawEvent) => void,
     onEnd?: (ev: DrawEvent) => void,
     onTouchTypeChanged?: (newTouchType: TouchType) => void,
-    ctl?: DrawBroadController,
+    ctl?: DrawBroadController, // The controller can control the state of the broad. WARNING: No Reactivity For This Prop.
 }
 
+/// Drawing broad of two-canvas. This element including two canvas: viewpoint and offscreen.
+/// The drawing will be first paint to the offscreen canvas, and be synced to viewpoint canvas in the next frame.
 const DrawBroad: Component<DrawBroadProps> = (props) => {
     const merged = mergeProps({
         width: 1280,
         height: 720,
     }, props);
-    const ctl = merged.ctl ? merged.ctl : new DrawBroadController('red', 40);
+    // eslint-disable-next-line solid/reactivity
+    const ctl = merged.ctl || new DrawBroadController("red", 40);
     const scrollCtl = ctl.scrollCtl;
     let element: HTMLCanvasElement;
     let ctx2d: CanvasRenderingContext2D | undefined;
@@ -99,11 +108,10 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
     const [touchType, setTouchType] = createSignal<TouchType>();
     const viewpointX = () => scrollCtl.getRangeX()[0];
     const viewpointY = () => scrollCtl.getRangeY()[0];
-    const [viewpointScale, setViewpointScale] = createSignal<number>(1); // TODO: implement scale
     const devicePixelRatio = useDevicePixelRatio();
 
     const getScrollbarColor = (dragStart: number | undefined) => {
-        return chroma('black').alpha(dragStart ? 1 : 0.5).hex();
+        return chroma("black").alpha(dragStart ? 1 : 0.5).hex();
     };
 
     const getScrollbarWidth = (mouseOver: boolean, dragStart: number | undefined) => {
@@ -117,7 +125,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         if (!ctx2d) return;
         if (scrollCtl.getXOfTotal() < 1) {
             const {width, height} = windowSize();
-            let [start, end] = scrollCtl.getDrawPositionX(width);
+            const [start, end] = scrollCtl.getDrawPositionX(width);
             ctx2d.fillStyle = getScrollbarColor(dragStartX);
             const [bar_width, x_height] = getScrollbarWidth(mouseOverX, dragStartX);
             const x: [number, number, number, number] = [start, height - x_height, end - start, bar_width];
@@ -135,7 +143,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         if (!ctx2d) return;
         if (scrollCtl.getYOfTotal() < 1) {
             const {width, height} = windowSize();
-            let [start, end] = scrollCtl.getDrawPositionY(height);
+            const [start, end] = scrollCtl.getDrawPositionY(height);
             ctx2d.fillStyle = getScrollbarColor(dragStartY);
             const [bar_width, y_width] = getScrollbarWidth(mouseOverY, dragStartY);
             const y: [number, number, number, number] = [width - y_width, start, bar_width, end - start];
@@ -177,10 +185,10 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         isBufferDirty = false;
     };
 
-    const [bufferSyncRunning, bufferSyncStart, bufferSyncEnd] = createRAF(() => isBufferDirty? syncViewpointWithOffScreen(): undefined);
+    const [, bufferSyncStart, ] = createRAF(() => isBufferDirty? syncViewpointWithOffScreen(): undefined);
 
     const updateViewpointSize = () => {
-        let {width, height} = windowSize();
+        const {width, height} = windowSize();
         element.width = width;
         element.height = height;
         scrollCtl.setX([ctl.offscreen.width, 0, width]);
@@ -195,36 +203,38 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         if (!context) {
             return;
         }
-        context.lineCap = 'round'
-        context.lineJoin = 'round'
+        context.lineCap = "round";
+        context.lineJoin = "round";
         if (stroke.length <= 0) {
             return;
         }
       
         const l = stroke.length - 1;
         if (stroke.length >= 3) {
-          const xc = (stroke[l].x + stroke[l - 1].x) / 2;
-          const yc = (stroke[l].y + stroke[l - 1].y) / 2;
-          context.lineWidth = stroke[l - 1].lineWidth;
-          context.quadraticCurveTo(stroke[l - 1].x, stroke[l - 1].y, xc, yc);
-          context.strokeStyle = chroma.mix(stroke[l-1].color, stroke[l].color).hex();
-          context.stroke();
-          context.beginPath();
-          context.moveTo(xc, yc);
+            const xc = (stroke[l].x + stroke[l - 1].x) / 2;
+            const yc = (stroke[l].y + stroke[l - 1].y) / 2;
+            context.lineWidth = stroke[l - 1].lineWidth;
+            context.quadraticCurveTo(stroke[l - 1].x, stroke[l - 1].y, xc, yc);
+            context.strokeStyle = chroma.mix(stroke[l-1].color, stroke[l].color).hex();
+            context.stroke();
+            context.beginPath();
+            context.moveTo(xc, yc);
         } else {
-          const point = stroke[l];
-          console.log("stroke", stroke);
-          console.log("point", point);
-          context.lineWidth = point.lineWidth;
-          context.strokeStyle = point.color;
-          context.beginPath();
-          context.moveTo(point.x, point.y);
-          context.stroke();
+            const point = stroke[l];
+            console.log("stroke", stroke);
+            console.log("point", point);
+            context.lineWidth = point.lineWidth;
+            context.strokeStyle = point.color;
+            context.beginPath();
+            context.moveTo(point.x, point.y);
+            context.stroke();
         }
 
         isBufferDirty = true;
-      };
+    };
 
+    // FIXME: use more specific type and make optimizer happy
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onDrawStart = (e: any) => {
         if (e.button && e.button != 0) {
             return;
@@ -262,7 +272,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
             points.push({ x: x + viewpointX(), y: y + viewpointY(), lineWidth: lineWidth, color: ctl.color() });
             draw(points);
             if (merged.onStart) {
-                let ev: DrawEvent = {x, y, pressure, hasForce: hasForce || false};
+                const ev: DrawEvent = {x, y, pressure, hasForce: hasForce || false};
                 const touch = e.touches ? e.touches[0] : {};
                 ev.touch = {...touch, type: touchType()};
                 merged.onStart(points, ev);
@@ -270,6 +280,8 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         }
     };
 
+    // FIXME: use more specific type and make optimizer happy
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onDrawMoving = (e: any) => {
         const pageX = e.pageX * devicePixelRatio();
         const pageY = e.pageY * devicePixelRatio();
@@ -305,12 +317,12 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
             const hasForce = e.touches && e.touches[0] && typeof e.touches[0]["force"] !== "undefined";
             if (hasForce) {
                 if (e.touches[0]["force"] > 0) {
-                    pressure = e.touches[0]["force"]
+                    pressure = e.touches[0]["force"];
                 }
                 x = e.touches[0].pageX * devicePixelRatio();
                 y = e.touches[0].pageY * devicePixelRatio();
             } else {
-                pressure = 1.0
+                pressure = 1.0;
                 x = e.pageX * devicePixelRatio();
                 y = e.pageY * devicePixelRatio();
             }
@@ -321,29 +333,31 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
             draw(points);
     
             if (merged.onDrawing) {
-                let ev: DrawEvent = {x, y, pressure, hasForce: hasForce || false};
+                const ev: DrawEvent = {x, y, pressure, hasForce: hasForce || false};
                 const touch = e.touches ? e.touches[0] : null;
                 if (touch) {
-                    const type = touch.touchType == 'direct' ? TouchType.direct: TouchType.stylus;
-                    ev.touch = {...touch, type: type}
+                    const type = touch.touchType == "direct" ? TouchType.direct: TouchType.stylus;
+                    ev.touch = {...touch, type: type};
                 }
                 merged.onDrawing(points, ev);
             }
         }
     };
 
+    // FIXME: use more specific type and make optimizer happy
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onDrawEnd = (e: any) => {
         let pressure = 0.1;
         let x: number, y: number;
         const hasForce = e.touches && e.touches[0] && typeof e.touches[0]["force"] !== "undefined";
         if (hasForce) {
             if (e.touches[0]["force"] > 0) {
-                pressure = e.touches[0]["force"]
+                pressure = e.touches[0]["force"];
             }
             x = e.touches[0].pageX * devicePixelRatio();
             y = e.touches[0].pageY * devicePixelRatio();
         } else {
-            pressure = 1.0
+            pressure = 1.0;
             x = e.pageX * devicePixelRatio();
             y = e.pageY * devicePixelRatio();
         }
@@ -355,12 +369,12 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         lineWidth = 0;
         draw(points);
         if (merged.onEnd) {
-            let ev: DrawEvent = {x: x + viewpointX(), y: y + viewpointY(), pressure, hasForce: hasForce || false};
+            const ev: DrawEvent = {x: x + viewpointX(), y: y + viewpointY(), pressure, hasForce: hasForce || false};
             const touch = e.touches ? e.touches[0] : null;
             if (touch) {
-                const type = touch.touchType == 'direct' ? TouchType.direct: TouchType.stylus;
-                setTouchType(type)
-                ev.touch = {...touch, type: type}
+                const type = touch.touchType == "direct" ? TouchType.direct: TouchType.stylus;
+                setTouchType(type);
+                ev.touch = {...touch, type: type};
             } else {
                 setTouchType(undefined);
             }
@@ -407,6 +421,8 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         }
     };
 
+    // FIXME: use more specific type and make optimizer happy
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onHandDragStart = (e: any) => {
         e.preventDefault();
         let pageX: number;
@@ -427,6 +443,8 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         dragStartY = pageY;
     };
 
+    // FIXME: use more specific type and make optimizer happy
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onHandDraging = (e: any) => {
         e.preventDefault();
         let pageX: number;
@@ -464,6 +482,8 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         viewpointBufferRefreshNeeded = true;
     };
 
+    // FIXME: use more specific type and make optimizer happy
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onHandDragEnd = (e: any) => {
         e.preventDefault();
         dragStartX = undefined;
@@ -471,11 +491,13 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         isBufferDirty = true;
     };
 
+    // FIXME: use more specific type and make optimizer happy
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onHandStart = (e: any) => {
         const touch = e.touches ? e.touches[0] : null;
         if (touch) {
-            const type = touch.touchType == 'direct' ? TouchType.direct: TouchType.stylus;
-            setTouchType(type)
+            const type = touch.touchType == "direct" ? TouchType.direct: TouchType.stylus;
+            setTouchType(type);
         } else {
             setTouchType(undefined);
         }
@@ -484,40 +506,35 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         } else if (ctl.tool() === DrawTool.hand) {
             onHandDragStart(e);
         }
-    }
+    };
 
+    // FIXME: use more specific type and make optimizer happy
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onHandMoving = (e: any) => {
         if (ctl.tool() === DrawTool.pen) {
             onDrawMoving(e);
         } else if (ctl.tool() === DrawTool.hand) {
             onHandDraging(e);
         }
-    }
+    };
 
+    // FIXME: use more specific type and make optimizer happy
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onHandEnd = (e: any) => {
         if (ctl.tool() === DrawTool.pen) {
             onDrawEnd(e);
         } else if (ctl.tool() === DrawTool.hand) {
             onHandDragEnd(e);
         }
-    }
+    };
 
-    {
-        const onTouchTypeChanged = merged.onTouchTypeChanged;
-        if (onTouchTypeChanged) {
-            createEffect(() => {
-                const newTouchType = touchType();
-                if (newTouchType) {
-                    onTouchTypeChanged(newTouchType);
-                }
-            });
+    createEffect(() => {
+        if (merged.onTouchTypeChanged) {
+            const newTouchType = touchType();
+            if (newTouchType){
+                merged.onTouchTypeChanged(newTouchType);
+            }
         }
-    }
-
-    onMount(() => {
-        // setting up offscreen canvas
-        ctl.offscreen.width = merged.width;
-        ctl.offscreen.height = merged.height;
     });
 
     createEffect(() => {
@@ -526,17 +543,17 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
 
     createEffect(() => {
         if (ctl.tool() === DrawTool.hand) {
-            element.style.cursor = 'grab';
+            element.style.cursor = "grab";
         } else {
-            element.style.cursor = 'default';
+            element.style.cursor = "default";
         }
     });
 
     onMount(() => {
-        let ctx = element.getContext("2d");
+        const ctx = element.getContext("2d");
         if (ctx) {
             ctx2d = ctx;
-            ctx.strokeStyle = 'black'
+            ctx.strokeStyle = "black";
         } else {
             console.error("browser does not support 2d context");
             // TODO: throw an error
@@ -544,14 +561,14 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
     });
 
     onMount(() => {
-        let body = document.querySelector("body");
+        const body = document.querySelector("body");
         if (body) {
-            body.classList.add("draw-broad-body")
+            body.classList.add("draw-broad-body");
         }
     });
 
     onCleanup(() => {
-        let body = document.querySelector("body");
+        const body = document.querySelector("body");
         if (body) {
             body.classList.remove("draw-broad-body");
         }
@@ -559,21 +576,33 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
 
     onMount(() => bufferSyncStart());
 
+    const onOffscreenCanvasResized = () => {
+        updateViewpointSize();
+    };
+
+    onMount(() => {
+        ctl.offscreen.addEventListener("resize", onOffscreenCanvasResized);
+    });
+
+    onCleanup(() => {
+        ctl.offscreen.removeEventListener("resize", onOffscreenCanvasResized);
+    });
+
     return <>
-    <canvas
+        <canvas
         // @ts-expect-error: the next line will be a error since we refer the uninitialised variable
-        ref={element}
-        onTouchStart={onHandStart}
-        onMouseDown={onHandStart}
-        onTouchMove={onHandMoving}
-        onMouseMove={onHandMoving}
-        onTouchEnd={onHandEnd}
-        onTouchCancel={onHandEnd}
-        onMouseUp={onHandEnd}
-        onContextMenu={(ev) => ev.preventDefault()}
-        onWheel={onWheel}
-        class="draw-broad-canvas"
-    /></>
+            ref={element}
+            onTouchStart={onHandStart}
+            onMouseDown={onHandStart}
+            onTouchMove={onHandMoving}
+            onMouseMove={onHandMoving}
+            onTouchEnd={onHandEnd}
+            onTouchCancel={onHandEnd}
+            onMouseUp={onHandEnd}
+            onContextMenu={(ev) => ev.preventDefault()}
+            onWheel={onWheel}
+            class="draw-broad-canvas"
+        /></>;
 };
 
 export default DrawBroad;

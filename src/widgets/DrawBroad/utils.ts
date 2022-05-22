@@ -18,10 +18,10 @@ export const useWindowSize = (): Signal<{width: number, height: number}> => {
 
     onCleanup(() => {
         window.removeEventListener("resize", onResize);
-    })
+    });
 
     return [size, setSize];
-}
+};
 
 export const useDevicePixelRatio = (): Accessor<number> => {
     const [ratio, setRatio] = createSignal<number>(window.devicePixelRatio);

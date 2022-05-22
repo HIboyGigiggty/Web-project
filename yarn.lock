@@ -5874,8 +5874,8 @@ __metadata:
     "@suid/material": ^0.1.0
     "@supabase/supabase-js": ^1.35.1
     "@types/babel__core": ^7
-    "@types/eslint": ^8
     "@types/chroma-js": ^2
+    "@types/eslint": ^8
     "@types/webpack-bundle-analyzer": ^4
     "@typescript-eslint/eslint-plugin": latest
     "@typescript-eslint/parser": ^5.25.0

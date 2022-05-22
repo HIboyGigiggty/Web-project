@@ -1,4 +1,4 @@
-import { Component, lazy, Show } from "solid-js";
+import { Component, lazy } from "solid-js";
 import { Route, Routes } from "solid-app-router";
 import CssBaseline from "@suid/material/CssBaseline";
 

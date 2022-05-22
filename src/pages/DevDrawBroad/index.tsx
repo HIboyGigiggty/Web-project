@@ -1,6 +1,6 @@
 import Button from "@suid/material/Button";
 import TextField from "@suid/material/TextField";
-import { Component, createSignal, onCleanup, onMount } from "solid-js";
+import { Component, createSignal } from "solid-js";
 import {default as DrawBroad, DrawBroadController, DrawPoint, DrawTool, TouchType} from "../../widgets/DrawBroad";
 
 const DevDrawBroad: Component = () => {
@@ -8,7 +8,8 @@ const DevDrawBroad: Component = () => {
     const [hasForce, setHasForce] = createSignal<boolean>(false);
     const [pressure, setPressure] = createSignal<number>(0);
     const [touchType, setTouchType] = createSignal<TouchType>();
-    const broadCtl = new DrawBroadController('blue', 20);
+    const broadCtl = new DrawBroadController("blue", 20);
+    broadCtl.setOffscreenSize([3000, 3000]);
 
     return <>
         <p style="position: absolute; z-index: 1;" class="noselect">
@@ -21,7 +22,7 @@ const DevDrawBroad: Component = () => {
                 label="Line Width Factor"
                 onChange={(e) => {
                     e.preventDefault();
-                    broadCtl.setLineWidthFactor(new Number((e.target as HTMLInputElement).value).valueOf())
+                    broadCtl.setLineWidthFactor(new Number((e.target as HTMLInputElement).value).valueOf());
                 }}
                 value={broadCtl.lineWidthFactor().toString()}/><br />
             Scroll Range X: {broadCtl.scrollCtl.getRangeX().toString()}<br />
@@ -49,10 +50,8 @@ const DevDrawBroad: Component = () => {
             }}
             onTouchTypeChanged={setTouchType}
             ctl={broadCtl}
-            width={3000}
-            height={3000}
         />
-    </>
-}
+    </>;
+};
 
 export default DevDrawBroad;
