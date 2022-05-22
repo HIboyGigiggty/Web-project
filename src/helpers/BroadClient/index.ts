@@ -1,4 +1,5 @@
 import { RealtimeChannel, SupabaseClient, User } from "@supabase/supabase-js";
+import { getUserDeviceId } from "../getDeviceId";
 
 export interface Room {
     id: string,
@@ -117,6 +118,10 @@ class BroadClient {
             throw error;
         }
         return (data as Room[])[0];
+    }
+
+    getUserDeviceId(): string {
+        return getUserDeviceId(this.userOrError().id);
     }
 }
 

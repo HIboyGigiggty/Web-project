@@ -1,6 +1,7 @@
 import { Component, Show } from "solid-js";
 import { createOnAuthStateChange, createSupabaseAuth } from "solid-supabase";
 import { Navigate, useNavigate } from "solid-app-router";
+import getDeviceId from "../../helpers/getDeviceId";
 
 const Login: Component = () => {
     const auth = createSupabaseAuth();
@@ -15,6 +16,7 @@ const Login: Component = () => {
         // The Show's fallback could not be rendered when jumping back from supabase.
         // TODO: allow jumping back to specific address.
         if (session) {
+            getDeviceId(); // Ensure we have a device identity.
             if (session.user) {
                 navigate("/");
             }

@@ -2,14 +2,8 @@ import Button from "@suid/material/Button";
 import TextField from "@suid/material/TextField";
 import { Navigate, useNavigate } from "solid-app-router";
 import { Component, For, Show, createResource, createSignal } from "solid-js";
-import { createSupabase, createSupabaseAuth } from "solid-supabase";
-import BroadClient from "../../helpers/BroadClient";
-
-const useBroadClient = () => {
-    const supabase = createSupabase();
-
-    return new BroadClient(supabase);
-};
+import { createSupabaseAuth } from "solid-supabase";
+import { useBroadClient } from "../../helpers/BroadClient/solid";
 
 const Index: Component = () => {
     const auth = createSupabaseAuth();

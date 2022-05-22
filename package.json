@@ -10,6 +10,7 @@
     "@babel/preset-env": "^7.16.11",
     "@types/babel__core": "^7",
     "@types/eslint": "^8",
+    "@types/uuid": "^8",
     "@types/webpack-bundle-analyzer": "^4",
     "@typescript-eslint/eslint-plugin": "latest",
     "@typescript-eslint/parser": "^5.25.0",
@@ -48,7 +49,8 @@
     "solid-services": "^3.0.4",
     "solid-styled-jsx": "^0.27.1",
     "solid-supabase": "^0.2.5",
-    "styled-jsx": "3.4.4"
+    "styled-jsx": "3.4.4",
+    "uuid": "^8.3.2"
   },
   "scripts": {
     "build": "webpack --mode=production --node-env=production",
