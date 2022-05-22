@@ -7,6 +7,7 @@ const WorkboxWebpackPlugin = require("workbox-webpack-plugin");
 const { ProgressPlugin } = require("webpack");
 const PnpWebpackPlugin = require("pnp-webpack-plugin")
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const ESLintPlugin = require('eslint-webpack-plugin');
 
 const isProduction = process.env.NODE_ENV == "production";
 
@@ -33,6 +34,12 @@ const config = {
       template: "index.html",
     }),
     PnpWebpackPlugin,
+    new ESLintPlugin({
+      extensions: ['js', 'jsx', 'ts', 'tsx'],
+      fix: true,
+      lintDirtyModulesOnly: !isProduction,
+      failOnError: isProduction,
+    }),
 
     // Add your plugins here
     // Learn more about plugins from https://webpack.js.org/configuration/plugins/
