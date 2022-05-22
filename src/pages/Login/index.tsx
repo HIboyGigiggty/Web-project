@@ -1,13 +1,13 @@
-import { Component, onMount, Show } from "solid-js"
-import { createOnAuthStateChange, createSupabaseAuth } from "solid-supabase"
+import { Component, Show } from "solid-js";
+import { createOnAuthStateChange, createSupabaseAuth } from "solid-supabase";
 import { Navigate, useNavigate } from "solid-app-router";
 
 const Login: Component = () => {
     const auth = createSupabaseAuth();
     const navigate = useNavigate();
-    let signInWithGithub = async () => {
-        const { user, session, error } = await auth.signIn({
-            provider: 'github',
+    const signInWithGithub = async () => {
+        await auth.signIn({
+            provider: "github",
         });
     };
     createOnAuthStateChange((_, session) => {
@@ -25,7 +25,7 @@ const Login: Component = () => {
         <Show when={!auth.user()} fallback={<Navigate href="/" />}>
             <input type="button" value={"GitHub"} onClick={signInWithGithub} /><br></br>
         </Show>
-    </>)
-}
+    </>);
+};
 
 export default Login;

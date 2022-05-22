@@ -14,7 +14,7 @@ const App: Component = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/user" element={<User />} />
         </Routes>
-    </>)
+    </>);
 };
 
 export default App;

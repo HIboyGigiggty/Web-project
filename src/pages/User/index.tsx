@@ -4,10 +4,10 @@ import { Navigate, useNavigate } from "solid-app-router";
 import Button from "@suid/material/Button";
 
 const User: Component = () => {
-    let auth = createSupabaseAuth();
-    let user_option = auth.user();
-    let navigate = useNavigate();
-    let signOut = async () => {
+    const auth = createSupabaseAuth();
+    const user_option = auth.user();
+    const navigate = useNavigate();
+    const signOut = async () => {
         await auth.signOut();
         navigate("/login");
     };
@@ -17,13 +17,13 @@ const User: Component = () => {
             {
                 (user) => {
                     return <>
-                    <p>Id: {user.id}</p>
-                    <Button onClick={signOut}>Sign out</Button>
-                    </>
+                        <p>Id: {user.id}</p>
+                        <Button onClick={signOut}>Sign out</Button>
+                    </>;
                 }
             }
         </Show>
-    </>)
-}
+    </>);
+};
 
 export default User;

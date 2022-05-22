@@ -15,8 +15,8 @@ class BroadClient {
     }
 
     async getAllRooms(): Promise<Room[]> {
-        let user = this.userOrError();
-        let response = await this.supabase.from("rooms").select("id, owner, name, created_at").eq("owner", user.id);
+        const user = this.userOrError();
+        const response = await this.supabase.from("rooms").select("id, owner, name, created_at").eq("owner", user.id);
         if (response.error) {
             throw response.error;
         }
@@ -25,7 +25,7 @@ class BroadClient {
 
     /// Find the room and return the room infomation.
     async findRoomById(id: string): Promise<Room | null> {
-        let rooms = await this.supabase.rpc("find_room_by_id", {target_id: id});
+        const rooms = await this.supabase.rpc("find_room_by_id", {target_id: id});
         if (rooms.error) {
             throw rooms.error;
         } else {
@@ -39,7 +39,7 @@ class BroadClient {
 
     /// Return user or throw an error.
     userOrError(): User {
-        let user = this.supabase.auth.user();
+        const user = this.supabase.auth.user();
         if (user) {
             return user;
         } else {
@@ -49,10 +49,10 @@ class BroadClient {
 
     /// Join the room as current user.
     async joinRoomById(id: string): Promise<Room | null> {
-        let room = await this.findRoomById(id);
+        const room = await this.findRoomById(id);
         if (room) {
-            let user = this.userOrError();
-            let q = await this.supabase.from("room_joint").insert({
+            const user = this.userOrError();
+            const q = await this.supabase.from("room_joint").insert({
                 room_id: room.id,
                 user_id: user.id,
             });
@@ -68,8 +68,8 @@ class BroadClient {
     /// Check if current user joint to the room.
     /// Return false if the user joint the room or the room not exists.
     async isJointRoomById(id: string): Promise<boolean> {
-        let user = this.userOrError();
-        let q = await this.supabase.from("room_joint").select("*").eq("room_id", id).eq("user_id", user.id);
+        const user = this.userOrError();
+        const q = await this.supabase.from("room_joint").select("*").eq("room_id", id).eq("user_id", user.id);
         if (q.error) {
             throw q.error;
         } else {
@@ -84,7 +84,7 @@ class BroadClient {
     /// Send a message to room message queue with open a channel.
     /// It is recommended to use the channel to push message (see `openRoomMessageQueueChannel`).
     async sendMessageTo(room_id: string, message: object): Promise<void> {
-        let q = await this.supabase.from("room_message_queue").insert({
+        const q = await this.supabase.from("room_message_queue").insert({
             room: room_id,
             message: message,
         });
@@ -98,7 +98,7 @@ class BroadClient {
     /// And you must use `setAuth` to set token on the realtime client manually
     /// to ensure you have permission to the rows: https://github.com/supabase/realtime#realtime-rls .
     async openRoomMessageQueueChannel(room_id: string): Promise<RealtimeChannel> {
-        let room = await this.findRoomById(room_id);
+        const room = await this.findRoomById(room_id);
         if (!room) {
             throw Error("Room not found");
         }
@@ -108,8 +108,8 @@ class BroadClient {
     }
 
     async createRoom(name: string): Promise<Room> {
-        let user = this.userOrError();
-        let {data, error} = await this.supabase.from("rooms").insert({
+        const user = this.userOrError();
+        const {data, error} = await this.supabase.from("rooms").insert({
             name: name,
             owner: user.id,
         });

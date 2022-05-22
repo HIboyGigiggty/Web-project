@@ -9,30 +9,29 @@ const useBroadClient = () => {
     const supabase = createSupabase();
 
     return new BroadClient(supabase);
-}
+};
 
 const Index: Component = () => {
     const auth = createSupabaseAuth();
-    const supabase = createSupabase();
     const navigate = useNavigate();
     const broadCli = useBroadClient();
 
-    let [roomName, setRoomName] = createSignal<string>("")
+    const [roomName, setRoomName] = createSignal<string>("");
 
-    let getAllRooms = async () => {
-        let user = auth.user();
+    const getAllRooms = async () => {
+        const user = auth.user();
         if (user) {
             return await broadCli.getAllRooms();
         } else {
-            navigate("/login")
+            navigate("/login");
         }
-    }
-    let [rooms, {refetch}] = createResource(getAllRooms, {
+    };
+    const [rooms, {refetch}] = createResource(getAllRooms, {
         initialValue: []
     });
     const creating = async () => {
         console.log("creating");
-        let user = auth.user();
+        const user = auth.user();
         if (user) {
             await broadCli.createRoom(roomName());
             setRoomName("");
@@ -41,16 +40,16 @@ const Index: Component = () => {
             navigate("/login");
         }
         
-    }
+    };
     return <Show when={auth.user()} fallback={<Navigate href="/login" />}>
-        <Button className="button1" onClick={() => navigate("/user")}>User Infomation</Button><br></br>
-        <TextField className="testfield1" label="RoomName" helperText="Plz input your Room name" value={roomName()} onChange={(_, val) => setRoomName(val)}></TextField>
+        <Button class="button1" onClick={() => navigate("/user")}>User Infomation</Button><br></br>
+        <TextField class="testfield1" label="RoomName" helperText="Plz input your Room name" value={roomName()} onChange={(_, val) => setRoomName(val)}></TextField>
         <Button onClick={creating} >Create Room</Button>
         <Show when={!rooms.loading} fallback={<p>Loading rooms</p>}>
             <For each={rooms()} fallback={<p>No rooms here.</p>}>
                 {
                     (item) => {
-                        return <p>Room {item.id}: name "{item.name}", owner {item.owner}, created_at {item.created_at}</p>
+                        return <p>Room {item.id}: name "{item.name}", owner {item.owner}, created_at {item.created_at}</p>;
                     }
                 }
             </For>
@@ -68,7 +67,7 @@ const Index: Component = () => {
                 }
             `}
         </style>
-    </Show>
-}
+    </Show>;
+};
 
 export default Index;
