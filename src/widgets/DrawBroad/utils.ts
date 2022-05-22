@@ -1,4 +1,4 @@
-import { Signal, createSignal, onMount, onCleanup, Accessor } from "solid-js";
+import { Accessor, Signal, createSignal, onCleanup, onMount } from "solid-js";
 
 export const useWindowSize = (): Signal<{width: number, height: number}> => {
     const [size, setSize] = createSignal<{width: number, height: number}>({

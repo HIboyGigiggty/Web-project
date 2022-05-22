@@ -1,4 +1,4 @@
-import { Accessor, Component, createEffect, createSignal, mergeProps, onCleanup, onMount, Setter } from "solid-js";
+import { Accessor, Component, Setter, createEffect, createSignal, mergeProps, onCleanup, onMount } from "solid-js";
 import "./draw_broad.styl";
 import chroma from "chroma-js";
 import { useDevicePixelRatio, useWindowSize } from "./utils";
@@ -129,7 +129,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
             ctx2d.fillStyle = getScrollbarColor(dragStartX);
             const [bar_width, x_height] = getScrollbarWidth(mouseOverX, dragStartX);
             const x: [number, number, number, number] = [start, height - x_height, end - start, bar_width];
-            if (scrollCtl.prevX && scrollCtl.prevX != x) {
+            if (scrollCtl.prevX && scrollCtl.prevX !== x) {
                 ctx2d.clearRect(...scrollCtl.prevX);
             }
             ctx2d.fillRect(...x);
@@ -147,7 +147,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
             ctx2d.fillStyle = getScrollbarColor(dragStartY);
             const [bar_width, y_width] = getScrollbarWidth(mouseOverY, dragStartY);
             const y: [number, number, number, number] = [width - y_width, start, bar_width, end - start];
-            if (scrollCtl.prevY && scrollCtl.prevY != y) {
+            if (scrollCtl.prevY && scrollCtl.prevY !== y) {
                 ctx2d.clearRect(...scrollCtl.prevY);
             }
             ctx2d.fillRect(...y);
@@ -185,7 +185,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         isBufferDirty = false;
     };
 
-    const [, bufferSyncStart, ] = createRAF(() => isBufferDirty? syncViewpointWithOffScreen(): undefined);
+    const [, bufferSyncStart, ] = createRAF(() => (isBufferDirty? syncViewpointWithOffScreen(): undefined));
 
     const updateViewpointSize = () => {
         const {width, height} = windowSize();
@@ -236,7 +236,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
     // FIXME: use more specific type and make optimizer happy
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onDrawStart = (e: any) => {
-        if (e.button && e.button != 0) {
+        if (e.button && e.button !== 0) {
             return;
         }
         e.preventDefault();
@@ -254,7 +254,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
             let pressure = 0.1;
             let x: number, y: number;
             const hasForce = e.touches && e.touches[0] && typeof e.touches[0]["force"] !== "undefined";
-            if (hasForce && e.touches.length == 1) {
+            if (hasForce && e.touches.length === 1) {
                 if (e.touches[0]["force"] > 0) {
                     pressure = e.touches[0]["force"];
                 }
@@ -289,7 +289,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         const oldMouseOverY = mouseOverY;
         mouseOverX = (typeof dragStartX === "number" ? true : false) || scrollCtl.isHitScrollX(pageX, pageY);
         mouseOverY = (typeof dragStartY === "number" ? true : false) || scrollCtl.isHitScrollY(pageX, pageY);
-        if (oldMouseOverX != mouseOverX || oldMouseOverY != mouseOverY) {
+        if (oldMouseOverX !== mouseOverX || oldMouseOverY !== mouseOverY) {
             isBufferDirty = true;
         }
         if (dragStartX) {
@@ -336,7 +336,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
                 const ev: DrawEvent = {x, y, pressure, hasForce: hasForce || false};
                 const touch = e.touches ? e.touches[0] : null;
                 if (touch) {
-                    const type = touch.touchType == "direct" ? TouchType.direct: TouchType.stylus;
+                    const type = touch.touchType === "direct" ? TouchType.direct: TouchType.stylus;
                     ev.touch = {...touch, type: type};
                 }
                 merged.onDrawing(points, ev);
@@ -372,7 +372,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
             const ev: DrawEvent = {x: x + viewpointX(), y: y + viewpointY(), pressure, hasForce: hasForce || false};
             const touch = e.touches ? e.touches[0] : null;
             if (touch) {
-                const type = touch.touchType == "direct" ? TouchType.direct: TouchType.stylus;
+                const type = touch.touchType === "direct" ? TouchType.direct: TouchType.stylus;
                 setTouchType(type);
                 ev.touch = {...touch, type: type};
             } else {
@@ -401,7 +401,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
             }
         } else if (e.shiftKey) {
             e.preventDefault();
-            if (e.deltaX != 0) {
+            if (e.deltaX !== 0) {
                 const offest = e.deltaX;
                 if (scrollCtl.canScrollX(offest)) {
                     scrollCtl.setX(([total, start, end]) => [total, start + offest, end + offest]);
@@ -410,7 +410,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
                 }
             }
 
-            if (e.deltaY != 0) {
+            if (e.deltaY !== 0) {
                 const offest = e.deltaY;
                 if (scrollCtl.canScrollY(offest)) {
                     scrollCtl.setY(([total, start, end]) => [total, start + offest, end + offest]);
@@ -428,7 +428,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         let pageX: number;
         let pageY: number;
         if (typeof e.touches !== "undefined") {
-            if (e.touches.length == 1) {
+            if (e.touches.length === 1) {
                 const touch = e.touches[0];
                 pageX = touch.pageX * devicePixelRatio();
                 pageY = touch.pageY * devicePixelRatio();
@@ -450,7 +450,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         let pageX: number;
         let pageY: number;
         if (typeof e.touches !== "undefined") {
-            if (e.touches.length == 1) {
+            if (e.touches.length === 1) {
                 const touch = e.touches[0];
                 pageX = touch.pageX * devicePixelRatio();
                 pageY = touch.pageY * devicePixelRatio();
@@ -496,7 +496,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
     const onHandStart = (e: any) => {
         const touch = e.touches ? e.touches[0] : null;
         if (touch) {
-            const type = touch.touchType == "direct" ? TouchType.direct: TouchType.stylus;
+            const type = touch.touchType === "direct" ? TouchType.direct: TouchType.stylus;
             setTouchType(type);
         } else {
             setTouchType(undefined);
