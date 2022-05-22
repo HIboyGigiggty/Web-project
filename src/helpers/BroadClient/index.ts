@@ -102,7 +102,7 @@ class BroadClient {
         if (!room) {
             throw Error("Room not found");
         }
-        return this.supabase.channel("realtime:public:room_message_queue:room=eq."+room.id, {
+        return this.supabase.channel(`realtime:public:room_message_queue:room=eq.${room.id}`, {
             selfBroadcast: false,
         });
     }

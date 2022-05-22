@@ -33,6 +33,39 @@ module.exports = {
         "semi": [
             "error",
             "always"
-        ]
+        ],
+        "eqeqeq": [
+            "error",
+            "smart",
+        ],
+        "curly": [
+            "warn",
+            "multi-line",
+        ],
+        "no-confusing-arrow": [
+            "error",
+        ],
+        "sort-imports": [
+            "warn", {
+                ignoreDeclarationSort: true,
+            }
+        ],
+        "prefer-template": [
+            "warn",
+        ],
+        "prefer-const": [
+            "warn", {
+                destructuring: "all",
+            }
+        ],
+        "prefer-arrow-callback": [
+            "warn"
+        ],
+        "no-duplicate-imports": [
+            "warn"
+        ],
+        "unicode-bom": [
+            "error"
+        ],
     }
 };
