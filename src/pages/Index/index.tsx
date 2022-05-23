@@ -40,12 +40,24 @@ const Index: Component = () => {
         } else {
             navigate("/login");
         }
-        
+    }
+
+    const UserCentre =async() =>
+    {
+        let user = auth.user();
+        if(user)
+        {
+            navigate("/user");
+        }
+        else{
+            navigate("/login");
+        }
     }
     return <Show when={auth.user()} fallback={<Navigate href="/login" />}>
         <Button className="button1" onClick={() => navigate("/user")}>User Infomation</Button><br></br>
         <TextField className="testfield1" label="RoomName" helperText="Plz input your Room name" value={roomName()} onChange={(_, val) => setRoomName(val)}></TextField>
-        <Button onClick={creating} >Create Room</Button>
+        <Button onClick={creating} >Create Room</Button><br></br>
+        <input type="button" value={"用户中心"} onClick={UserCentre} className="button1"></input>
         <Show when={!rooms.loading} fallback={<p>Loading rooms</p>}>
             <For each={rooms()} fallback={<p>No rooms here.</p>}>
                 {
@@ -58,10 +70,11 @@ const Index: Component = () => {
         <style jsx>
             {`
             .button1{
-                background-color:blue;
+                background-color:dodgerblue;
                 color: white;
                 border: none;
                 font-size: 20px;
+                border-radius:30px;
                 }
             .textfield1{
                 border: none;
