@@ -1,6 +1,7 @@
 import { Component, onMount, Show } from "solid-js"
 import { createOnAuthStateChange, createSupabaseAuth } from "solid-supabase"
 import { Navigate, useNavigate } from "solid-app-router";
+import { v5 as uuidv5} from 'uuid';
 
 const Login: Component = () => {
     const auth = createSupabaseAuth();
@@ -17,13 +18,38 @@ const Login: Component = () => {
         if (session) {
             if (session.user) {
                 navigate("/");
+           
             }
         }
     });
     return (<>
         <h1>Sign in with...</h1>
+        <div className="Bodybox"></div>
         <Show when={!auth.user()} fallback={<Navigate href="/" />}>
-            <input type="button" value={"GitHub"} onClick={signInWithGithub} /><br></br>
+            <input type="button" value={"GitHub"} onClick={signInWithGithub} className="loginButton"/><br></br>
+            <style jsx>
+                {`
+                .loginButton{
+                    background-color:dodgerblue;
+                    color:white;
+                    width:200px;
+                    height:47px;
+                    border:0;
+                    font-size:16px;
+                    border-radius:30px;
+                   margin-left:700px;
+                   margin-top:150px;
+                   position:relative;
+                }
+                .Bodybox
+                {
+                   width:500px;
+                   theight:100%;
+                   top:0px;
+                   left:0px;
+                }
+                `}
+            </style>
         </Show>
     </>)
 }
