@@ -18,15 +18,26 @@ const Login: Component = () => {
         if (session) {
             if (session.user) {
                 navigate("/");
-           
+                GenerateUUID();
             }
         }
     });
+    const GenerateUUID= () => {//Generate a DeviceUid to discern User Device
+        let Device =uuidv5('dns','yourDevice');
+        var myStorage=localStorage;
+        myStorage.setItem("UserDevice",Device);
+       onMount(async () =>
+       {
+           while(myStorage.getItem("UserDevice") ==null)
+           {
+               alert("You should try to login again");
+           }
+       });
+    }
     return (<>
         <h1>Sign in with...</h1>
-        <div className="Bodybox"></div>
         <Show when={!auth.user()} fallback={<Navigate href="/" />}>
-            <input type="button" value={"GitHub"} onClick={signInWithGithub} className="loginButton"/><br></br>
+        <input type="button" value={"GitHub"} onClick={signInWithGithub} className="loginButton"/><br></br>
             <style jsx>
                 {`
                 .loginButton{
@@ -40,13 +51,6 @@ const Login: Component = () => {
                    margin-left:700px;
                    margin-top:150px;
                    position:relative;
-                }
-                .Bodybox
-                {
-                   width:500px;
-                   theight:100%;
-                   top:0px;
-                   left:0px;
                 }
                 `}
             </style>
