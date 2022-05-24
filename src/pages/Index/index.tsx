@@ -53,11 +53,15 @@ const Index: Component = () => {
             navigate("/login");
         }
     }
+    const ROOM = ()=>{
+        navigate('/room');
+    }
     return <Show when={auth.user()} fallback={<Navigate href="/login" />}>
         <Button className="button1" onClick={() => navigate("/user")}>User Infomation</Button><br></br>
         <TextField className="testfield1" label="RoomName" helperText="Plz input your Room name" value={roomName()} onChange={(_, val) => setRoomName(val)}></TextField>
         <Button onClick={creating} >Create Room</Button><br></br>
-        <input type="button" value={"用户中心"} onClick={UserCentre} className="button1"></input>
+        <button className="button1" onClick={UserCentre}>用户中心</button>
+        <button onClick={ROOM}>GO TO ROOM</button>
         <Show when={!rooms.loading} fallback={<p>Loading rooms</p>}>
             <For each={rooms()} fallback={<p>No rooms here.</p>}>
                 {
@@ -70,6 +74,8 @@ const Index: Component = () => {
         <style jsx>
             {`
             .button1{
+                width:150px;
+                height:47px;
                 background-color:dodgerblue;
                 color: white;
                 border: none;
