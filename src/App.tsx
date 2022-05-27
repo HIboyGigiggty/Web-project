@@ -5,6 +5,7 @@ import CssBaseline from "@suid/material/CssBaseline";
 const Login = lazy(() => import("./pages/Login"));
 const User = lazy(() => import("./pages/User"));
 const Index = lazy(() => import("./pages/Index"));
+const DevDrawBroad = lazy(() => import("./pages/DevDrawBroad"));
 
 const App: Component = () => {
     return (<>
@@ -13,6 +14,7 @@ const App: Component = () => {
             <Route path="/" element={<Index />}/>
             <Route path="/login" element={<Login />} />
             <Route path="/user" element={<User />} />
+            <Route path="/dev-draw-broad" element={<DevDrawBroad />} />
         </Routes>
     </>);
 };

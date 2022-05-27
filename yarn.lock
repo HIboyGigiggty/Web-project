@@ -1633,6 +1633,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@solid-primitives/raf@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "@solid-primitives/raf@npm:2.1.0"
+  dependencies:
+    "@solid-primitives/utils": ^1.0.0
+  peerDependencies:
+    solid-js: ^1.3.0
+  checksum: 03b21288ce1c1dc04e48ef6d74d3ccff5d48f78ecb9d219edb682c550a7e0c30f78949e5fc1ba4729b4cf0d0db7c13d33070ba09e6a82d7dfda68b399ebb9e5c
+  languageName: node
+  linkType: hard
+
+"@solid-primitives/utils@npm:^1.0.0":
+  version: 1.5.2
+  resolution: "@solid-primitives/utils@npm:1.5.2"
+  peerDependencies:
+    solid-js: ^1.3.1
+  checksum: 6db2ee1f343da0024c1061daba29455d0b2fca0dd5df423cebd4518908b12f6523955f2bfd42c664415eb8740ff3599f99fd8eb7ac1f301109d068850a7828a0
+  languageName: node
+  linkType: hard
+
 "@suid/base@npm:0.1.0":
   version: 0.1.0
   resolution: "@suid/base@npm:0.1.0"
@@ -1853,6 +1873,13 @@ __metadata:
   dependencies:
     "@types/node": "*"
   checksum: bfcadb042a41b124c4e3de4925e3be6d35b78f93f27c4535d5ff86980dc0f8bc407ed99b9b54528952dc62834d5a779392f7a12c2947dd19330eb05a6bcae15a
+  languageName: node
+  linkType: hard
+
+"@types/chroma-js@npm:^2":
+  version: 2.1.3
+  resolution: "@types/chroma-js@npm:2.1.3"
+  checksum: 8c94c421b9613c534471b18912b11cdbb267ab8da380ce6d484115f48fb08583e7ab1f7e26fa0e7811a0d42ac531fe9a9b8475afe7b7b91d86cd08b758ca3add
   languageName: node
   linkType: hard
 
@@ -3051,6 +3078,13 @@ __metadata:
   version: 2.0.0
   resolution: "chownr@npm:2.0.0"
   checksum: c57cf9dd0791e2f18a5ee9c1a299ae6e801ff58fee96dc8bfd0dcb4738a6ce58dd252a3605b1c93c6418fe4f9d5093b28ffbf4d66648cb2a9c67eaef9679be2f
+  languageName: node
+  linkType: hard
+
+"chroma-js@npm:^2.4.2":
+  version: 2.4.2
+  resolution: "chroma-js@npm:2.4.2"
+  checksum: cf9884c02d406286e4370599bcd1afbf089384407df46b3a69edfedcba7bb99e8f959a5cfdbfec750b305c441c06ca40cd1f70ba3a6c2ce739ac09a92520ddae
   languageName: node
   linkType: hard
 
@@ -5842,10 +5876,12 @@ __metadata:
     "@babel/plugin-syntax-jsx": ^7.16.7
     "@babel/preset-env": ^7.16.11
     "@fontsource/roboto": ^4.5.5
+    "@solid-primitives/raf": ^2.1.0
     "@suid/icons-material": ^0.1.0
     "@suid/material": ^0.1.0
     "@supabase/supabase-js": ^1.35.1
     "@types/babel__core": ^7
+    "@types/chroma-js": ^2
     "@types/eslint": ^8
     "@types/uuid": ^8
     "@types/webpack-bundle-analyzer": ^4
@@ -5854,6 +5890,7 @@ __metadata:
     babel-loader: ^8.2.5
     babel-plugin-solid-undestructure: ^0.0.15
     babel-preset-solid: ^1.3.13
+    chroma-js: ^2.4.2
     core-js: ^3.22.1
     css-loader: ^6.7.1
     eslint: ^8.16.0
