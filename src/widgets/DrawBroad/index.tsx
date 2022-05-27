@@ -37,6 +37,7 @@ export interface DrawEvent {
 export enum DrawTool {
     "hand",
     "pen",
+    "erase",
 }
 
 export class DrawBroadController {
@@ -79,6 +80,18 @@ export class DrawBroadController {
         this.ctx2d.clearRect(0, 0, this.offscreen.width, this.offscreen.height);
         this.viewpointBufferRefreshNeeded = true;
         this.isBufferDirty = true;
+    }
+
+    translateColor(color: string | chroma.Color): string {
+        if (typeof color === "string") {
+            if (color === "erase") {
+                return "white";
+            } else {
+                return color;
+            }
+        } else {
+            return color.hex();
+        }
     }
 }
 
@@ -223,7 +236,10 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
             const yc = (stroke[l].y + stroke[l - 1].y) / 2;
             context.lineWidth = stroke[l - 1].lineWidth;
             context.quadraticCurveTo(stroke[l - 1].x, stroke[l - 1].y, xc, yc);
-            context.strokeStyle = chroma.mix(stroke[l-1].color, stroke[l].color).hex();
+            context.strokeStyle = chroma.mix(
+                ctl.translateColor(stroke[l-1].color),
+                ctl.translateColor(stroke[l].color)
+            ).hex();
             context.stroke();
             context.beginPath();
             context.moveTo(xc, yc);
@@ -232,7 +248,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
             console.log("stroke", stroke);
             console.log("point", point);
             context.lineWidth = point.lineWidth;
-            context.strokeStyle = point.color;
+            context.strokeStyle = ctl.translateColor(point.color);
             context.beginPath();
             context.moveTo(point.x, point.y);
             context.stroke();
@@ -277,7 +293,12 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
             mouseDown = true;
     
             lineWidth = Math.log(pressure+1) * ctl.lineWidthFactor();
-            points.push({ x: x + viewpointX(), y: y + viewpointY(), lineWidth: lineWidth, color: ctl.color() });
+            points.push({
+                x: x + viewpointX(),
+                y: y + viewpointY(),
+                lineWidth: lineWidth,
+                color: ctl.tool() === DrawTool.erase ? "erase" : ctl.color(),
+            });
             draw(points);
             if (merged.onStart) {
                 const ev: DrawEvent = {x, y, pressure, hasForce: hasForce || false};
@@ -337,7 +358,12 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
     
             // smoothen line width
             lineWidth = Math.log(pressure + 1) * ctl.lineWidthFactor() * 0.2 + lineWidth * 0.8;
-            points.push({x: x + viewpointX(), y: y + viewpointY(), lineWidth: lineWidth, color: ctl.color()});
+            points.push({
+                x: x + viewpointX(),
+                y: y + viewpointY(),
+                lineWidth: lineWidth,
+                color: ctl.tool() === DrawTool.erase ? "erase" : ctl.color(),
+            });
             draw(points);
     
             if (merged.onDrawing) {
@@ -509,7 +535,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         } else {
             setTouchType(undefined);
         }
-        if (ctl.tool() === DrawTool.pen) {
+        if (ctl.tool() === DrawTool.pen || ctl.tool() === DrawTool.erase) {
             onDrawStart(e);
         } else if (ctl.tool() === DrawTool.hand) {
             onHandDragStart(e);
@@ -519,7 +545,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
     // FIXME: use more specific type and make optimizer happy
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onHandMoving = (e: any) => {
-        if (ctl.tool() === DrawTool.pen) {
+        if (ctl.tool() === DrawTool.pen || ctl.tool() === DrawTool.erase) {
             onDrawMoving(e);
         } else if (ctl.tool() === DrawTool.hand) {
             onHandDraging(e);
@@ -529,7 +555,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
     // FIXME: use more specific type and make optimizer happy
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onHandEnd = (e: any) => {
-        if (ctl.tool() === DrawTool.pen) {
+        if (ctl.tool() === DrawTool.pen || ctl.tool() === DrawTool.erase) {
             onDrawEnd(e);
         } else if (ctl.tool() === DrawTool.hand) {
             onHandDragEnd(e);
