@@ -439,40 +439,49 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         }
     };
 
-    // FIXME: use more specific type and make optimizer happy
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const onDrawEnd = (e: any) => {
-        let pressure = 0.1;
-        let x: number, y: number;
-        const hasForce = e.touches && e.touches[0] && typeof e.touches[0]["force"] !== "undefined";
-        if (hasForce) {
-            if (e.touches[0]["force"] > 0) {
-                pressure = e.touches[0]["force"];
+    const onTouchDrawEnd = (e: TouchEvent) => {
+        if (e.touches.length === 1) {
+            const touch = e.touches[0];
+            const pageX = touch.pageX * devicePixelRatio();
+            const pageY = touch.pageY * devicePixelRatio();
+            dragStartX = undefined;
+            dragStartY = undefined;
+            
+            if (mouseDown) {
+                const pressure = touch.force > 0? touch.force: 0.1;
+                mouseDown = false;
+                points = [];
+                lineWidth = 0;
+                draw(points);
+                const actualX = pageX + viewpointX();
+                const actualY = pageY + viewpointY();
+                if (merged.onEnd) {
+                    const ev: DrawEvent = {x: actualX, y: actualY, pressure, hasForce: true};
+                    if (touchType()) {
+                        ev.touch = {...touch, type: touchType() as DrawTouchType};
+                    }
+                    merged.onEnd(ev);
+                }
             }
-            x = e.touches[0].pageX * devicePixelRatio();
-            y = e.touches[0].pageY * devicePixelRatio();
-        } else {
-            pressure = 1.0;
-            x = e.pageX * devicePixelRatio();
-            y = e.pageY * devicePixelRatio();
         }
+    };
+
+    const onMouseDrawEnd = (e: MouseEvent) => {
+        const pressure = 1.0;
+        const pageX = e.pageX * devicePixelRatio();
+        const pageY = e.pageY * devicePixelRatio();
         dragStartX = undefined;
         dragStartY = undefined;
+
+        const actualX = pageX + viewpointX();
+        const actualY = pageY + viewpointY();
 
         mouseDown = false;
         points = [];
         lineWidth = 0;
         draw(points);
         if (merged.onEnd) {
-            const ev: DrawEvent = {x: x + viewpointX(), y: y + viewpointY(), pressure, hasForce: hasForce || false};
-            const touch = e.touches ? e.touches[0] : null;
-            if (touch) {
-                const type = touch.touchType === "direct" ? DrawTouchType.direct: DrawTouchType.stylus;
-                setTouchType(type);
-                ev.touch = {...touch, type: type};
-            } else {
-                setTouchType(undefined);
-            }
+            const ev: DrawEvent = {x: actualX, y: actualY, pressure, hasForce: false};
             merged.onEnd(ev);
         }
     };
@@ -621,11 +630,17 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         }
     };
 
-    // FIXME: use more specific type and make optimizer happy
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const onHandEnd = (e: any) => {
+    const onTouchEnd = (e: TouchEvent) => {
         if (ctl.tool() === DrawTool.pen || ctl.tool() === DrawTool.erase) {
-            onDrawEnd(e);
+            onTouchDrawEnd(e);
+        } else if (ctl.tool() === DrawTool.hand) {
+            onHandDragEnd(e);
+        }
+    };
+
+    const onMouseEnd = (e: MouseEvent) => {
+        if (ctl.tool() === DrawTool.pen || ctl.tool() === DrawTool.erase) {
+            onMouseDrawEnd(e);
         } else if (ctl.tool() === DrawTool.hand) {
             onHandDragEnd(e);
         }
@@ -699,9 +714,9 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
             onMouseDown={onMouseStart}
             onTouchMove={onTouchMoving}
             onMouseMove={onMouseMoving}
-            onTouchEnd={onHandEnd}
-            onTouchCancel={onHandEnd}
-            onMouseUp={onHandEnd}
+            onTouchEnd={onTouchEnd}
+            onTouchCancel={onTouchEnd}
+            onMouseUp={onMouseEnd}
             onContextMenu={(ev) => ev.preventDefault()}
             onWheel={onWheel}
             class="draw-broad-canvas"
