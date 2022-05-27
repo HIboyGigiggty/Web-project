@@ -3,13 +3,10 @@ import { createOnAuthStateChange, createSupabaseAuth } from "solid-supabase";
 import { Navigate, useNavigate } from "solid-app-router";
 import getDeviceId from "../../helpers/getDeviceId";
 import Box from "@suid/material/Box";
-import Button from "@suid/material/Button";
 
 import Card from "@suid/material/Card";
-import CardActions from "@suid/material/CardActions";
-import CardContent from "@suid/material/CardContent";
 import Typography from "@suid/material/Typography";
-import CardHeader from '@suid/material/CardHeader';
+import CardHeader from "@suid/material/CardHeader";
 
 import List from "@suid/material/List";
 import ListItem from "@suid/material/ListItem";
@@ -40,7 +37,7 @@ const Login: Component = () => {
     return (<>
 
         <Show when={!auth.user()} fallback={<Navigate href="/" />}>
-            <div className="viewpoint-centre">
+            <div class="viewpoint-centre">
 
                 {/* <button className="loginbutton" onClick={signInWithGithub}><span>GitHub</span></button> */}
 
@@ -49,7 +46,7 @@ const Login: Component = () => {
                     </CardHeader>
                     <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom >
                         <br />
-                        <Box sx={{ width: '100%', minWidth: 360, bgcolor: 'background.paper' }}>
+                        <Box sx={{ width: "100%", minWidth: 360, bgcolor: "background.paper" }}>
                             <nav aria-label="main mailbox folders"></nav>
                             <List >
                                 <ListItem disablePadding onClick={signInWithGithub}>
@@ -82,7 +79,7 @@ const Login: Component = () => {
         `}
 
         </style>
-    </>)
-}
+    </>);
+};
 
 export default Login;
