@@ -2088,7 +2088,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/uuid@npm:^8":
+"@types/uuid@npm:^8.3.2":
   version: 8.3.4
   resolution: "@types/uuid@npm:8.3.4"
   checksum: 6f11f3ff70f30210edaa8071422d405e9c1d4e53abbe50fdce365150d3c698fe7bbff65c1e71ae080cbfb8fded860dbb5e174da96fdbbdfcaa3fb3daa474d20f
@@ -5883,7 +5883,7 @@ __metadata:
     "@types/babel__core": ^7
     "@types/chroma-js": ^2
     "@types/eslint": ^8
-    "@types/uuid": ^8
+    "@types/uuid": ^8.3.2
     "@types/webpack-bundle-analyzer": ^4
     "@typescript-eslint/eslint-plugin": latest
     "@typescript-eslint/parser": ^5.25.0
