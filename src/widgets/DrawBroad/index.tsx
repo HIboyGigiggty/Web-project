@@ -49,6 +49,8 @@ export class DrawBroadController {
     scrollCtl: ScrollbarController;
     tool: Accessor<DrawTool>;
     setTool: Setter<DrawTool>;
+    isBufferDirty: boolean;
+    viewpointBufferRefreshNeeded: boolean;
 
     constructor(defaultColor: string, defaultLinedWidthFactor: number) {
         const [color, setColor] = createSignal<string>(defaultColor);
@@ -64,11 +66,19 @@ export class DrawBroadController {
         }
         this.ctx2d = ctx2d;
         this.scrollCtl = new ScrollbarController();
+        this.isBufferDirty = true;
+        this.viewpointBufferRefreshNeeded = false;
     }
 
     setOffscreenSize([width, height]: [number, number]) {
         this.offscreen.width = width;
         this.offscreen.height = height;
+    }
+
+    resetCanvas() {
+        this.ctx2d.clearRect(0, 0, this.offscreen.width, this.offscreen.height);
+        this.viewpointBufferRefreshNeeded = true;
+        this.isBufferDirty = true;
     }
 }
 
@@ -100,8 +110,6 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
     let mouseDown = false;
     let lineWidth = 0;
     let points: DrawPoint[] = [];
-    let isBufferDirty = true;
-    let viewpointBufferRefreshNeeded = false;
 
     const [windowSize] = useWindowSize();
 
@@ -161,11 +169,11 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         if (!ctx2d) return;
         const viewpointCtx = ctx2d;
         const offscreen = ctl.offscreen;
-        if (viewpointBufferRefreshNeeded) {
+        if (ctl.viewpointBufferRefreshNeeded) {
             viewpointCtx.clearRect(
                 0, 0, element.width, element.height
             );
-            viewpointBufferRefreshNeeded = false;
+            ctl.viewpointBufferRefreshNeeded = false;
         }
         viewpointCtx.drawImage(
             offscreen,
@@ -182,10 +190,10 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         drawAxisX();
         drawAxisY();
 
-        isBufferDirty = false;
+        ctl.isBufferDirty = false;
     };
 
-    const [, bufferSyncStart, ] = createRAF(() => (isBufferDirty? syncViewpointWithOffScreen(): undefined));
+    const [, bufferSyncStart, ] = createRAF(() => (ctl.isBufferDirty? syncViewpointWithOffScreen(): undefined));
 
     const updateViewpointSize = () => {
         const {width, height} = windowSize();
@@ -193,8 +201,8 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         element.height = height;
         scrollCtl.setX([ctl.offscreen.width, 0, width]);
         scrollCtl.setY([ctl.offscreen.height, 0, height]);
-        viewpointBufferRefreshNeeded = true;
-        isBufferDirty = true;
+        ctl.viewpointBufferRefreshNeeded = true;
+        ctl.isBufferDirty = true;
     };
 
     /// Draw `stroke` on the broad. This function will mark buffer is dirty after drawing.
@@ -230,7 +238,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
             context.stroke();
         }
 
-        isBufferDirty = true;
+        ctl.isBufferDirty = true;
     };
 
     // FIXME: use more specific type and make optimizer happy
@@ -290,15 +298,15 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         mouseOverX = (typeof dragStartX === "number" ? true : false) || scrollCtl.isHitScrollX(pageX, pageY);
         mouseOverY = (typeof dragStartY === "number" ? true : false) || scrollCtl.isHitScrollY(pageX, pageY);
         if (oldMouseOverX !== mouseOverX || oldMouseOverY !== mouseOverY) {
-            isBufferDirty = true;
+            ctl.isBufferDirty = true;
         }
         if (dragStartX) {
             e.preventDefault();
             const offest = Math.round((pageX - (dragStartX || 0)) * scrollCtl.getXOfTotal() * devicePixelRatio());
             if (scrollCtl.canScrollX(offest)) {
                 scrollCtl.setX(([total, start, end]) => [total, start + offest, end + offest]);
-                isBufferDirty = true;
-                viewpointBufferRefreshNeeded = true;
+                ctl.isBufferDirty = true;
+                ctl.viewpointBufferRefreshNeeded = true;
             }
             dragStartX = pageX;
         } else if (dragStartY) {
@@ -306,8 +314,8 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
             const offest = Math.round((pageY - (dragStartY || 0)) * scrollCtl.getYOfTotal() * devicePixelRatio());
             if (scrollCtl.canScrollY(offest)) {
                 scrollCtl.setY(([total, start, end]) => [total, start + offest, end + offest]);
-                isBufferDirty = true;
-                viewpointBufferRefreshNeeded = true;
+                ctl.isBufferDirty = true;
+                ctl.viewpointBufferRefreshNeeded = true;
             }
             dragStartY = pageY;
         } else if (mouseDown) {
@@ -388,16 +396,16 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
             const offest = e.deltaY;
             if (scrollCtl.canScrollX(offest)) {
                 scrollCtl.setX(([total, start, end]) => [total, start + offest, end + offest]);
-                viewpointBufferRefreshNeeded = true;
-                isBufferDirty = true;
+                ctl.viewpointBufferRefreshNeeded = true;
+                ctl.isBufferDirty = true;
             }
         } else if (mouseOverY) {
             e.preventDefault();
             const offest = e.deltaY;
             if (scrollCtl.canScrollY(offest)) {
                 scrollCtl.setY(([total, start, end]) => [total, start + offest, end + offest]);
-                viewpointBufferRefreshNeeded = true;
-                isBufferDirty = true;
+                ctl.viewpointBufferRefreshNeeded = true;
+                ctl.isBufferDirty = true;
             }
         } else if (e.shiftKey) {
             e.preventDefault();
@@ -405,8 +413,8 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
                 const offest = e.deltaX;
                 if (scrollCtl.canScrollX(offest)) {
                     scrollCtl.setX(([total, start, end]) => [total, start + offest, end + offest]);
-                    viewpointBufferRefreshNeeded = true;
-                    isBufferDirty = true;
+                    ctl.viewpointBufferRefreshNeeded = true;
+                    ctl.isBufferDirty = true;
                 }
             }
 
@@ -414,8 +422,8 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
                 const offest = e.deltaY;
                 if (scrollCtl.canScrollY(offest)) {
                     scrollCtl.setY(([total, start, end]) => [total, start + offest, end + offest]);
-                    viewpointBufferRefreshNeeded = true;
-                    isBufferDirty = true;
+                    ctl.viewpointBufferRefreshNeeded = true;
+                    ctl.isBufferDirty = true;
                 }
             }
         }
@@ -465,8 +473,8 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
             const offestX = - Math.round((pageX - (dragStartX || 0)) * scrollCtl.getXOfTotal() * devicePixelRatio());
             if (scrollCtl.canScrollX(offestX)) {
                 scrollCtl.setX(([total, start, end]) => [total, start + offestX, end + offestX]);
-                isBufferDirty = true;
-                viewpointBufferRefreshNeeded = true;
+                ctl.isBufferDirty = true;
+                ctl.viewpointBufferRefreshNeeded = true;
             }
             dragStartX = pageX;
         }
@@ -474,12 +482,12 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
             const offestY = - Math.round((pageY - (dragStartY || 0)) * scrollCtl.getYOfTotal() * devicePixelRatio());
             if (scrollCtl.canScrollY(offestY)) {
                 scrollCtl.setY(([total, start, end]) => [total, start + offestY, end + offestY]);
-                isBufferDirty = true;
-                viewpointBufferRefreshNeeded = true;
+                ctl.isBufferDirty = true;
+                ctl.viewpointBufferRefreshNeeded = true;
             }
             dragStartY = pageY;
         }
-        viewpointBufferRefreshNeeded = true;
+        ctl.viewpointBufferRefreshNeeded = true;
     };
 
     // FIXME: use more specific type and make optimizer happy
@@ -488,7 +496,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         e.preventDefault();
         dragStartX = undefined;
         dragStartY = undefined;
-        isBufferDirty = true;
+        ctl.isBufferDirty = true;
     };
 
     // FIXME: use more specific type and make optimizer happy

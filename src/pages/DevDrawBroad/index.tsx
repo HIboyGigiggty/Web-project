@@ -31,6 +31,7 @@ const DevDrawBroad: Component = () => {
             <Button onClick={() => broadCtl.setTool(DrawTool.hand)}>Hand</Button>
             <Button onClick={() => broadCtl.setTool(DrawTool.pen)}>Pen</Button>
             <br />
+            <Button onClick={() => broadCtl.resetCanvas()}>Reset Canvas</Button>
         </p>
         <DrawBroad
             onStart={(stroke, ev) => {
