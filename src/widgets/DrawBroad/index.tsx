@@ -12,13 +12,13 @@ export interface DrawPoint {
     color: string,
 }
 
-export enum TouchType {
+export enum DrawTouchType {
     "direct",
     "stylus",
 }
 
-export interface TouchEvent {
-    type: TouchType,
+export interface DrawTouchEvent {
+    type: DrawTouchType,
     radiusX: number,
     radiusY: number,
     rotationAngle: number,
@@ -31,7 +31,7 @@ export interface DrawEvent {
     pressure: number,
     x: number,
     y: number,
-    touch?: TouchEvent,
+    touch?: DrawTouchEvent,
 }
 
 export enum DrawTool {
@@ -99,7 +99,7 @@ interface DrawBroadProps {
     onStart?: (stroke: DrawPoint[], ev: DrawEvent) => void,
     onDrawing?: (stroke: DrawPoint[], ev: DrawEvent) => void,
     onEnd?: (ev: DrawEvent) => void,
-    onTouchTypeChanged?: (newTouchType: TouchType) => void,
+    onTouchTypeChanged?: (newTouchType: DrawTouchType) => void,
     ctl?: DrawBroadController, // The controller can control the state of the broad. WARNING: No Reactivity For This Prop.
 }
 
@@ -126,7 +126,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
 
     const [windowSize] = useWindowSize();
 
-    const [touchType, setTouchType] = createSignal<TouchType>();
+    const [touchType, setTouchType] = createSignal<DrawTouchType>();
     const viewpointX = () => scrollCtl.getRangeX()[0];
     const viewpointY = () => scrollCtl.getRangeY()[0];
     const devicePixelRatio = useDevicePixelRatio();
@@ -370,7 +370,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
                 const ev: DrawEvent = {x, y, pressure, hasForce: hasForce || false};
                 const touch = e.touches ? e.touches[0] : null;
                 if (touch) {
-                    const type = touch.touchType === "direct" ? TouchType.direct: TouchType.stylus;
+                    const type = touch.touchType === "direct" ? DrawTouchType.direct: DrawTouchType.stylus;
                     ev.touch = {...touch, type: type};
                 }
                 merged.onDrawing(points, ev);
@@ -406,7 +406,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
             const ev: DrawEvent = {x: x + viewpointX(), y: y + viewpointY(), pressure, hasForce: hasForce || false};
             const touch = e.touches ? e.touches[0] : null;
             if (touch) {
-                const type = touch.touchType === "direct" ? TouchType.direct: TouchType.stylus;
+                const type = touch.touchType === "direct" ? DrawTouchType.direct: DrawTouchType.stylus;
                 setTouchType(type);
                 ev.touch = {...touch, type: type};
             } else {
@@ -530,7 +530,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
     const onHandStart = (e: any) => {
         const touch = e.touches ? e.touches[0] : null;
         if (touch) {
-            const type = touch.touchType === "direct" ? TouchType.direct: TouchType.stylus;
+            const type = touch.touchType === "direct" ? DrawTouchType.direct: DrawTouchType.stylus;
             setTouchType(type);
         } else {
             setTouchType(undefined);

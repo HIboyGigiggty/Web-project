@@ -1,13 +1,13 @@
 import Button from "@suid/material/Button";
 import TextField from "@suid/material/TextField";
 import { Component, createSignal } from "solid-js";
-import {default as DrawBroad, DrawBroadController, DrawPoint, DrawTool, TouchType} from "../../widgets/DrawBroad";
+import {default as DrawBroad, DrawBroadController, DrawPoint, DrawTool, DrawTouchType} from "../../widgets/DrawBroad";
 
 const DevDrawBroad: Component = () => {
     const [currentPoint, setCurrentPoint] = createSignal<DrawPoint>();
     const [hasForce, setHasForce] = createSignal<boolean>(false);
     const [pressure, setPressure] = createSignal<number>(0);
-    const [touchType, setTouchType] = createSignal<TouchType>();
+    const [touchType, setTouchType] = createSignal<DrawTouchType>();
     const broadCtl = new DrawBroadController("blue", 20);
     broadCtl.setOffscreenSize([3000, 3000]);
 
