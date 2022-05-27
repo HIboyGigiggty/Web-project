@@ -136,8 +136,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
     };
 
     const getScrollbarWidth = (mouseOver: boolean, dragStart: number | undefined) => {
-        const widthFactor = touchType() === undefined? 1 : devicePixelRatio();
-        const bar_width = Math.round((mouseOver? 20: 12) * widthFactor);
+        const bar_width = Math.round((mouseOver? 20: 12));
         const another_axis = (bar_width + ((mouseOver || dragStart)? 0: 2));
         return [bar_width, another_axis];
     };
