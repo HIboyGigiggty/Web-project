@@ -19,11 +19,11 @@ export enum DrawTouchType {
 
 export interface DrawTouchEvent {
     type: DrawTouchType,
-    radiusX: number,
-    radiusY: number,
-    rotationAngle: number,
-    altitudeAngle: number,
-    azimuthAngle: number,
+    radiusX?: number,
+    radiusY?: number,
+    rotationAngle?: number,
+    altitudeAngle?: number,
+    azimuthAngle?: number,
 }
 
 export interface DrawEvent {
@@ -257,10 +257,44 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         ctl.isBufferDirty = true;
     };
 
-    // FIXME: use more specific type and make optimizer happy
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const onDrawStart = (e: any) => {
-        if (e.button && e.button !== 0) {
+    const onTouchDrawStart = (e: TouchEvent) => {
+        if (e.touches.length === 1) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const pageX = touch.pageX * devicePixelRatio();
+            const pageY = touch.pageY * devicePixelRatio();
+
+            if (scrollCtl.isHitScrollX(pageX, pageY)) {
+                mouseOverX = true;
+                dragStartX = pageX;
+            } else if (scrollCtl.isHitScrollY(pageX, pageY)) {
+                mouseOverY = true;
+                dragStartY = pageY;
+            } else {
+                const pressure = touch.force > 0 ? touch.force : 0.1;
+                const actualX = pageX + viewpointX();
+                const actualY = pageY + viewpointY();
+                mouseDown = true;
+                points.push({
+                    x: actualX,
+                    y: actualY,
+                    lineWidth: lineWidth,
+                    color: ctl.tool() === DrawTool.erase ? "erase" : ctl.color(),
+                });
+                draw(points);
+                if (merged.onStart) {
+                    const ev: DrawEvent = {x: actualX, y: actualY, pressure, hasForce: true};
+                    if (touchType()) {
+                        ev.touch = {...touch, type: touchType() as DrawTouchType};
+                    }
+                    merged.onStart(points, ev);
+                }
+            }
+        }
+    };
+
+    const onMouseDrawStart = (e: MouseEvent) => {
+        if (e.button !== 0) {
             return;
         }
         e.preventDefault();
@@ -275,35 +309,22 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
             mouseOverY = true;
             dragStartY = pageY;
         } else {
-            let pressure = 0.1;
-            let x: number, y: number;
-            const hasForce = e.touches && e.touches[0] && typeof e.touches[0]["force"] !== "undefined";
-            if (hasForce && e.touches.length === 1) {
-                if (e.touches[0]["force"] > 0) {
-                    pressure = e.touches[0]["force"];
-                }
-                x = e.touches[0].pageX * devicePixelRatio();
-                y = e.touches[0].pageY * devicePixelRatio();
-            } else {
-                pressure = 1;
-                x = e.pageX * devicePixelRatio();
-                y = e.pageY * devicePixelRatio();
-            }
+            const pressure = 1;
+            const actualX = pageX + viewpointX();
+            const actualY = pageY + viewpointY();
     
             mouseDown = true;
     
             lineWidth = Math.log(pressure+1) * ctl.lineWidthFactor();
             points.push({
-                x: x + viewpointX(),
-                y: y + viewpointY(),
+                x: actualX,
+                y: actualY,
                 lineWidth: lineWidth,
                 color: ctl.tool() === DrawTool.erase ? "erase" : ctl.color(),
             });
             draw(points);
             if (merged.onStart) {
-                const ev: DrawEvent = {x, y, pressure, hasForce: hasForce || false};
-                const touch = e.touches ? e.touches[0] : {};
-                ev.touch = {...touch, type: touchType()};
+                const ev: DrawEvent = {x: actualX, y: actualY, pressure, hasForce: false};
                 merged.onStart(points, ev);
             }
         }
@@ -525,18 +546,20 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         ctl.isBufferDirty = true;
     };
 
-    // FIXME: use more specific type and make optimizer happy
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const onHandStart = (e: any) => {
-        const touch = e.touches ? e.touches[0] : null;
-        if (touch) {
-            const type = touch.touchType === "direct" ? DrawTouchType.direct: DrawTouchType.stylus;
-            setTouchType(type);
-        } else {
-            setTouchType(undefined);
-        }
+    const onMouseStart = (e: MouseEvent) => {
+        setTouchType(undefined);
         if (ctl.tool() === DrawTool.pen || ctl.tool() === DrawTool.erase) {
-            onDrawStart(e);
+            onMouseDrawStart(e);
+        } else if (ctl.tool() === DrawTool.hand) {
+            onHandDragStart(e);
+        }
+    };
+
+    const onTouchStart = (e: TouchEvent) => {
+        const touchType = (e.touches[0] as ({touchType?: string}))["touchType"] || "direct";
+        setTouchType(touchType === "direct" ? DrawTouchType.direct: DrawTouchType.stylus);
+        if (ctl.tool() === DrawTool.pen || ctl.tool() === DrawTool.erase) {
+            onTouchDrawStart(e);
         } else if (ctl.tool() === DrawTool.hand) {
             onHandDragStart(e);
         }
@@ -626,8 +649,8 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         <canvas
         // @ts-expect-error: the next line will be a error since we refer the uninitialised variable
             ref={element}
-            onTouchStart={onHandStart}
-            onMouseDown={onHandStart}
+            onTouchStart={onTouchStart}
+            onMouseDown={onMouseStart}
             onTouchMove={onHandMoving}
             onMouseMove={onHandMoving}
             onTouchEnd={onHandEnd}
