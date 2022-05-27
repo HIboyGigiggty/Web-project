@@ -37,7 +37,7 @@ const Login: Component = () => {
     return (<>
 
         <Show when={!auth.user()} fallback={<Navigate href="/" />}>
-            <div class="viewpoint-centre">
+            <div id="login-methods">
 
                 {/* <button className="loginbutton" onClick={signInWithGithub}><span>GitHub</span></button> */}
 
@@ -49,7 +49,7 @@ const Login: Component = () => {
                         <Box sx={{ width: "100%", minWidth: 360, bgcolor: "background.paper" }}>
                             <nav aria-label="main mailbox folders"></nav>
                             <List >
-                                <ListItem disablePadding onClick={signInWithGithub}>
+                                <ListItem disablePadding onClick={signInWithGithub} id="login-with-github">
                                     <ListItemButton >
                                         <ListItemIcon>
                                             <SvgIcon sx={{width: 32, height: 32}} viewBox="0 0 16 16">
@@ -70,7 +70,7 @@ const Login: Component = () => {
 
         </Show>
         <style jsx>{`
-        .viewpoint-centre {
+        #login-methods {
             position: absolute;
             top: 50%;
             left: 50%;
