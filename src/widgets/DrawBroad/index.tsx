@@ -330,9 +330,65 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         }
     };
 
-    // FIXME: use more specific type and make optimizer happy
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const onDrawMoving = (e: any) => {
+    const onTouchDrawMoving = (e: TouchEvent) => {
+        if (e.touches.length === 1) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const pageX = touch.pageX * devicePixelRatio();
+            const pageY = touch.pageY * devicePixelRatio();
+            const oldMouseOverX = mouseOverX;
+            const oldMouseOverY = mouseOverY;
+            mouseOverX = (typeof dragStartX === "number" ? true : false) || scrollCtl.isHitScrollX(pageX, pageY);
+            mouseOverY = (typeof dragStartY === "number" ? true : false) || scrollCtl.isHitScrollY(pageX, pageY);
+            if (oldMouseOverX !== mouseOverX || oldMouseOverY !== mouseOverY) {
+                ctl.isBufferDirty = true;
+            }
+            if (dragStartX) {
+                e.preventDefault();
+                const offest = Math.round((pageX - (dragStartX || 0)) * scrollCtl.getXOfTotal() * devicePixelRatio());
+                if (scrollCtl.canScrollX(offest)) {
+                    scrollCtl.setX(([total, start, end]) => [total, start + offest, end + offest]);
+                    ctl.isBufferDirty = true;
+                    ctl.viewpointBufferRefreshNeeded = true;
+                }
+                dragStartX = pageX;
+            } else if (dragStartY) {
+                e.preventDefault();
+                const offest = Math.round((pageY - (dragStartY || 0)) * scrollCtl.getYOfTotal() * devicePixelRatio());
+                if (scrollCtl.canScrollY(offest)) {
+                    scrollCtl.setY(([total, start, end]) => [total, start + offest, end + offest]);
+                    ctl.isBufferDirty = true;
+                    ctl.viewpointBufferRefreshNeeded = true;
+                }
+                dragStartY = pageY;
+            } else if (mouseDown) {
+                e.preventDefault();
+                const pressure = touch.force > 0? touch.force : 0.1;
+                const actualX = pageX + viewpointX();
+                const actualY = pageY + viewpointY();
+        
+                // smoothen line width
+                lineWidth = Math.log(pressure + 1) * ctl.lineWidthFactor() * 0.2 + lineWidth * 0.8;
+                points.push({
+                    x: actualX,
+                    y: actualY,
+                    lineWidth: lineWidth,
+                    color: ctl.tool() === DrawTool.erase ? "erase" : ctl.color(),
+                });
+                draw(points);
+        
+                if (merged.onDrawing) {
+                    const ev: DrawEvent = {x: actualX, y: actualY, pressure, hasForce: true};
+                    if (touchType()) {
+                        ev.touch = {...touch, type: touchType() as DrawTouchType};
+                    }
+                    merged.onDrawing(points, ev);
+                }
+            }
+        }
+    };
+
+    const onMouseDrawMoving = (e: MouseEvent) => {
         const pageX = e.pageX * devicePixelRatio();
         const pageY = e.pageY * devicePixelRatio();
         const oldMouseOverX = mouseOverX;
@@ -362,38 +418,22 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
             dragStartY = pageY;
         } else if (mouseDown) {
             e.preventDefault();
-            let pressure = 0.1;
-            let x: number, y: number;
-            const hasForce = e.touches && e.touches[0] && typeof e.touches[0]["force"] !== "undefined";
-            if (hasForce) {
-                if (e.touches[0]["force"] > 0) {
-                    pressure = e.touches[0]["force"];
-                }
-                x = e.touches[0].pageX * devicePixelRatio();
-                y = e.touches[0].pageY * devicePixelRatio();
-            } else {
-                pressure = 1.0;
-                x = e.pageX * devicePixelRatio();
-                y = e.pageY * devicePixelRatio();
-            }
+            const pressure = 1.0;
+            const actualX = pageX + viewpointX();
+            const actualY = pageY + viewpointY();
     
             // smoothen line width
             lineWidth = Math.log(pressure + 1) * ctl.lineWidthFactor() * 0.2 + lineWidth * 0.8;
             points.push({
-                x: x + viewpointX(),
-                y: y + viewpointY(),
+                x: actualX,
+                y: actualY,
                 lineWidth: lineWidth,
                 color: ctl.tool() === DrawTool.erase ? "erase" : ctl.color(),
             });
             draw(points);
     
             if (merged.onDrawing) {
-                const ev: DrawEvent = {x, y, pressure, hasForce: hasForce || false};
-                const touch = e.touches ? e.touches[0] : null;
-                if (touch) {
-                    const type = touch.touchType === "direct" ? DrawTouchType.direct: DrawTouchType.stylus;
-                    ev.touch = {...touch, type: type};
-                }
+                const ev: DrawEvent = {x: actualX, y: actualY, pressure, hasForce: false};
                 merged.onDrawing(points, ev);
             }
         }
@@ -565,11 +605,17 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         }
     };
 
-    // FIXME: use more specific type and make optimizer happy
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const onHandMoving = (e: any) => {
+    const onTouchMoving = (e: TouchEvent) => {
         if (ctl.tool() === DrawTool.pen || ctl.tool() === DrawTool.erase) {
-            onDrawMoving(e);
+            onTouchDrawMoving(e);
+        } else if (ctl.tool() === DrawTool.hand) {
+            onHandDraging(e);
+        }
+    };
+
+    const onMouseMoving = (e: MouseEvent) => {
+        if (ctl.tool() === DrawTool.pen || ctl.tool() === DrawTool.erase) {
+            onMouseDrawMoving(e);
         } else if (ctl.tool() === DrawTool.hand) {
             onHandDraging(e);
         }
@@ -651,8 +697,8 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
             ref={element}
             onTouchStart={onTouchStart}
             onMouseDown={onMouseStart}
-            onTouchMove={onHandMoving}
-            onMouseMove={onHandMoving}
+            onTouchMove={onTouchMoving}
+            onMouseMove={onMouseMoving}
             onTouchEnd={onHandEnd}
             onTouchCancel={onHandEnd}
             onMouseUp={onHandEnd}
