@@ -217,6 +217,17 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         ctl.isBufferDirty = true;
     };
 
+    const resetAllIntermediateStatus = () => {
+        mouseOverX = false;
+        mouseOverY = false;
+        dragStartX = undefined;
+        dragStartY = undefined;
+        mouseDown = false;
+        points = [];
+        lineWidth = 0;
+        draw(points);
+    };
+
     /// Draw `stroke` on the broad. This function will mark buffer is dirty after drawing.
     const draw = function (stroke: DrawPoint[]) {
         const context = ctl.ctx2d;
@@ -718,6 +729,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
             onMouseUp={onMouseEnd}
             onContextMenu={(ev) => ev.preventDefault()}
             onWheel={onWheel}
+            onMouseLeave={resetAllIntermediateStatus}
             class="draw-broad-canvas"
         /></>;
 };
