@@ -42,12 +42,9 @@ const Login: Component = () => {
                 {/* <button className="loginbutton" onClick={signInWithGithub}><span>GitHub</span></button> */}
 
                 <Card sx={{ minWidth: 300 }}>
-                    <CardHeader title={<Typography variant="h6">使用第三方登录</Typography>}>
-                    </CardHeader>
+                    <CardHeader title={<Typography variant="h6">登录</Typography>} />
                     <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom >
-                        <br />
                         <Box sx={{ width: "100%", minWidth: 360, bgcolor: "background.paper" }}>
-                            <nav aria-label="main mailbox folders"></nav>
                             <List >
                                 <ListItem disablePadding onClick={signInWithGithub} id="login-with-github">
                                     <ListItemButton >
