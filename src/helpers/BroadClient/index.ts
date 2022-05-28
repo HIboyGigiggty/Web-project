@@ -74,7 +74,7 @@ class BroadClient {
         if (q.error) {
             throw q.error;
         } else {
-            if (q.count && q.count > 0) {
+            if (q.data) {
                 return true;
             } else {
                 return false;
