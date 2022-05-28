@@ -19,7 +19,7 @@ const Room: Component = () => {
         const room = await broadCli.findRoomById(params.id);
         if (room) {
             setStatus(RoomStatus.Found);
-            if (!await broadCli.isJointRoomById(room.id)) {
+            if (!await broadCli.isJoinedRoomById(room.id)) {
                 await broadCli.joinRoomById(room.id);
             }
             setStatus(RoomStatus.Joint);
