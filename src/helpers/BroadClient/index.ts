@@ -30,8 +30,8 @@ class BroadClient {
         if (rooms.error) {
             throw rooms.error;
         } else {
-            if (rooms.count && rooms.count > 0) {
-                return rooms.body[0];
+            if (rooms.data) {
+                return rooms.data as unknown as Room;
             } else {
                 return null;
             }
