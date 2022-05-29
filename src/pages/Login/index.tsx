@@ -37,27 +37,7 @@ const Login: Component = () => {
     return (<>
 
         <Show when={!auth.user()} fallback={<Navigate href="/" />}>
-        <input type="button" value={"GitHub"} onClick={signInWithGithub} className="loginButton"/><br></br>
-            <style jsx>
-                {`
-                .loginButton{
-                    background-color:dodgerblue;
-                    color:white;
-                    width:200px;
-                    height:47px;
-                    border:0;
-                    font-size:16px;
-                    border-radius:30px;
-                   margin-left:700px;
-                   margin-top:150px;
-                   position:relative;
-                }
-                `}
-            </style>
             <div id="login-methods">
-
-                {/* <button className="loginbutton" onClick={signInWithGithub}><span>GitHub</span></button> */}
-
                 <Card sx={{ minWidth: 300 }}>
                     <CardHeader title={<Typography variant="h6">登录</Typography>} />
                     <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom >
@@ -81,18 +61,14 @@ const Login: Component = () => {
                     </Typography>
                 </Card>
             </div>
-
+            <style jsx>{`
+                #login-methods {
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                }`}</style>
         </Show>
-        <style jsx>{`
-        #login-methods {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-        `}
-
-        </style>
     </>);
 };
 
