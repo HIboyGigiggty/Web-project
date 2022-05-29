@@ -20,3 +20,7 @@ src/configs/
 # Editors Specific Configs
 .idea/
 .vscode/
+
+# Bundle status
+stat.json
+stats.html

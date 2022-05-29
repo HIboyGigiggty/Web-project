@@ -1,5 +1,14 @@
 # Hacking
 
+## Setting up development environment
+
+It's recommended to install the extensions to use these tools in your editor/IDE:
+
+- [ESLint](https://eslint.org)
+- [TypeScript](https://www.typescriptlang.org)
+
+Many checks are removed since we moved to vite from webpack, so it's up to your editor/IDE to perfrom these checks. On the other hand, the building speed goes up since these checks are removed.
+
 ## Configure runtime options
 
 Before you start, you should configure runtime options. Runtime options are placed at "src/configs".
@@ -43,14 +52,21 @@ Then edit the runtime option of supabase in "src/configs/supabase_conf.ts" to us
 
 ## Analyze Bundle Size
 
-Webpack have configured to generate bundle size detail when doing production bundle.
+Vite have configured to generate bundle size detail when doing production bundle.
 
 ````shell
 yarn build
 ````
 
-You will discover the new "stats.json" under dist directory. Use [webpack bundle analyzer](https://github.com/webpack-contrib/webpack-bundle-analyzer) to visualise:
+You will discover the new "stat.json" under dist directory. Use [rollup-plugin-visualizer](https://github.com/webpack-contrib/webpack-bundle-analyzer) to visualise:
 
 ````shell
-yarn webpack-bundle-analyzer dist/stats.json
+yarn visualize-bundle
 ````
+
+This command will generated a "stats.html" in the same directory. You can drag onto your browser to view it.
+
+## Migrated to Vite
+Since commit e7c76e7, we have moved to vite to bundle package. It is a default to solid.js community and provides better performance instead webpack.
+
+The npm scripts are correctly configured to use vite. Though there are some less popular scripts are removed.
