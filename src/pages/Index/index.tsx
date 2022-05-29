@@ -42,25 +42,14 @@ const Index: Component = () => {
         }
     }
 
-    const UserCentre =async() =>
-    {
-        let user = auth.user();
-        if(user)
-        {
-            navigate("/user");
-        }
-        else{
-            navigate("/login");
-        }
-    }
+
     const ROOM = ()=>{
         navigate('/room');
     }
     return <Show when={auth.user()} fallback={<Navigate href="/login" />}>
-        <Button className="button1" onClick={() => navigate("/user")}>User Infomation</Button><br></br>
+        <Button className="button1" onClick={() => navigate("/user")}>用户中心</Button><br></br>
         <TextField className="testfield1" label="RoomName" helperText="Plz input your Room name" value={roomName()} onChange={(_, val) => setRoomName(val)}></TextField>
         <Button onClick={creating} >Create Room</Button><br></br>
-        <button className="button1" onClick={UserCentre}>用户中心</button>
         <button onClick={ROOM}>GO TO ROOM</button>
         <Show when={!rooms.loading} fallback={<p>Loading rooms</p>}>
             <For each={rooms()} fallback={<p>No rooms here.</p>}>

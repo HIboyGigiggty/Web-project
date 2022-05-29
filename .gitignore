@@ -16,3 +16,7 @@ src/configs/
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# Editors Specific Configs
+.idea/
+.vscode/
