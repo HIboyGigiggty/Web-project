@@ -12,6 +12,7 @@
     "@types/babel__core": "^7",
     "@types/chroma-js": "^2",
     "@types/eslint": "^8",
+    "@types/stylus": "^0",
     "@types/uuid": "^8.3.2",
     "@typescript-eslint/eslint-plugin": "latest",
     "@typescript-eslint/parser": "^5.25.0",
@@ -21,6 +22,7 @@
     "eslint-plugin-solid": "^0.4.7",
     "prettier": "^2.6.2",
     "rollup-plugin-visualizer": "^5.6.0",
+    "stylus": "^0.58.0",
     "typescript": "^4.6.3",
     "vite": "^2.9.9",
     "vite-plugin-solid": "^2.2.6"
