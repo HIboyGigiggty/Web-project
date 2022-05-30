@@ -1,9 +1,10 @@
-import { Component, Show } from "solid-js";
+import { Component, JSX, Show } from "solid-js";
 import { Navigate } from "solid-app-router";
 import { createSupabaseAuth } from "solid-supabase";
 
 export interface LoginGuardProps {
     fallback: string
+    children?: JSX.Element,
 }
 
 const LoginGuard: Component<LoginGuardProps> = (props) => {
