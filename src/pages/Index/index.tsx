@@ -95,7 +95,7 @@ const Index: Component = () => {
             </Fab>
         </Box>
 
-        <Box sx={{ml: "50%", transform: "translate(-50%, 0)", width: "fit-content", padding:0}} >
+        <Box sx={{ml: "50%", transform: "translate(-50%, 50%)", width: "fit-content", padding:0}} >
             <Card sx={{ minWidth: 275 }}>
                 <CardContent>
                     <Typography>
@@ -105,7 +105,7 @@ const Index: Component = () => {
             </Card>
         </Box>
 
-        <Box sx={{ml: "50%", transform: "translate(-50%, 0)", width: "fit-content", padding:0}}>
+        <Box sx={{ml: "50%", transform: "translate(-50%, 50%)", width: "fit-content", padding:0}}>
             <Card sx={{padding:0,minWidth:275}}>
                 <CardContent>                
                     <Typography>
