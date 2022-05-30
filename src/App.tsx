@@ -9,6 +9,7 @@ const Index = lazy(() => import("./pages/Index"));
 const Room = lazy(() => import("./pages/Room"));
 
 const DevDrawBroad = lazy(() => import("./pages/DevDrawBroad"));
+const DevMesh = lazy(() => import("./pages/DevMesh"));
 
 const App: Component = () => {
     return (<>
@@ -25,6 +26,7 @@ const App: Component = () => {
             <Route path="/user" element={<User />} />
             <Route path="/dev-draw-broad" element={<DevDrawBroad />} />
             <Route path="/rooms/:id" element={<Room />} />
+            <Route path="/dev-mesh" element={<DevMesh />} />
         </Routes>
     </>);
 };
