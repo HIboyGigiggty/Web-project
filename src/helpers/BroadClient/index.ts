@@ -8,6 +8,10 @@ export interface Room {
     created_at: string,
 }
 
+export interface Participant {
+    user_id: string,
+}
+
 class BroadClient {
     supabase: SupabaseClient;
 
@@ -126,6 +130,14 @@ class BroadClient {
 
     getUserDeviceId(): string {
         return getUserDeviceId(this.userOrError().id);
+    }
+
+    async getParticipants(roomId: string): Promise<Participant[]> {
+        const {data, error} = await this.supabase.from("room_joint").select("user_id").eq("room_id", roomId);
+        if (error) {
+            throw error;
+        }
+        return (data as Participant[]); // WARNING: this casting is based on the table structure.
     }
 }
 
