@@ -78,15 +78,12 @@ class BroadClient {
     /// Return false if the user joint the room or the room not exists.
     async isJoinedRoomById(id: string): Promise<boolean> {
         const user = this.userOrError();
-        const q = await this.supabase.from("room_joint").select("*").eq("room_id", id).eq("user_id", user.id);
+        const q = await this.supabase.from("room_joint").select("created_at").eq("room_id", id).eq("user_id", user.id);
+        console.log("query", q);
         if (q.error) {
             throw q.error;
         } else {
-            if (q.data) {
-                return true;
-            } else {
-                return false;
-            }
+            return q.data.length > 0;
         }
     }
 
