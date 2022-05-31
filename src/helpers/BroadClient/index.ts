@@ -58,7 +58,11 @@ class BroadClient {
                 user_id: user.id,
             });
             if (q.error) {
-                throw q.error;
+                if (q.error.code === "23505") {
+                    return room; // Duplicated primary key
+                } else {
+                    throw q.error;
+                }
             }
             return null;
         } else {
