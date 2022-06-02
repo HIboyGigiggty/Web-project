@@ -2,10 +2,8 @@ import Button from "@suid/material/Button";
 import TextField from "@suid/material/TextField";
 import AppBar from "@suid/material/AppBar";
 import Box from "@suid/material/Box";
-// import IconButton from "@suid/material/IconButton";
 import Toolbar from "@suid/material/Toolbar";
 import Typography from "@suid/material/Typography";
-// import MenuIcon from "@suid/icons-material/Menu";
 import Fab from "@suid/material/Fab";
 import AddIcon from "@suid/icons-material/Add";
 import Card from "@suid/material/Card";
@@ -14,7 +12,6 @@ import Avatar from "@suid/material/Avatar";
 {/*-----------------------------------------*/}
 import CardActions from "@suid/material/CardActions";
 import Modal from "@suid/material/Modal";
-// import useTheme from "@suid/material/styles/useTheme";
 import ListItem from "@suid/material/ListItem";
 {/*-----------------------------------------*/}
 import { Navigate, useNavigate } from "solid-app-router";
@@ -184,7 +181,7 @@ const Index: Component = () => {
                             <List disablePadding>
                                 <ListItem disablePadding>
                                     <TextField sx={{width: "100%"}} label="RoomName" variant="standard"
-                                        onChange={(_, val) => setRoomName(val)}
+                                        onChange={(_, val:string) => setRoomName(val)}
                                         helperText="Please input your Room name" value={roomName()}> </TextField>
                                 </ListItem>
                             </List>
