@@ -18,7 +18,7 @@ import Modal from "@suid/material/Modal";
 import ListItem from "@suid/material/ListItem";
 {/*-----------------------------------------*/}
 import { Navigate, useNavigate } from "solid-app-router";
-import { Component, For, Show, createResource, createSignal } from "solid-js";
+import { Component, For, Show, createResource, createSignal,Switch,Match } from "solid-js";
 import { createSupabase, createSupabaseAuth } from "solid-supabase";
 import BroadClient from "../../helpers/BroadClient";
 import CardContent from "@suid/material/CardContent";
@@ -53,7 +53,11 @@ const UserAvatar :Component=() =>{//头像组件
             miniwidth:"30px",
         }}
         >
-            <Avatar/>
+            <Switch fallback={<Avatar>?</Avatar>}>
+                <Match when={user?.user_metadata.avater_url}>
+                 <Avatar src={user?.user_metadata.avater_url}/>  
+                </Match>
+            </Switch>
         </Button>
         <Popover
             anchorOrigin={{
