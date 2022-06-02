@@ -2,10 +2,10 @@ import Button from "@suid/material/Button";
 import TextField from "@suid/material/TextField";
 import AppBar from "@suid/material/AppBar";
 import Box from "@suid/material/Box";
-import IconButton from "@suid/material/IconButton";
+// import IconButton from "@suid/material/IconButton";
 import Toolbar from "@suid/material/Toolbar";
 import Typography from "@suid/material/Typography";
-import MenuIcon from "@suid/icons-material/Menu";
+// import MenuIcon from "@suid/icons-material/Menu";
 import Fab from "@suid/material/Fab";
 import AddIcon from "@suid/icons-material/Add";
 import Card from "@suid/material/Card";
@@ -18,7 +18,7 @@ import Modal from "@suid/material/Modal";
 import ListItem from "@suid/material/ListItem";
 {/*-----------------------------------------*/}
 import { Navigate, useNavigate } from "solid-app-router";
-import { Component, For, Show, createResource, createSignal,Switch,Match } from "solid-js";
+import { Component, For, Match, Show, Switch,createResource,createSignal } from "solid-js";
 import { createSupabase, createSupabaseAuth } from "solid-supabase";
 import BroadClient from "../../helpers/BroadClient";
 import CardContent from "@suid/material/CardContent";
@@ -36,64 +36,65 @@ const UserAvatar :Component=() =>{//头像组件
     const auth = createSupabaseAuth();
     const user = auth.user();
     let buttomRef : HTMLButtonElement;
+    console.log(user);
     const [datailPopoverOpen,setdatailPopoverOpen] = createSignal<boolean>(false);
     return(
         <>
-        <Button
-        variant="contained"
-        size="medium"
-        onClick={() =>setdatailPopoverOpen(true)}
-        //@ts-expect-error
-        ref={buttomRef}
-        disableElevation
-        disableRipple
-        //@ts-expect-error
-        sx={{
-            padding:0,
-            miniwidth:"30px",
-        }}
-        >
-            <Switch fallback={<Avatar>?</Avatar>}>
-                <Match when={user?.user_metadata.avater_url}>
-                 <Avatar src={user?.user_metadata.avater_url}/>  
-                </Match>
-            </Switch>
-        </Button>
-        <Popover
-            anchorOrigin={{
-                vertical:"bottom",
-                horizontal:"left"
-            }}
-            open={datailPopoverOpen()}
-            //@ts-expect-error
-            onClose={setdatailPopoverOpen(false)}
-            // @ts-expect-error
-            anchorEl={buttomRef}
-        >
-            <Card>
-                <CardContent sx={{
+            <Button
+                variant="contained"
+                size="small"
+                onClick={() =>setdatailPopoverOpen(true)}
+                //@ts-expect-error :The value is assigned by SolidJS when it is used
+                ref={buttomRef}
+
+                disableElevation
+                disableRipple
+                sx={{
                     padding:0,
-                }}>
-                    <Typography sx={{
-                        padding:0
+                    minWidth:"25px",
+                }}
+            >
+                <Switch fallback={<Avatar>?</Avatar>}>
+                    <Match when={user?.user_metadata.avatar_url}>
+                        <Avatar src={user?.user_metadata.avatar_url}/>  
+                    </Match>
+                </Switch>
+            </Button>
+            <Popover
+                anchorOrigin={{
+                    vertical:"bottom",
+                    horizontal:"left"
+                }}
+                open={datailPopoverOpen()}
+              
+                onClose={() => setdatailPopoverOpen(false)}
+                //@ts-expect-error :The value is assigned by SolidJS when it is used
+                anchorEl={buttomRef}
+            >
+                <Card>
+                    <CardContent sx={{
+                        padding:0,
                     }}>
-                        <List sx={{
-                            padding:0,
+                        <Typography sx={{
+                            padding:0
                         }}>
-                            <ListItem sx={{
-                                padding:0
+                            <List sx={{
+                                padding:0,
                             }}>
+                                <ListItem sx={{
+                                    padding:0
+                                }}>
                                 用户ID：<br></br>
-                                {user?.id}
-                            </ListItem>
-                        </List>
-                    </Typography>
-                </CardContent>
-            </Card>
-        </Popover>
+                                    {user?.id}
+                                </ListItem>
+                            </List>
+                        </Typography>
+                    </CardContent>
+                </Card>
+            </Popover>
         </>
-    )
-}
+    );
+};
 
 const Index: Component = () => {
     const auth = createSupabaseAuth();
@@ -183,8 +184,8 @@ const Index: Component = () => {
                             <List disablePadding>
                                 <ListItem disablePadding>
                                     <TextField sx={{width: "100%"}} label="RoomName" variant="standard"
-                                               onChange={(_, val) => setRoomName(val)}
-                                               helperText="Please input your Room name" value={roomName()}> </TextField>
+                                        onChange={(_, val) => setRoomName(val)}
+                                        helperText="Please input your Room name" value={roomName()}> </TextField>
                                 </ListItem>
                             </List>
                         </CardContent>
@@ -199,16 +200,16 @@ const Index: Component = () => {
                             }} onClick={async () => {
                                 setOpen(false);
                                 // await AlterAnThings();
-                                await creating()
+                                await creating();
                             }}>create&nbspRoom</Button>
                         </CardActions>
                     </Card>
                 </Modal>
             </div>
         </Box>
-                    {/*--------------------FAB---------------------*/}
+        {/*--------------------FAB---------------------*/}
 
-                    {/*--------------------List---------------------*/}
+        {/*--------------------List---------------------*/}
         <Box sx={{ml: "50%", transform: "translate(-50%, 50%)", width: "fit-content", padding:0}} >
             <Card sx={{minWidth: 275}}>
                 <CardContent sx={{padding:0}} style="padding: 0;">
@@ -220,19 +221,19 @@ const Index: Component = () => {
         <Box sx={{ml: "50%", transform: "translate(-50%, 35%)", width: "fit-content", padding:0}}>
             <Card sx={{minWidth:275}}>
                 <CardContent sx={{padding:0}} style="padding: 0;">                
-                        <List sx={{padding:0}}>
-                            <For each={rooms()} fallback={<List>No rooms here.</List>}>
-                                {
-                                    (item) => {
-                                        return <List> 房间名字 :"{item.name}"</List>;
-                                    }
+                    <List sx={{padding:0}}>
+                        <For each={rooms()} fallback={<List>No rooms here.</List>}>
+                            {
+                                (item) => {
+                                    return <List> 房间名字 :"{item.name}"</List>;
                                 }
-                            </For>
-                        </List>                   
+                            }
+                        </For>
+                    </List>                   
                 </CardContent>
             </Card>
         </Box>
-                    {/*------------------List-----------------------*/}
+        {/*------------------List-----------------------*/}
 
     </Show>;
 };
