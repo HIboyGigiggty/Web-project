@@ -26,7 +26,6 @@ export class Frame {
         const f = new Frame(buffer);
         f.setFlag("long", isLongHeader);
         f.length = expected_data_length;
-        console.log(f);
         return f;
     }
 
@@ -111,7 +110,6 @@ export class Frame {
     static fromArray(array: Uint8Array, more?: boolean): Frame {
         const f = Frame.zero(array.length);
         const data = f.data();
-        console.log(f.length, f.byteLength, data.length, array.length);
         data.set(array);
         f.setFlag("more", more || false);
         return f;
@@ -214,7 +212,6 @@ export class Frame {
     clone(padding?: number): Frame {
         const array = new Uint8Array(this.headerLength + this.length + (padding || 0));
         array.set(this.buffer.slice(0, this.headerLength + this.length));
-        console.log(this.buffer, array);
         return new Frame(array);
     }
 }

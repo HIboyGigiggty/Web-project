@@ -63,7 +63,6 @@ export class SupabaseDatachannel implements DataChannel {
     }
 
     onRemoteMessage(payload: MessagePushPayload): void {
-        console.log("payload", payload);
         let allFramesDecodedMark = true;
         const message: Message = {
             roomId: payload.room,

@@ -64,6 +64,7 @@ export class Router {
                 }
             }
         };
+        alterChan.bus.on("data", this.onMessageCallback);
     }
 
     async broadcast(roomId: string, frames: Frame[]) {
