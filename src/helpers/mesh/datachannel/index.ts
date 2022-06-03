@@ -194,15 +194,14 @@ export class Frame {
     }
 
     /**
-     * Set a new padding on this frame.
-     * @param paddingSize the new padding size, it should be larger than `paddingLength`, or this method is no-op.
+     * Get a clone of this frame.
+     * @param padding the padding the clone will contain.
+     * @returns a new frame.
      */
-    setPadding(paddingSize: number) {
-        const current = this.paddingLength;
-        if (current < paddingSize) {
-            const fillSize = paddingSize - current;
-            this.buffer.fill(0, this.byteLength-1, this.byteLength+fillSize-1);
-        }
+    clone(padding?: number): Frame {
+        const array = new Uint8Array(this.headerLength + this.length + (padding || 0));
+        array.set(this.buffer.slice(0, this.headerLength + this.length));
+        return new Frame(array);
     }
 }
 
