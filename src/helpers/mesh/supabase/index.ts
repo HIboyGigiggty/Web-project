@@ -70,7 +70,11 @@ export class SupabaseDatachannel implements DataChannel {
             dstUserDeviceId: payload.dst_user_dev_id,
             srcUserDeviceId: payload.src_user_dev_id,
             message: payload.message.map((s) => {
-                const decodedBuf = z85.decode(s);
+                if ((s.length % 5) !== 0) { // Invalid z85 data
+                    allFramesDecodedMark = false;
+                    return Frame.zero(0);
+                }
+                const decodedBuf = z85.decode(s); 
                 if (decodedBuf) {
                     return new Frame(decodedBuf);
                 } else {
