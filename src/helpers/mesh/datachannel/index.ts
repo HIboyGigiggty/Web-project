@@ -20,10 +20,13 @@ export class Frame {
     }
 
     static zero(expected_data_length: number): Frame {
-        const totalLength = (expected_data_length > Frame.SHORT_MAX_LENGTH ? (1 + 4) : (1 + 2)) + expected_data_length;
+        const isLongHeader = (expected_data_length > Frame.SHORT_MAX_LENGTH);
+        const totalLength = (isLongHeader ? Frame.LONG_HEADER_SIZE : Frame.SHORT_HEADER_SIZE) + expected_data_length;
         const buffer = new Uint8Array(totalLength);
         const f = new Frame(buffer);
-        f.setFlag("long", expected_data_length > Frame.SHORT_MAX_LENGTH);
+        f.setFlag("long", isLongHeader);
+        f.length = expected_data_length;
+        console.log(f);
         return f;
     }
 
@@ -66,17 +69,27 @@ export class Frame {
      */
     get length(): number {
         if (this.getFlags().long) {
-            const numberBytes = this.buffer.slice(1, 5);
-            const view = new DataView(numberBytes.buffer);
+            const view = new DataView(this.buffer.buffer, 1);
             return view.getUint32(0);
         } else {
-            const numberBytes = this.buffer.slice(1, 3);
-            const view = new DataView(numberBytes.buffer);
+            const view = new DataView(this.buffer.buffer, 1);
             return view.getUint16(0);
         }
     }
 
-    /**     * Get the total length of the header and payload.
+    /**
+     * Set the length attribute (the length of payload) in the header.
+     */
+    set length(len: number) {
+        if (this.getFlags().long) {
+            new DataView(this.buffer.buffer, 1).setInt32(0, len);
+        } else {
+            new DataView(this.buffer.buffer, 1).setInt16(0, len);
+        }
+    }
+
+    /**
+     *  Get the total length of the header and payload.
      */
     get byteLength(): number {
         return this.buffer.length;
@@ -95,19 +108,19 @@ export class Frame {
         }
     }
 
-    static fromArray(array: Uint8Array): Frame {
+    static fromArray(array: Uint8Array, more?: boolean): Frame {
         const f = Frame.zero(array.length);
         const data = f.data();
-        for (let i=0; i < array.length; i++) {
-            data[i] = array[i];
-        }
+        console.log(f.length, f.byteLength, data.length, array.length);
+        data.set(array);
+        f.setFlag("more", more || false);
         return f;
     }
 
-    static fromString(s: string): Frame {
+    static fromString(s: string, more?: boolean): Frame {
         const encoder = new TextEncoder();
         const result = encoder.encode(s);
-        return this.fromArray(result);
+        return this.fromArray(result, more);
     }
 
     toString(): string {
@@ -115,10 +128,10 @@ export class Frame {
         return decoder.decode(this.buffer);
     }
 
-    static fromUInt(int: number): Frame {
-        const buffer = new Uint32Array(1);
-        buffer[0] = int;
-        return Frame.fromArray(Uint8Array.from(buffer));
+    static fromUInt(int: number, more?: boolean): Frame {
+        const buffer = new Uint8Array(4);
+        new DataView(buffer.buffer).setUint32(0, int);
+        return Frame.fromArray(buffer, more);
     }
 
     toUInt(): number {
@@ -130,10 +143,10 @@ export class Frame {
         return this.length === 4;
     }
 
-    static fromBigUInt(int: bigint): Frame {
-        const buffer = new BigUint64Array(1);
-        buffer[0] = int;
-        return Frame.fromArray(new Uint8Array(buffer.buffer));
+    static fromBigUInt(int: bigint, more?: boolean): Frame {
+        const buffer = new Uint8Array(8);
+        new DataView(buffer.buffer).setBigUint64(0, int);
+        return Frame.fromArray(buffer, more);
     }
 
     toBigUInt(): bigint {
@@ -201,6 +214,7 @@ export class Frame {
     clone(padding?: number): Frame {
         const array = new Uint8Array(this.headerLength + this.length + (padding || 0));
         array.set(this.buffer.slice(0, this.headerLength + this.length));
+        console.log(this.buffer, array);
         return new Frame(array);
     }
 }
