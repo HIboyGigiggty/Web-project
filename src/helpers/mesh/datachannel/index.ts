@@ -82,11 +82,16 @@ export class Frame {
         return this.buffer.length;
     }
 
+    /**
+     * Get the payload as a subarray.
+     * 
+     * WARNING: The length must be valid when using this method.
+     */
     data(): Uint8Array {
         if (this.getFlags().long) {
-            return this.buffer.subarray(Frame.LONG_HEADER_SIZE);
+            return this.buffer.subarray(Frame.LONG_HEADER_SIZE, Frame.LONG_HEADER_SIZE+this.length);
         } else {
-            return this.buffer.subarray(Frame.SHORT_HEADER_SIZE);
+            return this.buffer.subarray(Frame.SHORT_HEADER_SIZE, Frame.SHORT_HEADER_SIZE+this.length);
         }
     }
 
