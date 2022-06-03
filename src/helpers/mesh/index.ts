@@ -5,7 +5,7 @@ import { broadcastId } from "../getDeviceId";
 import { DataChannel, Frame, Message } from "./datachannel";
 import { WebRTCDatachannel } from "./webrtc";
 import { promiseTimeout } from "@solid-primitives/utils";
-import uuid from "uuid";
+import {validate as uuidValidate} from "uuid";
 
 const PROTO_TYPE_SYNC_PEERS = 1;
 const PROTO_TYPE_MAX_NUM = 255;
@@ -130,7 +130,7 @@ export class Router {
 
     async onSyncPeerMessage(message: Message) {
         const receivedPeerList = JSON.parse(message.message[2].toString()) as unknown; // JSON
-        const remotePeerList = Array.isArray(receivedPeerList) ? receivedPeerList.filter(v => typeof v === "string" && uuid.validate(v)) : [];
+        const remotePeerList = Array.isArray(receivedPeerList) ? receivedPeerList.filter(v => typeof v === "string" && uuidValidate(v)) : [];
         remotePeerList.filter(id => !this.findPeerById(id)).forEach(id => {
             const peer = new Peer(id, 0n);
             this.addPeer(peer);
