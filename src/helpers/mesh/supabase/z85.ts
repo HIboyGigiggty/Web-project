@@ -16,9 +16,9 @@ const decoder = [
     0x21, 0x22, 0x23, 0x4F, 0x00, 0x50, 0x00, 0x00
 ];
 
-export const encode = (data: Uint8Array) => {
+export const encode = (data: Uint8Array): string => {
     if ((data.length % 4) !== 0) {
-        return null;
+        throw Error("data's length must be divisible by 4");
     }
 
     const size = data.length;
@@ -38,16 +38,16 @@ export const encode = (data: Uint8Array) => {
             value = 0;
         }
     }
-	
+
     return str;
 };
 
 export const decode = (s: string) => {
     if ((s.length % 5) !== 0) {
-        return null;
+        throw Error("string's length must be divisible by 5");
     }
 
-    const dest = Buffer.alloc(s.length * 4 / 5),
+    const dest = new Uint8Array(s.length * 4 / 5),
         string_len = s.length;
     let byte_nbr = 0,
         char_nbr = 0,
