@@ -44,7 +44,26 @@ export class Frame {
         }
         return this.getFlags();
     }
+    
+    /**
+     * Get the payload's length if it's valid.
+     */
+    validateLength(): number | null {
+        if (this.byteLength > 1) {
+            const headerSize = this.getFlags().long? Frame.LONG_HEADER_SIZE: Frame.SHORT_HEADER_SIZE;
+            if (this.byteLength >= headerSize) {
+                if (this.byteLength === (headerSize + this.length)) {
+                    return this.length;
+                }
+            }
+        }
+        return null;
+    }
 
+    /**
+     * Get the length attribute (the length of payload) from header.
+     * For the total size of the frame, see `byteLength`; for verified length, see `validateLength`.
+     */
     get length(): number {
         if (this.getFlags().long) {
             const numberBytes = this.buffer.slice(1, 5);
@@ -57,6 +76,8 @@ export class Frame {
         }
     }
 
+    /**     * Get the total length of the header and payload.
+     */
     get byteLength(): number {
         return this.buffer.length;
     }
