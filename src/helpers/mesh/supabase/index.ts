@@ -41,7 +41,7 @@ export class SupabaseDatachannel implements DataChannel {
             room: message.roomId,
             dst_user_dev_id: message.dstUserDeviceId,
             src_user_dev_id: message.srcUserDeviceId,
-            message: message.message.map((f) => z85.encode(Buffer.from(f.buffer))),
+            message: message.message.map((f) => z85.encode(f.buffer)),
         });
         if (error) {
             throw error;

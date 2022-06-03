@@ -16,7 +16,7 @@ const decoder = [
     0x21, 0x22, 0x23, 0x4F, 0x00, 0x50, 0x00, 0x00
 ];
 
-export const encode = (data: Buffer | string) => {
+export const encode = (data: Uint8Array) => {
     if ((data.length % 4) !== 0) {
         return null;
     }
@@ -26,12 +26,7 @@ export const encode = (data: Buffer | string) => {
         byte_nbr = 0,
         value = 0;
     while (byte_nbr < size) {
-        let characterCode;
-        if (typeof data == "string") {
-            characterCode = data.charCodeAt(byte_nbr++);
-        } else {
-            characterCode = data[byte_nbr++];
-        }
+        const characterCode = data[byte_nbr++];
         value = (value * 256) + characterCode;
         if ((byte_nbr % 4) === 0) {
             let divisor = 85 * 85 * 85 * 85;

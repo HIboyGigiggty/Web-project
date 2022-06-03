@@ -48,12 +48,12 @@ export class Frame {
     get length(): number {
         if (this.getFlags().long) {
             const numberBytes = this.buffer.slice(1, 5);
-            const buffer = Buffer.from(numberBytes);
-            return buffer.readUInt32BE();
+            const view = new DataView(numberBytes);
+            return view.getUint32(0);
         } else {
             const numberBytes = this.buffer.slice(1, 3);
-            const buffer = Buffer.from(numberBytes);
-            return buffer.readUInt16BE();
+            const view = new DataView(numberBytes);
+            return view.getUint16(0);
         }
     }
 
@@ -90,14 +90,14 @@ export class Frame {
     }
 
     static fromUInt(int: number): Frame {
-        const buffer = Buffer.alloc(4);
-        buffer.writeUInt32BE(int);
-        return Frame.fromArray(buffer);
+        const buffer = new Uint32Array(1);
+        buffer[0] = int;
+        return Frame.fromArray(Uint8Array.from(buffer));
     }
 
     toUInt(): number {
-        const buffer = Buffer.from(this.buffer);
-        return buffer.readUInt32BE();
+        const view = new DataView(this.buffer);
+        return view.getUint32(0);
     }
 
     isUInt(): boolean {
@@ -105,14 +105,14 @@ export class Frame {
     }
 
     static fromBigUInt(int: bigint): Frame {
-        const buffer = Buffer.alloc(8);
-        buffer.writeBigUInt64BE(int);
-        return Frame.fromArray(buffer);
+        const buffer = new BigUint64Array(1);
+        buffer[0] = int;
+        return Frame.fromArray(new Uint8Array(buffer.buffer));
     }
 
     toBigUInt(): bigint {
-        const buffer = Buffer.from(this.buffer);
-        return buffer.readBigUInt64BE();
+        const view = new DataView(this.buffer);
+        return view.getBigUint64(0);
     }
 
     isBigUInt(): boolean {
