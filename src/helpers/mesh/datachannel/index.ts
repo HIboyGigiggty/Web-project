@@ -67,11 +67,11 @@ export class Frame {
     get length(): number {
         if (this.getFlags().long) {
             const numberBytes = this.buffer.slice(1, 5);
-            const view = new DataView(numberBytes);
+            const view = new DataView(numberBytes.buffer);
             return view.getUint32(0);
         } else {
             const numberBytes = this.buffer.slice(1, 3);
-            const view = new DataView(numberBytes);
+            const view = new DataView(numberBytes.buffer);
             return view.getUint16(0);
         }
     }
