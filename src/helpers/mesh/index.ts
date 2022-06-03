@@ -158,6 +158,6 @@ export class Router {
     }
 
     buildProtocolMessage(msgType: number, obj: unknown): Frame[] {
-        return [Frame.fromUInt(msgType), Frame.fromBigUInt(this.clk++), Frame.fromString(JSON.stringify(obj))];
+        return [Frame.fromUInt(msgType, true), Frame.fromBigUInt(this.clk++, true), Frame.fromString(JSON.stringify(obj), false)];
     }
 }
