@@ -178,6 +178,32 @@ export class Frame {
         }
         return [frames, rest, 0];
     }
+
+    /**
+     * Get current header length.
+     */
+    get headerLength(): number {
+        return this.getFlags().long? Frame.LONG_HEADER_SIZE: Frame.SHORT_HEADER_SIZE;
+    }
+
+    /**
+     * Get current padding size.
+     */
+    get paddingLength(): number {
+        return this.byteLength - this.headerLength - this.length;
+    }
+
+    /**
+     * Set a new padding on this frame.
+     * @param paddingSize the new padding size, it should be larger than `paddingLength`, or this method is no-op.
+     */
+    setPadding(paddingSize: number) {
+        const current = this.paddingLength;
+        if (current < paddingSize) {
+            const fillSize = paddingSize - current;
+            this.buffer.fill(0, this.byteLength-1, this.byteLength+fillSize-1);
+        }
+    }
 }
 
 export interface Message {
