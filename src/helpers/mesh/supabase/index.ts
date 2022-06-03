@@ -1,8 +1,8 @@
 import { RealtimeChannel, SupabaseClient } from "@supabase/supabase-js";
 import { DataChannel, Frame, Message } from "../datachannel";
-import base85 from "base85";
 import EventBus from "js-event-bus";
 import { broadcastId } from "../../getDeviceId";
+import z85 from "./z85";
 
 interface MessagePushPayload {
     room: string,
@@ -41,7 +41,7 @@ export class SupabaseDatachannel implements DataChannel {
             room: message.roomId,
             dst_user_dev_id: message.dstUserDeviceId,
             src_user_dev_id: message.srcUserDeviceId,
-            message: message.message.map((f) => base85.encode(Buffer.from(f.buffer))),
+            message: message.message.map((f) => z85.encode(Buffer.from(f.buffer))),
         });
         if (error) {
             throw error;
@@ -63,7 +63,7 @@ export class SupabaseDatachannel implements DataChannel {
             dstUserDeviceId: payload.dst_user_dev_id,
             srcUserDeviceId: payload.src_user_dev_id,
             message: payload.message.map((s) => {
-                const decodedBuf = base85.decode(s);
+                const decodedBuf = z85.decode(s);
                 if (decodedBuf) {
                     return new Frame(decodedBuf);
                 } else {

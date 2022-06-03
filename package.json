@@ -35,7 +35,6 @@
     "@suid/icons-material": "^0.2.2",
     "@suid/material": "^0.4.0",
     "@supabase/supabase-js": "^1.35.1",
-    "base85": "^3.1.0",
     "chroma-js": "^2.4.2",
     "js-event-bus": "^1.1.1",
     "solid-app-router": "^0.3.2",
