@@ -28,6 +28,12 @@ export class SupabaseDatachannel implements DataChannel {
         this.rtDbChannel.onClose(() => this.onAnyChannelClose());
         this.rtDbBroadcastChan.onClose(() => this.onAnyChannelClose());
         this.roomId = roomId;
+        if (!(this.rtDbChannel.isJoined() || this.rtDbChannel.isJoining())) {
+            this.rtDbChannel.subscribe();
+        }
+        if (!(this.rtDbBroadcastChan.isJoined() || this.rtDbBroadcastChan.isJoining())) {
+            this.rtDbBroadcastChan.subscribe();
+        }
     }
 
     static ofRoom(supabase: SupabaseClient, roomId: string, myUserDeviceId: string) {
