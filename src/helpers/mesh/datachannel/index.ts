@@ -133,7 +133,7 @@ export class Frame {
     }
 
     toUInt(): number {
-        const view = new DataView(this.buffer);
+        const view = new DataView(this.buffer.buffer);
         return view.getUint32(0);
     }
 
@@ -148,7 +148,7 @@ export class Frame {
     }
 
     toBigUInt(): bigint {
-        const view = new DataView(this.buffer);
+        const view = new DataView(this.buffer.buffer);
         return view.getBigUint64(0);
     }
 
