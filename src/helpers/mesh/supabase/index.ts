@@ -9,6 +9,18 @@ interface MessagePushPayload {
     dst_user_dev_id: string,
     src_user_dev_id: string,
     message: string[]
+    id: number,
+    created_at: string,
+}
+
+interface MessagePush {
+    columns: ({type: string, name: string})[],
+    commit_timestamp: string,
+    errors: unknown | null,
+    type: string,
+    record: MessagePushPayload,
+    schema: string,
+    table: string,
 }
 
 export class SupabaseDatachannel implements DataChannel {
@@ -23,8 +35,8 @@ export class SupabaseDatachannel implements DataChannel {
         this.rtDbBroadcastChan = rtDbBroadcastChan;
         this.supabase = supabase;
         this.bus = new EventBus();
-        this.rtDbChannel.on("INSERT", undefined, (ev: MessagePushPayload) => this.onRemoteMessage(ev));
-        this.rtDbBroadcastChan.on("INSERT", undefined, (ev: MessagePushPayload) => this.onRemoteMessage(ev));
+        this.rtDbChannel.on("INSERT", undefined, (ev: MessagePush) => this.onRemoteMessage(ev));
+        this.rtDbBroadcastChan.on("INSERT", undefined, (ev: MessagePush) => this.onRemoteMessage(ev));
         this.rtDbChannel.onClose(() => this.onAnyChannelClose());
         this.rtDbBroadcastChan.onClose(() => this.onAnyChannelClose());
         this.roomId = roomId;
@@ -68,8 +80,12 @@ export class SupabaseDatachannel implements DataChannel {
         }
     }
 
-    onRemoteMessage(payload: MessagePushPayload): void {
+    onRemoteMessage(push: MessagePush): void {
+        if (push.errors) {
+            return;
+        }
         let allFramesDecodedMark = true;
+        const payload = push.record;
         const message: Message = {
             roomId: payload.room,
             dstUserDeviceId: payload.dst_user_dev_id,
