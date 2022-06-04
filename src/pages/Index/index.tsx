@@ -20,6 +20,7 @@ import { createSupabase, createSupabaseAuth } from "solid-supabase";
 import BroadClient from "../../helpers/BroadClient";
 import CardContent from "@suid/material/CardContent";
 import Popover from "@suid/material/Popover";
+import Divider from "@suid/material/Divider";
 
 
 
@@ -69,9 +70,7 @@ const UserAvatar :Component=() =>{//头像组件
                 anchorEl={buttomRef}
             >
                 <Card>
-                    <CardContent sx={{
-                        padding:0,
-                    }}>
+                    <CardContent sx={{padding:0}}style="padding: 0;">
                         <Typography sx={{
                             padding:0
                         }}>
@@ -81,7 +80,7 @@ const UserAvatar :Component=() =>{//头像组件
                                 <ListItem sx={{
                                     padding:0
                                 }}>
-                                用户ID：<br></br>
+                                用户ID:<br></br>
                                     {user?.id}
                                 </ListItem>
                             </List>
@@ -196,7 +195,6 @@ const Index: Component = () => {
                                 padding: "5px",
                             }} onClick={async () => {
                                 setOpen(false);
-                                // await AlterAnThings();
                                 await creating();
                             }}>create&nbspRoom</Button>
                         </CardActions>
@@ -207,22 +205,22 @@ const Index: Component = () => {
         {/*--------------------FAB---------------------*/}
 
         {/*--------------------List---------------------*/}
-        <Box sx={{ml: "50%", transform: "translate(-50%, 50%)", width: "fit-content", padding:0}} >
-            <Card sx={{minWidth: 275}}>
+        <Box sx={{ml: "50%", transform: "translate(-50%, 0)", padding:0,marginTop:"60px"}}>
+            <Card sx={{minWidth:600,ml:"50%",transform:"translate(-50%,0)"}}>
                 <CardContent sx={{padding:0}} style="padding: 0;">
                     <TextField sx={{width: "100%"}}  placeholder="房间ID"></TextField>
                 </CardContent>
             </Card>
-        </Box>
+        {/* </Box>
 
-        <Box sx={{ml: "50%", transform: "translate(-50%, 35%)", width: "fit-content", padding:0}}>
-            <Card sx={{minWidth:275}}>
+        <Box sx={{ml: "50%", transform: "translate(-50%, 35%)", width: "fit-content", padding:0}}> */}
+            <Card sx={{minWidth:500,ml:"50%",transform:"translate(-50%,0)",marginTop: "30px"}}>
                 <CardContent sx={{padding:0}} style="padding: 0;">                
                     <List sx={{padding:0}}>
                         <For each={rooms()} fallback={<List>No rooms here.</List>}>
                             {
                                 (item) => {
-                                    return <List> 房间名字 :"{item.name}"</List>;
+                                    return <List> 房间名字 :"{item.name}"<Divider></Divider></List>;
                                 }
                             }
                         </For>
