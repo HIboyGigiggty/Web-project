@@ -90,7 +90,20 @@ export class Router {
         return null;
     }
 
+    loopbackSend(roomId: string, dstUserDeviceId: string, frames: Frame[]) {
+        this.bus.emit("data", this, <Message>{
+            srcUserDeviceId: this.userDeviceId,
+            dstUserDeviceId: dstUserDeviceId,
+            message: frames,
+            roomId: roomId,
+        });
+    }
+
     async send(roomId: string, dstUserDeviceId: string, frames: Frame[]) {
+        if (dstUserDeviceId === this.userDeviceId) {
+            this.loopbackSend(roomId, dstUserDeviceId, frames);
+            return;
+        }
         const peer = this.findPeerById(dstUserDeviceId);
         if (peer) {
             if (peer.isConnectionAvaliable()) {
