@@ -133,7 +133,7 @@ export class Frame {
 
     toString(): string {
         const decoder = new TextDecoder("utf-8");
-        return decoder.decode(this.buffer);
+        return decoder.decode(this.data());
     }
 
     static fromUInt(int: number, more?: boolean): Frame {
