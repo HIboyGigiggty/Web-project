@@ -163,7 +163,7 @@ export class Router {
 
     handleProtocolMessage(message: Message) {
         console.log("handleProtocolMessage", message);
-        if (message.dstUserDeviceId === this.userDeviceId) {
+        if (message.srcUserDeviceId === this.userDeviceId) {
             return;
         }
         const msgTypeCode = message.message[0].toUInt();
