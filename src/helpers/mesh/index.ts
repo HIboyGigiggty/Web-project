@@ -39,6 +39,11 @@ export class Peer {
             message: frames,
         });
     }
+
+    disconnect() {
+        this.datachannel.close();
+        this.connection.close();
+    }
 }
 
 export class Router {
@@ -56,8 +61,10 @@ export class Router {
         this.userDeviceId = userDeviceId;
         this.bus = new EventBus();
         this.onMessageCallback = (msg) => {
+            console.log("onMessageCallback", msg);
             if (msg.dstUserDeviceId === this.userDeviceId || msg.dstUserDeviceId === broadcastId) {
-                if (msg.message.length >= 2 && msg.message[0].isUInt() && msg.message[0].toUInt() <= PROTO_TYPE_MAX_NUM && msg.message[1].isBigUInt()) {
+                console.log("routing", msg.message[0].isUInt(), msg.message[1].isBigUInt(), msg.message[0].toUInt(), msg.message[1].toBigUInt(), msg.message[0].data(), msg.message[1].data());
+                if (msg.message[0].isUInt() && msg.message[0].toUInt() <= PROTO_TYPE_MAX_NUM && msg.message[1].isBigUInt()) {
                     this.handleProtocolMessage(msg);
                 } else {
                     this.bus.emit("data", this, msg);
@@ -155,6 +162,10 @@ export class Router {
     }
 
     handleProtocolMessage(message: Message) {
+        console.log("handleProtocolMessage", message);
+        if (message.dstUserDeviceId === this.userDeviceId) {
+            return;
+        }
         const msgTypeCode = message.message[0].toUInt();
         const clkUpdate = message.message[1].toBigUInt();
         let peer = this.findPeerById(message.srcUserDeviceId);
@@ -171,7 +182,22 @@ export class Router {
         }
     }
 
+    tick() {
+        return this.clk++;
+    }
+
     buildProtocolMessage(msgType: number, obj: unknown): Frame[] {
-        return [Frame.fromUInt(msgType, true), Frame.fromBigUInt(this.clk++, true), Frame.fromString(JSON.stringify(obj), false)];
+        return [Frame.fromUInt(msgType, true), Frame.fromBigUInt(this.tick(), true), Frame.fromString(JSON.stringify(obj), false)];
+    }
+
+    async stop(): Promise<void> {
+        const closePromise = this.alterChan.close();
+        if (typeof closePromise !== "undefined") {
+            await closePromise;
+        }
+        for (const peer of this.peers) {
+            peer.disconnect();
+        }
+        this.bus.emit("stopped", this);
     }
 }
