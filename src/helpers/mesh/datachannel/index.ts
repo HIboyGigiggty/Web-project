@@ -68,10 +68,10 @@ export class Frame {
      */
     get length(): number {
         if (this.getFlags().long) {
-            const view = new DataView(this.buffer.buffer, 1);
+            const view = new DataView(this.buffer.buffer, 1, 4);
             return view.getUint32(0);
         } else {
-            const view = new DataView(this.buffer.buffer, 1);
+            const view = new DataView(this.buffer.buffer, 1, 2);
             return view.getUint16(0);
         }
     }
@@ -81,9 +81,9 @@ export class Frame {
      */
     set length(len: number) {
         if (this.getFlags().long) {
-            new DataView(this.buffer.buffer, 1).setInt32(0, len);
+            new DataView(this.buffer.buffer, 1, 4).setInt32(0, len);
         } else {
-            new DataView(this.buffer.buffer, 1).setInt16(0, len);
+            new DataView(this.buffer.buffer, 1, 2).setInt16(0, len);
         }
     }
 
@@ -105,6 +105,16 @@ export class Frame {
         } else {
             return this.buffer.subarray(Frame.SHORT_HEADER_SIZE, Frame.SHORT_HEADER_SIZE+this.length);
         }
+    }
+
+    /**
+     * Get the payload as a `DataView`.
+     * @param expected_length the length you expected, it will be set to the length of the data if it is larger than the length.
+     */
+    dataView(expected_length?: number): DataView {
+        const length = typeof expected_length !== "undefined" ? Math.min(expected_length, this.length) : this.length;
+        const headerSize = this.headerLength;
+        return new DataView(this.buffer.buffer, headerSize, length);
     }
 
     static fromArray(array: Uint8Array, more?: boolean): Frame {
@@ -133,8 +143,7 @@ export class Frame {
     }
 
     toUInt(): number {
-        const view = new DataView(this.buffer.buffer);
-        return view.getUint32(0);
+        return this.dataView().getUint32(0);
     }
 
     isUInt(): boolean {
@@ -148,8 +157,7 @@ export class Frame {
     }
 
     toBigUInt(): bigint {
-        const view = new DataView(this.buffer.buffer);
-        return view.getBigUint64(0);
+        return this.dataView().getBigUint64(0);
     }
 
     isBigUInt(): boolean {
@@ -225,6 +233,7 @@ export interface Message {
 
 export interface DataChannel {
     send(message: Message) : Promise<void>;
+    close(): Promise<void> | void;
 
     get bus(): EventBus;
 }
