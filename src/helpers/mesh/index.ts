@@ -156,9 +156,11 @@ export class Router {
             const peer = new Peer(id, 0n);
             this.addPeer(peer);
         }); // add all unknown peers
-        await promiseTimeout(Math.random() * 10); // wait random seconds to avoid network flood
+        await promiseTimeout(Math.random() * 10 * 1000); // wait random seconds to avoid network flood
         const remoteUnknownPeerIds = this.peers.map(p => p.userDeviceId).filter(id => !remotePeerList.includes(id));
-        await this.broadcastPeerList(message.roomId, remoteUnknownPeerIds);
+        if (remoteUnknownPeerIds.length > 0) {
+            await this.broadcastPeerList(message.roomId, remoteUnknownPeerIds);
+        }
     }
 
     handleProtocolMessage(message: Message) {
