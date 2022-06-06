@@ -1,17 +1,49 @@
 import Button from "@suid/material/Button";
 import TextField from "@suid/material/TextField";
-import { Component, createResource, createSignal, For, onCleanup, Show } from "solid-js";
+import { Component, createEffect, createResource, createSignal, For, onCleanup, onMount, Show } from "solid-js";
 import { useBroadClient } from "../../helpers/BroadClient/solid";
 import { createSupabaseAuth } from "solid-supabase";
 import { Participant } from "../../helpers/BroadClient";
 import { validate as uuidValidate } from "uuid";
-import { Peer, Router } from "../../helpers/mesh";
+import { Peer, PeerConnectionState, Router } from "../../helpers/mesh";
 import { SupabaseDatachannel } from "../../helpers/mesh/supabase";
+
+const PeerView: Component<{peer: Peer}> = (props) => {
+    const [connectionState, setConnectionState] = createSignal<PeerConnectionState>(PeerConnectionState.unknown);
+    const [singalingState, setSingalingState] = createSignal<RTCSignalingState>("stable");
+    const [stateChangedCounter, setStateChangedCounter] = createSignal<number>(0);
+
+    const onConnectionStateChanged = (newState: PeerConnectionState) => {
+        setConnectionState(newState);
+        setStateChangedCounter(prev => prev+1);
+    };
+
+    const onSingalingStateChanged = () => {
+        setSingalingState(props.peer.connection.signalingState);
+        setStateChangedCounter(prev => prev+1);
+    };
+
+    createEffect(() => {
+        setConnectionState(props.peer.connectionState);
+    });
+
+    onMount(() => {
+        props.peer.bus.on("connectionstatechange", onConnectionStateChanged);
+        props.peer.connection.addEventListener("signalingstatechange", onSingalingStateChanged);
+    });
+
+    onCleanup(() => {
+        props.peer.bus.detach("connectionstatechange", onConnectionStateChanged);
+        props.peer.connection.removeEventListener("signalingstatechange", onSingalingStateChanged);
+    });
+
+    return <p>Peer "{props.peer.userDeviceId}" [changed x{stateChangedCounter()}], clk {props.peer.clk.toString()}, connectionState {connectionState()}, singalingState {singalingState()}</p>;
+};
 
 const DevMesh: Component = () => {
     const [roomName, setRoomName] = createSignal<string>("");
     const [roomId, setRoomId] = createSignal<string>("");
-    const [peers, setPeers] = createSignal<Peer[]>([]);
+    const [peers, setPeers] = createSignal<Peer[]>([], {equals: false});
     const broadClient = useBroadClient();
     const auth = createSupabaseAuth();
 
@@ -30,14 +62,15 @@ const DevMesh: Component = () => {
         }
         participantsCtl.refetch();
         const alterChan = SupabaseDatachannel.ofRoom(broadClient.supabase, roomId, broadClient.getUserDeviceId());
-        const router = new Router(broadClient.getUserDeviceId(), alterChan);
+        const router = new Router(broadClient.getUserDeviceId(), alterChan, roomId);
         router.bus.on("addpeer", () => {
             setPeers(router.peers);
         });
-        router.bus.on("removepeer", () => {
+        router.bus.on("removepeer", (peer: Peer) => {
+            peer.disconnect();
             setPeers(router.peers);
         });
-        await router.broadcastPeerList(roomId);
+        await router.broadcastPeerList();
         setRouterG(router);
     };
 
@@ -77,7 +110,15 @@ const DevMesh: Component = () => {
     return <div>
         <p>User: {JSON.stringify(auth.user(), undefined, 2)}</p>
         <TextField variant="standard" value={roomName()} label="Room Name" onChange={(ev) => setRoomName(ev.target.value)} /><Button onClick={createRoom}>Create New Room</Button><br />
-        <TextField variant="standard" value={roomId()} label="Room ID" onChange={(ev) => setRoomId(ev.target.value)} /><Button onClick={enterRoom}>Enter Room</Button><br />
+        <TextField variant="standard" value={roomId()} label="Room ID" onChange={(ev) => setRoomId(ev.target.value)} />
+        <Button onClick={enterRoom}>Enter Room</Button>
+        <Button onClick={() => {
+            const routerg = routerG();
+            if (routerg) {
+                routerg.broadcastPeerList();
+            }
+        }}>Sync Peer List</Button>
+        <br />
         <p>User-Device Id: {getRouterId() || "unknown"}</p>
         <div>
             <Show when={participants.loading}><p>Loading participants...</p></Show>
@@ -89,7 +130,7 @@ const DevMesh: Component = () => {
         <div>
             <p>Peers:</p>
             <ul>
-                <For each={peers()} fallback={<li>No peers.</li>}>{(p) => <li>Peer "{p.userDeviceId}", clk {p.clk.toString()}</li>}</For>
+                <For each={peers()} fallback={<li>No peers.</li>}>{(p) => <li><PeerView peer={p} /></li>}</For>
             </ul>
         </div>
     </div>;
