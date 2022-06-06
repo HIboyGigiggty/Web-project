@@ -9,11 +9,9 @@ import AddIcon from "@suid/icons-material/Add";
 import Card from "@suid/material/Card";
 import List from "@suid/material/List";
 import Avatar from "@suid/material/Avatar";
-{/*-----------------------------------------*/ }
 import CardActions from "@suid/material/CardActions";
 import Modal from "@suid/material/Modal";
 import ListItem from "@suid/material/ListItem";
-{/*-----------------------------------------*/ }
 import { Navigate, useNavigate } from "solid-app-router";
 import { Component, For, Match, Show, Switch, createResource, createSignal } from "solid-js";
 import { createSupabase, createSupabaseAuth } from "solid-supabase";
@@ -22,16 +20,8 @@ import CardContent from "@suid/material/CardContent";
 import Popover from "@suid/material/Popover";
 import Divider from "@suid/material/Divider";
 import Chip from "@suid/material/Chip";
-import Stack from "@suid/material/Stack";
-import FaceIcon from '@suid/icons-material/Face';
+import FaceIcon from "@suid/icons-material/Face";
 
-const getWwidth = async () => {
-    let WindowWidth = window.innerWidth;
-    let mediumWidth = WindowWidth / 2;
-    let finishWidth = mediumWidth - 100;
-    return (finishWidth);
-
-}
 const useBroadClient = () => {
     const supabase = createSupabase();
 
@@ -232,10 +222,10 @@ const Index: Component = () => {
                                         return <>
                                             <ListItem >
                                                 房间名字 :"{item.name}"
-                                                <div className="Cchip"><Chip icon={<FaceIcon />} label="...房主信息..." sx={{ ml: "200px" }}></Chip></div>
+                                                <div class="Cchip"><Chip icon={<FaceIcon />} label="...房主信息..." sx={{ ml: "200px" }}></Chip></div>
                                             </ListItem>
                                             <Divider></Divider>
-                                        </>
+                                        </>;
                                     }
                                 }
                             </For>
