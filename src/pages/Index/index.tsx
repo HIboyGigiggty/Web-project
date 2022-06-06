@@ -14,25 +14,18 @@ import Modal from "@suid/material/Modal";
 import ListItem from "@suid/material/ListItem";
 import { Navigate, useNavigate } from "solid-app-router";
 import { Component, For, Match, Show, Switch, createResource, createSignal } from "solid-js";
-import { createSupabase, createSupabaseAuth } from "solid-supabase";
-import BroadClient from "../../helpers/BroadClient";
+import { createSupabaseAuth } from "solid-supabase";
+import { useBroadClient } from "../../helpers/BroadClient/solid";
 import CardContent from "@suid/material/CardContent";
 import Popover from "@suid/material/Popover";
 import Divider from "@suid/material/Divider";
 import Chip from "@suid/material/Chip";
 import FaceIcon from "@suid/icons-material/Face";
 
-const useBroadClient = () => {
-    const supabase = createSupabase();
-
-    return new BroadClient(supabase);
-};
-
 const UserAvatar: Component = () => {//头像组件
     const auth = createSupabaseAuth();
     const user = auth.user();
     let buttomRef: HTMLButtonElement;
-    console.log(user);
     const [datailPopoverOpen, setdatailPopoverOpen] = createSignal<boolean>(false);
     return (
         <>
