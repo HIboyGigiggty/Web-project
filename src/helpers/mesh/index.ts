@@ -8,6 +8,7 @@ import { promiseTimeout } from "@solid-primitives/utils";
 import {validate as uuidValidate} from "uuid";
 
 const PROTO_TYPE_SYNC_PEERS = 1;
+const PROTO_TYPE_SYNC_PEERS_REP = 3;
 const PROTO_TYPE_MAX_NUM = 255;
 
 export class Peer {
@@ -121,9 +122,9 @@ export class Router {
         }
     }
 
-    async broadcastPeerList(roomId: string, customPeerIdList?: string[]) {
+    async broadcastPeerList(roomId: string, customPeerIdList?: string[], isReply?: boolean) {
         const peerIdList = customPeerIdList || [this.userDeviceId, ...this.peers.map(p => p.userDeviceId)];
-        const frames = this.buildProtocolMessage(PROTO_TYPE_SYNC_PEERS, peerIdList);
+        const frames = this.buildProtocolMessage(isReply ? PROTO_TYPE_SYNC_PEERS_REP : PROTO_TYPE_SYNC_PEERS, peerIdList);
         await this.broadcast(roomId, frames);
     }
 
@@ -150,16 +151,26 @@ export class Router {
     }
 
     async onSyncPeerMessage(message: Message) {
+        const code = message.message[0].toUInt();
         const receivedPeerList = JSON.parse(message.message[2].toString()) as unknown; // JSON
         const remotePeerList = Array.isArray(receivedPeerList) ? receivedPeerList.filter(v => typeof v === "string" && uuidValidate(v)) : [];
-        remotePeerList.filter(id => !this.findPeerById(id)).forEach(id => {
+        remotePeerList.filter(id => this.findPeerById(id) == null).forEach(id => {
             const peer = new Peer(id, 0n);
             this.addPeer(peer);
         }); // add all unknown peers
-        await promiseTimeout(Math.random() * 10 * 1000); // wait random seconds to avoid network flood
-        const remoteUnknownPeerIds = this.peers.map(p => p.userDeviceId).filter(id => !remotePeerList.includes(id));
-        if (remoteUnknownPeerIds.length > 0) {
-            await this.broadcastPeerList(message.roomId, remoteUnknownPeerIds);
+        if (code === PROTO_TYPE_SYNC_PEERS) {
+            const waitingTime = Math.random() * 2000;
+            console.log("processed peer list, waiting to broadcast...", waitingTime);
+            await promiseTimeout(waitingTime); // wait random seconds to avoid network flood
+            const remoteUnknownPeerIds = this.peers.map(p => p.userDeviceId).filter(id => !remotePeerList.includes(id));
+            if (!remotePeerList.includes(this.userDeviceId)) {
+                remoteUnknownPeerIds.push(this.userDeviceId);
+            }
+            console.log("remotePeerList", remotePeerList, "remoteUnknwonPeerIds", remoteUnknownPeerIds, this.peers);
+            if (remoteUnknownPeerIds.length > 0) {
+                console.log("broadcasting sync peer list...");
+                await this.broadcastPeerList(message.roomId, remoteUnknownPeerIds, true);
+            }
         }
     }
 
@@ -177,7 +188,7 @@ export class Router {
         } else {
             if (peer.clk >= clkUpdate) return;
         }
-        if (msgTypeCode === PROTO_TYPE_SYNC_PEERS) {
+        if (msgTypeCode === PROTO_TYPE_SYNC_PEERS || msgTypeCode === PROTO_TYPE_SYNC_PEERS_REP) {
             this.onSyncPeerMessage(message).catch((reason) => console.error("sync peer list failed", reason));
         } else {
             console.error("unknown message type #%d", msgTypeCode);
