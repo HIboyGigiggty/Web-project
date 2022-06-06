@@ -176,10 +176,11 @@ const Index: Component = () => {
         {/*---------------------FAB--------------------*/}
         <Box sx={{
             right: 40,
-            position: "absolute",
+            position: "fixed",
             bottom: 50,
             padding: 0,
             paddingTop: 0,
+            zIndex: 99,
         }}>
             <div>
                 <Fab color="primary" aria-label="add" onClick={handleOpen}>
@@ -236,13 +237,13 @@ const Index: Component = () => {
         {/*--------------------List---------------------*/}
         <div >
             <Box sx={{ ml: "50%", transform: "translate(-50%, 0)", padding: 0, marginTop: "60px" }}>
-                <Card sx={{ minWidth: 600, ml: "50%", transform: "translate(-50%,0)" }}>
+                <Card sx={{ minWidth: "120%", ml: "50%", transform: "translate(-50%,0)" , width:"auto"}}>
                     <CardContent sx={{ padding: 0 }} style="padding: 0;">
                         <TextField sx={{ width: "100%" }} placeholder="房间ID"></TextField>
                     </CardContent>
                 </Card>
 
-                <Card sx={{ minWidth: 500, ml: "50%", transform: "translate(-50%,0)", marginTop: "30px" }}>
+                <Card sx={{ minWidth: "110%", ml: "50%", transform: "translate(-50%,0)", marginTop: "30px" ,width:"auto",height:"auto"}}>
                     <CardContent sx={{ padding: 0 }} style="padding: 0;">
                         <List sx={{ padding: 0 }}>
                             <For each={rooms()} fallback={<List>No rooms here.</List>}>
