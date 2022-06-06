@@ -169,10 +169,10 @@ export class Frame {
         const length = frames.map((v) => v.byteLength).reduce((prev, curr) => prev + curr, 0);
         const bundle = new Uint8Array(length);
         let offest = 0;
-        frames.forEach(f => {
+        for (const f of frames) {
             bundle.set(f.buffer, offest);
             offest += f.byteLength;
-        });
+        }
         return bundle;
     }
 
