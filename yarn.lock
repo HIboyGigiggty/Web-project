@@ -1749,6 +1749,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@rollup/pluginutils@npm:^4.2.1":
+  version: 4.2.1
+  resolution: "@rollup/pluginutils@npm:4.2.1"
+  dependencies:
+    estree-walker: ^2.0.1
+    picomatch: ^2.2.2
+  checksum: 6bc41f22b1a0f1efec3043899e4d3b6b1497b3dea4d94292d8f83b4cf07a1073ecbaedd562a22d11913ff7659f459677b01b09e9598a98936e746780ecc93a12
+  languageName: node
+  linkType: hard
+
 "@solid-primitives/raf@npm:^2.1.0":
   version: 2.1.0
   resolution: "@solid-primitives/raf@npm:2.1.0"
@@ -1970,7 +1980,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/eslint@npm:^8":
+"@types/eslint@npm:^8, @types/eslint@npm:^8.4.2":
   version: 8.4.2
   resolution: "@types/eslint@npm:8.4.2"
   dependencies:
@@ -3347,6 +3357,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"estree-walker@npm:^2.0.1":
+  version: 2.0.2
+  resolution: "estree-walker@npm:2.0.2"
+  checksum: 6151e6f9828abe2259e57f5fd3761335bb0d2ebd76dc1a01048ccee22fabcfef3c0859300f6d83ff0d1927849368775ec5a6d265dde2f6de5a1be1721cd94efc
+  languageName: node
+  linkType: hard
+
 "esutils@npm:^2.0.2":
   version: 2.0.3
   resolution: "esutils@npm:2.0.3"
@@ -4455,6 +4472,7 @@ __metadata:
     typescript: ^4.6.3
     uuid: ^8.3.2
     vite: ^2.9.9
+    vite-plugin-eslint: ^1.6.1
     vite-plugin-solid: ^2.2.6
   languageName: unknown
   linkType: soft
@@ -4957,6 +4975,20 @@ __metadata:
   bin:
     rollup: dist/bin/rollup
   checksum: a48d2df765cc87c2d351e9df2ce3483cdc406e583cee271af2c38fe9371ccbae8484f0c50af4ac9293667c3eded082297008934712079d53798ec2841eef0339
+  languageName: node
+  linkType: hard
+
+"rollup@npm:^2.70.2":
+  version: 2.75.5
+  resolution: "rollup@npm:2.75.5"
+  dependencies:
+    fsevents: ~2.3.2
+  dependenciesMeta:
+    fsevents:
+      optional: true
+  bin:
+    rollup: dist/bin/rollup
+  checksum: fa3e61959efbc88cda75315dc22f035489be9dda3ae7d45a3a474f19efc3661ef6f9849486c7ca51e1a3e2aedef91f4e3223e8123bbeaf155913533d071994d1
   languageName: node
   linkType: hard
 
@@ -5611,6 +5643,20 @@ __metadata:
   version: 2.3.0
   resolution: "v8-compile-cache@npm:2.3.0"
   checksum: adb0a271eaa2297f2f4c536acbfee872d0dd26ec2d76f66921aa7fc437319132773483344207bdbeee169225f4739016d8d2dbf0553913a52bb34da6d0334f8e
+  languageName: node
+  linkType: hard
+
+"vite-plugin-eslint@npm:^1.6.1":
+  version: 1.6.1
+  resolution: "vite-plugin-eslint@npm:1.6.1"
+  dependencies:
+    "@rollup/pluginutils": ^4.2.1
+    "@types/eslint": ^8.4.2
+    rollup: ^2.70.2
+  peerDependencies:
+    eslint: ">=7"
+    vite: ^2.0.0
+  checksum: f6ffeee2af63d795470b061240b0feb38da392de167c57c3e7d816cd78ff39ba8eb5eda1eddbf7d80f0c442731ae813f2bc2f59c46eba64254b7dcb7b639d78c
   languageName: node
   linkType: hard
 
