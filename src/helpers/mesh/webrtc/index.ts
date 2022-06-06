@@ -8,7 +8,7 @@ export class WebRTCDatachannel implements DataChannel {
     constructor(rtcDataChan: RTCDataChannel) {
         this.bus = new EventBus();
         this.rtcDataChan = rtcDataChan;
-        const onRemoteData = (ev: MessageEvent<unknown>) => this.onRemoteData(ev);
+        const onRemoteData = async (ev: MessageEvent<unknown>) => this.onRemoteData(ev);
         this.rtcDataChan.addEventListener("open", () => {
             this.bus.emit<WebRTCDatachannel>("open", this);
             this.rtcDataChan.addEventListener("message", onRemoteData);
@@ -20,13 +20,13 @@ export class WebRTCDatachannel implements DataChannel {
     }
 
     async send(message: Message): Promise<void> {
-        const frames = [Frame.fromString(message.dstUserDeviceId), Frame.fromString(message.roomId), Frame.fromString(message.srcUserDeviceId), ...message.message];
+        const frames = [Frame.fromString(message.dstUserDeviceId, true), Frame.fromString(message.roomId, true), Frame.fromString(message.srcUserDeviceId, true), ...message.message];
         this.rtcDataChan.send(Frame.pack(...frames));
     }
 
-    onRemoteData(ev: MessageEvent<unknown>) {
-        const data = ev.data as Uint8Array;
-        const [frames,,] = Frame.unpack(data);
+    async onRemoteData(ev: MessageEvent<unknown>) {
+        const data = ev.data as Blob;
+        const [frames,] = Frame.unpack(new Uint8Array(await data.arrayBuffer()));
         const [dstId, roomId, srcId, ...payload] = frames;
         const message: Message = {
             dstUserDeviceId: dstId.toString(),
