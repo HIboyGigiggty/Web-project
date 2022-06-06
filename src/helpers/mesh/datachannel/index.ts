@@ -176,23 +176,51 @@ export class Frame {
         return bundle;
     }
 
-    /// Reading frames from buffer.
-    /// Return parsed_frames, rest data and the required data length for next complete frame.
+    /**
+     * Read the header of the `Uint8Array`.
+     * @param array the array to read.
+     * @returns the flags of header and the length of payload.
+     */
+    static readHeader(array: Uint8Array): [FrameFlags, number] | null {
+        if (array.length === 0) return null;
+        const flags = array[0];
+        const more = (flags & this.FLAG_MORE) > 0;
+        const long = (flags & this.FLAG_LONG) > 0;
+        const headerSize = (long? this.LONG_HEADER_SIZE: this.SHORT_HEADER_SIZE);
+        if (array.length < headerSize) return null;
+        const lengthSize = headerSize - 1;
+        const buffer = new Uint8Array(lengthSize);
+        buffer.set(array.subarray(1, headerSize), 0);
+        const lengthView = new DataView(buffer.buffer, 0, lengthSize);
+        const flagsObject = <FrameFlags>{
+            more, long
+        };
+        const length = long? lengthView.getUint32(0): lengthView.getUint16(0);
+        return [flagsObject, length];
+    }
+
+    /**
+     * Unpack an `Uint8Array`.
+     * @param array the array to unpack.
+     * @returns the frames read, the rest data and the length required for next frame.
+     */
     static unpack(array: Uint8Array): [Frame[], Uint8Array, number] {
         let rest = array;
         const frames: Frame[] = [];
         while (rest.length > 0) {
-            const more = (rest[0] & this.FLAG_MORE) > 0;
-            const long = (rest[0] & this.FLAG_LONG) > 0;
-            const headerSize = (long? this.LONG_HEADER_SIZE: this.SHORT_HEADER_SIZE);
-            const lengthBytes = Buffer.from(rest.subarray(1, headerSize));
-            const length = long? lengthBytes.readUInt32BE(): lengthBytes.readUInt16BE();
-            if (rest.length >= (length + headerSize)) {
-                frames.push(new Frame(rest.subarray(0, headerSize + length)));
-                rest = rest.subarray(headerSize + length);
-                if (!more) break;
+            const headerResult = this.readHeader(rest);
+            if (headerResult) {
+                const [flags, length] = headerResult;
+                const headerSize = flags.long? this.LONG_HEADER_SIZE: this.SHORT_HEADER_SIZE;
+                if (rest.length >= (length + headerSize)) {
+                    frames.push(new Frame(rest.subarray(0, headerSize + length)));
+                    rest = rest.subarray(headerSize + length);
+                    if (!flags.more) break;
+                } else {
+                    return [frames, rest, (length + headerSize) - rest.length];
+                }
             } else {
-                return [frames, rest, (length + headerSize) - rest.length];
+                rest = new Uint8Array(0);
             }
         }
         return [frames, rest, 0];
