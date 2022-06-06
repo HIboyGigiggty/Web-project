@@ -1,6 +1,6 @@
 import Button from "@suid/material/Button";
 import TextField from "@suid/material/TextField";
-import { Component, createEffect, createResource, createSignal, For, onCleanup, onMount, Show } from "solid-js";
+import { Component, For, Show, createEffect, createResource, createSignal, onCleanup, onMount } from "solid-js";
 import { useBroadClient } from "../../helpers/BroadClient/solid";
 import { createSupabaseAuth } from "solid-supabase";
 import { Participant } from "../../helpers/BroadClient";
@@ -92,6 +92,8 @@ const DevMesh: Component = () => {
         }
     };
 
+    // We just need some cleanup:
+    // eslint-disable-next-line solid/reactivity
     onCleanup(async () => {
         const routerg = routerG();
         if (routerg) {
