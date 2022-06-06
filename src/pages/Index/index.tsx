@@ -13,14 +13,13 @@ import CardActions from "@suid/material/CardActions";
 import Modal from "@suid/material/Modal";
 import ListItem from "@suid/material/ListItem";
 import { Navigate, useNavigate } from "solid-app-router";
-import { Component, For, Match, Show, Switch, createResource, createSignal } from "solid-js";
+import { Component, For, Match, Show, Switch, createEffect, createResource, createSignal } from "solid-js";
 import { createSupabaseAuth } from "solid-supabase";
 import { useBroadClient } from "../../helpers/BroadClient/solid";
 import CardContent from "@suid/material/CardContent";
 import Popover from "@suid/material/Popover";
-import Divider from "@suid/material/Divider";
 import Chip from "@suid/material/Chip";
-import FaceIcon from "@suid/icons-material/Face";
+import ListItemText from "@suid/material/ListItemText";
 
 const UserAvatar: Component = () => {//头像组件
     const auth = createSupabaseAuth();
@@ -81,6 +80,43 @@ const UserAvatar: Component = () => {//头像组件
             </Popover>
         </>
     );
+};
+
+const RoomListItem: Component<{name: string, owner_id: string}> = (props) => {
+    const auth = createSupabaseAuth();
+
+    const [ownerName, ownerNameCtl] = createResource<string, string>(() => props.owner_id, (owner_id: string) => {
+        const user = auth.user();
+        if (user) {
+            if (user.id === owner_id) {
+                if (typeof user.user_metadata["name"] === "string") {
+                    return user.user_metadata["name"];
+                }
+            }
+        }
+        return owner_id;
+    }, { initialValue: "You"});
+
+    createEffect(() => {
+        ownerNameCtl.refetch(props.owner_id);
+    });
+
+    return <>
+        <ListItem divider>
+            <ListItemText
+                primary={<Typography sx={{ marginBottom: "8px" }}>{props.name}</Typography>}
+                secondary={
+                    <Chip icon={
+                        <Switch fallback={<Avatar>?</Avatar>}>
+                            <Match when={auth.user()?.user_metadata.avatar_url}>
+                                <Avatar sizes="small" sx={{ maxHeight: "24px", maxWidth: "24px" }} src={auth.user()?.user_metadata.avatar_url} />
+                            </Match>
+                        </Switch>
+                    } label={ownerName()}></Chip>
+                }
+            />
+        </ListItem>
+    </>;
 };
 
 const Index: Component = () => {
@@ -212,13 +248,7 @@ const Index: Component = () => {
                             <For each={rooms()} fallback={<List>No rooms here.</List>}>
                                 {
                                     (item) => {
-                                        return <>
-                                            <ListItem >
-                                                房间名字 :"{item.name}"
-                                                <div class="Cchip"><Chip icon={<FaceIcon />} label="...房主信息..." sx={{ ml: "200px" }}></Chip></div>
-                                            </ListItem>
-                                            <Divider></Divider>
-                                        </>;
+                                        return <RoomListItem owner_id={item.owner} name={item.name} />;
                                     }
                                 }
                             </For>
