@@ -1,9 +1,9 @@
 import { defineConfig } from "vite";
 import solidPlugin from "vite-plugin-solid";
 import {undestructurePlugin} from "babel-plugin-solid-undestructure";
-import solidStyledJSXPlugin from "solid-styled-jsx/babel";
 import {visualizer} from "rollup-plugin-visualizer";
 import eslint from "vite-plugin-eslint";
+import solidStyledPlugin from "babel-plugin-solid-styled";
 
 export default defineConfig(({mode}) => ({
     server: {
@@ -14,7 +14,7 @@ export default defineConfig(({mode}) => ({
         solidPlugin({
             babel: {
                 browserslistConfigFile: true,
-                plugins: [solidStyledJSXPlugin]
+                plugins: [solidStyledPlugin]
             }
         }),
         visualizer({

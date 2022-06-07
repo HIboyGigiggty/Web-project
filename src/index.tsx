@@ -4,15 +4,16 @@ import { SupabaseProvider } from "solid-supabase";
 import supabase_client from "./supabase_client";
 import { Router } from "solid-app-router";
 
-import "solid-styled-jsx";
-
 import "./index.styl";
 import "@fontsource/roboto";
+import { StyleRegistry } from "solid-styled";
 
 render(() => (
     <SupabaseProvider client={supabase_client}>
-        <Router>
-            <App />
-        </Router>
+        <StyleRegistry>
+            <Router>
+                <App />
+            </Router>
+        </StyleRegistry>
     </SupabaseProvider>
 ), document.getElementById("app") as HTMLElement);
