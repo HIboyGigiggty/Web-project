@@ -255,8 +255,6 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
             context.moveTo(xc, yc);
         } else {
             const point = stroke[l];
-            console.log("stroke", stroke);
-            console.log("point", point);
             context.lineWidth = point.lineWidth;
             context.strokeStyle = ctl.translateColor(point.color);
             context.beginPath();
