@@ -3,17 +3,20 @@ import Box from "@suid/material/Box";
 import IconButton from "@suid/material/IconButton";
 import Toolbar from "@suid/material/Toolbar";
 import { useNavigate, useParams } from "solid-app-router";
-import { Component, createSignal, onMount } from "solid-js";
+import { Component, createResource, createSignal, onMount, createEffect, Show } from "solid-js";
 import { useBroadClient } from "../../helpers/BroadClient/solid";
 import CloseIcon from "@suid/icons-material/Close";
 import Typography from "@suid/material/Typography";
-import { Room } from "../../helpers/BroadClient";
+import { Participant, Room } from "../../helpers/BroadClient";
 import Modal from "@suid/material/Modal";
 import Card from "@suid/material/Card";
 import CardContent from "@suid/material/CardContent";
 import Button from "@suid/material/Button";
 import List from "@suid/material/List";
 import ListItem from "@suid/material/ListItem";
+import DrawBroad, { DrawBroadController, DrawTool, ContextMenuEvent } from "../../widgets/DrawBroad";
+import PersonIcon from "@suid/icons-material/Person";
+import Popover from "@suid/material/Popover";
 
 enum RoomStatus {
     "Unknown",
@@ -66,14 +69,65 @@ const RoomNotFoundDialog: Component<{open: boolean}> = (props) => {
     </Modal>;
 };
 
+interface ContextMenuProps {
+    position: undefined | [number, number],
+    onClose: (() => void),
+    currentDrawingTool: DrawTool,
+    onChangingDrawingTool: ((newTool: DrawTool) => void),
+}
+
+const ContextMenu: Component<ContextMenuProps> = (props) => {
+    const buildContextMenuAnchorPos = () => {
+        const [left, top] = props.position as [number, number];
+        return {left, top};
+    };
+
+    const itemSx = {cursor: "pointer"};
+
+    return <Popover
+        open={typeof props.position !== "undefined"}
+        anchorReference="anchorPosition"
+        anchorPosition={buildContextMenuAnchorPos()}
+        onClose={() => props.onClose()}
+    >
+        <List>
+            <ListItem sx={itemSx} onClick={() => props.onChangingDrawingTool(DrawTool.pen)}>
+                <Typography>Pen</Typography><Show when={props.currentDrawingTool === DrawTool.pen}>*</Show>
+            </ListItem>
+            <ListItem sx={itemSx} onClick={() => props.onChangingDrawingTool(DrawTool.erase)}>
+                <Typography>Erase</Typography><Show when={props.currentDrawingTool === DrawTool.erase}>*</Show>
+            </ListItem>
+            <ListItem sx={itemSx} onClick={() => props.onChangingDrawingTool(DrawTool.hand)}>
+                <Typography>Move</Typography><Show when={props.currentDrawingTool === DrawTool.hand}>*</Show>
+            </ListItem>
+        </List>
+    </Popover>;
+};
+
 const RoomPage: Component = () => {
     const params = useParams();
     const broadCli = useBroadClient();
     const navigate = useNavigate();
     const [status, setStatus] = createSignal<RoomStatus>(RoomStatus.Unknown);
     const [roomInfo, setRoomInfo] = createSignal<Room>();
+    const [currentDrawingTool, setCurrentDrawingTool] = createSignal<DrawTool>(DrawTool.pen);
+    const [contextMenuPos, setContextMenuPos] = createSignal<[number, number] | undefined>();
+    const drawCtl = new DrawBroadController("blue", 20);
+
+    const [participants, participantsCtl] = createResource<Participant[]>(() => {
+        const room = roomInfo();
+        if (room) {
+            return broadCli.getParticipants(room.id);
+        }
+        return [];
+    });
+
+    const onBroadContextMenu = (e: ContextMenuEvent) => {
+        setContextMenuPos([e.pageX, e.pageY]);
+    };
 
     onMount(async () => {
+        drawCtl.setOffscreenSize([3000, 3000]);
         const room = await broadCli.findRoomById(params.id);
         if (room) {
             setStatus(RoomStatus.Found);
@@ -87,6 +141,16 @@ const RoomPage: Component = () => {
         }
     });
 
+    createEffect(() => {
+        if (status() === RoomStatus.Joined) {
+            participantsCtl.refetch();
+        }
+    });
+
+    createEffect(() => {
+        drawCtl.setTool(currentDrawingTool());
+    });
+
     const shouldShowJoiningNotice = () => status() === RoomStatus.Unknown || status() === RoomStatus.Found;
 
     const shouldShowRoomNotFound = () => status() === RoomStatus.NotFound;
@@ -94,6 +158,12 @@ const RoomPage: Component = () => {
     return <>
         <RoomJoiningNotice open={shouldShowJoiningNotice()} />
         <RoomNotFoundDialog open={shouldShowRoomNotFound()} />
+        <ContextMenu
+            position={contextMenuPos()}
+            onClose={() => setContextMenuPos()}
+            currentDrawingTool={currentDrawingTool()}
+            onChangingDrawingTool={(newTool) => setCurrentDrawingTool(newTool)}
+        />
         <Box sx={{flexGrow: 1}}>
             <AppBar position="absolute" color="transparent">
                 <Toolbar>
@@ -108,9 +178,17 @@ const RoomPage: Component = () => {
                     <Typography variant="h6" component="div" sx={{flexGrow: 1}}>
                         {() => roomInfo()?.name}
                     </Typography>
+                    <Button
+                        size="large" color="inherit" variant="text">
+                        <PersonIcon />{participants.loading? "..." : participants()?.length}
+                    </Button>
                 </Toolbar>
             </AppBar>
         </Box>
+        <DrawBroad
+            ctl={drawCtl}
+            onContextMenu={onBroadContextMenu}
+        />
     </>;
 };
 
