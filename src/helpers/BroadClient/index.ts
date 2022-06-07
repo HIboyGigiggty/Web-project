@@ -35,7 +35,11 @@ class BroadClient {
             throw rooms.error;
         } else {
             if (rooms.data) {
-                return rooms.data as unknown as Room;
+                if ((rooms.data as unknown as Record<string, unknown>)["id"]) {
+                    return rooms.data as unknown as Room;
+                } else {
+                    return null;
+                }
             } else {
                 return null;
             }
