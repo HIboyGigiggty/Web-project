@@ -20,6 +20,7 @@ import CardContent from "@suid/material/CardContent";
 import Popover from "@suid/material/Popover";
 import Chip from "@suid/material/Chip";
 import ListItemText from "@suid/material/ListItemText";
+import { Room } from "../../helpers/BroadClient";
 
 const UserAvatar: Component = () => {//头像组件
     const auth = createSupabaseAuth();
@@ -119,12 +120,78 @@ const RoomListItem: Component<{name: string, owner_id: string}> = (props) => {
     </>;
 };
 
+interface RoomCreatingDialogProps {
+    open: boolean,
+    onClose: ((event: Record<string, never>, reason: "backdropClick" | "escapeKeyDown" | "roomCreated") => void),
+    onRoomCreated: ((room: Room) => void),
+    onSignInNeeded: (() => void),
+}
+
+const RoomCreatingDialog: Component<RoomCreatingDialogProps> = (props) => {
+    const [roomName, setRoomName] = createSignal<string>("");
+    const [isCreating, setIsCreating] = createSignal<boolean>(false);
+
+    const broadCli = useBroadClient();
+    const auth = createSupabaseAuth();
+
+    const creating = async () => {
+        setIsCreating(true);
+        const user = auth.user();
+        if (user) {
+            const room = await broadCli.createRoom(roomName());
+            setRoomName("");
+            props.onRoomCreated(room);
+        } else {
+            props.onSignInNeeded();
+        }
+        setIsCreating(false);
+    };
+
+    return <Modal
+        open={props.open}
+        onClose={(event, reason) => props.onClose(event, reason)}
+    >
+        <Card sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 350,
+            border: "0px solid #000",
+            p: 4,
+            padding: "24px",
+            paddingBottom: "8px",
+        }}>
+            <CardContent sx={{ padding: 0, marginBottom: "28px" }}>
+                <Typography variant="h6">New Room</Typography>
+                <List>
+                    <ListItem disablePadding>
+                        <TextField sx={{ width: "100%" }} label="Name" variant="standard" disabled={isCreating()}
+                            onChange={(_, val: string) => setRoomName(val)} value={roomName()}> </TextField>
+                    </ListItem>
+                </List>
+            </CardContent>
+            <CardActions>
+                <Box sx={{
+                    width: "100%",
+                }} />
+                <Button sx={{
+                    width: "fit-content",
+                    paddingLeft: "24px",
+                    paddingRight: "24px",
+                }} onClick={async () => {
+                    await creating();
+                    props.onClose({}, "roomCreated");
+                }} disabled={isCreating()}>{isCreating() ? "Creating...": "Create"}</Button>
+            </CardActions>
+        </Card>
+    </Modal>;
+};
+
 const Index: Component = () => {
     const auth = createSupabaseAuth();
     const navigate = useNavigate();
     const broadCli = useBroadClient();
-
-    const [roomName, setRoomName] = createSignal<string>("");
 
     const getAllRooms = async () => {
         const user = auth.user();
@@ -134,29 +201,18 @@ const Index: Component = () => {
             navigate("/login");
         }
     };
+
     const [rooms, { refetch }] = createResource(getAllRooms, {
         initialValue: []
     });
-    const creating = async () => {
-        console.log("creating");
-        const user = auth.user();
-        if (user) {
-            await broadCli.createRoom(roomName());
-            setRoomName("");
-            await refetch();
-        } else {
-            navigate("/login");
-        }
-    };
 
-
-
-
-    {/*-----------------------------------------*/ }
     const [open, setOpen] = createSignal(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
-    {/*-----------------------------------------*/ }
+
+    const onSignInNeeded = () => {
+        navigate("/login");
+    };
 
     return <Show when={auth.user()} fallback={<Navigate href="/login" />}>
         {/*---------------------App bar--------------------*/}
@@ -186,50 +242,7 @@ const Index: Component = () => {
                 <Fab color="primary" aria-label="add" onClick={handleOpen}>
                     <AddIcon />
                 </Fab>
-                <Modal
-                    open={open()}
-                    onClose={handleClose}
-                    aria-labelledby="modal-modal-title"
-                    aria-describedby="modal-modal-description"
-                >
-                    <Card sx={{
-                        position: "absolute",
-                        top: "50%",
-                        left: "50%",
-                        transform: "translate(-50%, -50%)",
-                        width: 350,
-                        border: "0px solid #000",
-                        p: 4,
-                        padding: "15px",
-                        paddingTop: "16px",
-                        paddingBottom: 0,
-                    }}>
-                        <CardContent sx={{
-                            padding: 0,
-                        }}>
-                            <List disablePadding>
-                                <ListItem disablePadding>
-                                    <TextField sx={{ width: "100%" }} label="RoomName" variant="standard"
-                                        onChange={(_, val: string) => setRoomName(val)}
-                                        helperText="Please input your Room name" value={roomName()}> </TextField>
-                                </ListItem>
-                            </List>
-                        </CardContent>
-                        <CardActions>
-                            <Box sx={{
-                                width: "100%",
-                                padding: "5px",
-                            }} />
-                            <Button sx={{
-                                width: "50%",
-                                padding: "5px",
-                            }} onClick={async () => {
-                                setOpen(false);
-                                await creating();
-                            }}>create&nbspRoom</Button>
-                        </CardActions>
-                    </Card>
-                </Modal>
+                <RoomCreatingDialog open={open()} onClose={handleClose} onRoomCreated={() => refetch()} onSignInNeeded={onSignInNeeded} />
             </div>
         </Box>
         {/*--------------------FAB---------------------*/}
