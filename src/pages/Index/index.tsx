@@ -83,7 +83,14 @@ const UserAvatar: Component = () => {//头像组件
     );
 };
 
-const RoomListItem: Component<{name: string, owner_id: string}> = (props) => {
+interface RoomListItemProps {
+    name: string;
+    owner_id: string;
+    room_id: string;
+    onClick?: ((event: Record<string, never>, room_id: string) => void);
+}
+
+const RoomListItem: Component<RoomListItemProps> = (props) => {
     const auth = createSupabaseAuth();
 
     const [ownerName, ownerNameCtl] = createResource<string, string>(() => props.owner_id, (owner_id: string) => {
@@ -103,7 +110,11 @@ const RoomListItem: Component<{name: string, owner_id: string}> = (props) => {
     });
 
     return <>
-        <ListItem divider>
+        <ListItem divider onClick={() => {
+            if (props.onClick) {
+                props.onClick({}, props.room_id);
+            }
+        }} sx={{cursor: "pointer"}}> 
             <ListItemText
                 primary={<Typography sx={{ marginBottom: "8px" }}>{props.name}</Typography>}
                 secondary={
@@ -214,6 +225,10 @@ const Index: Component = () => {
         navigate("/login");
     };
 
+    const onNavigateRoom = (event: Record<string, never>, room_id: string) => {
+        navigate(`/rooms/${room_id}`);
+    };
+
     return <Show when={auth.user()} fallback={<Navigate href="/login" />}>
         {/*---------------------App bar--------------------*/}
         <Box sx={{ flexGrow: 1 }}>
@@ -262,7 +277,7 @@ const Index: Component = () => {
                             <For each={rooms()} fallback={<List>No rooms here.</List>}>
                                 {
                                     (item) => {
-                                        return <RoomListItem owner_id={item.owner} name={item.name} />;
+                                        return <RoomListItem owner_id={item.owner} name={item.name} room_id={item.id} onClick={onNavigateRoom}/>;
                                     }
                                 }
                             </For>
