@@ -151,7 +151,7 @@ export class Router {
     constructor(userDeviceId: string, alterChan: DataChannel, roomId: string) {
         this.peers = [];
         this.alterChan = alterChan;
-        this.clk = 0n;
+        this.clk = BigInt(0);
         this.userDeviceId = userDeviceId;
         this.bus = new EventBus();
         this.roomId = roomId;
@@ -268,7 +268,7 @@ export class Router {
         const receivedPeerList = JSON.parse(message.message[2].toString()) as unknown; // JSON
         const remotePeerList = Array.isArray(receivedPeerList) ? receivedPeerList.filter(v => typeof v === "string" && uuidValidate(v)) : [];
         remotePeerList.filter(id => this.findPeerById(id) == null).forEach(id => {
-            const peer = new Peer(id, 0n);
+            const peer = new Peer(id, BigInt(0));
             this.addPeer(peer);
         }); // add all unknown peers
         if (code === PROTO_TYPE_SYNC_PEERS) {
