@@ -1,13 +1,10 @@
 # Hacking
 
-## Setting up development environment
+## Setting up the development environment
 
-It's recommended to install the extensions to use these tools in your editor/IDE:
+See [Development Environment Suggestions](./docs/development_env.md).
 
-- [ESLint](https://eslint.org)
-- [TypeScript](https://www.typescriptlang.org)
-
-Many checks are removed since we moved to vite from webpack, so it's up to your editor/IDE to perfrom these checks. On the other hand, the building speed goes up since these checks are removed.
+Many checks are removed since we moved to Vite from Webpack, so it's up to your editor/IDE to perform these checks. On the other hand, the building speed goes up since these checks are removed.
 
 ## Configure runtime options
 
@@ -16,6 +13,8 @@ Before you start, you should configure runtime options. Runtime options are plac
 - `supabase_conf.ts`: Supabase configuration
 
 You can find the templates under "docs/runtime_options".
+
+For details, see [Development Environment Suggestions](./docs/development_env.md).
 
 ## Directory Structure
 
