@@ -8,6 +8,10 @@ export interface Room {
     created_at: string,
 }
 
+export interface Participant {
+    user_id: string,
+}
+
 class BroadClient {
     supabase: SupabaseClient;
 
@@ -58,7 +62,11 @@ class BroadClient {
                 user_id: user.id,
             });
             if (q.error) {
-                throw q.error;
+                if (q.error.code === "23505") {
+                    return room; // Duplicated primary key
+                } else {
+                    throw q.error;
+                }
             }
             return null;
         } else {
@@ -70,15 +78,12 @@ class BroadClient {
     /// Return false if the user joint the room or the room not exists.
     async isJoinedRoomById(id: string): Promise<boolean> {
         const user = this.userOrError();
-        const q = await this.supabase.from("room_joint").select("*").eq("room_id", id).eq("user_id", user.id);
+        const q = await this.supabase.from("room_joint").select("created_at").eq("room_id", id).eq("user_id", user.id);
+        console.log("query", q);
         if (q.error) {
             throw q.error;
         } else {
-            if (q.data) {
-                return true;
-            } else {
-                return false;
-            }
+            return q.data.length > 0;
         }
     }
 
@@ -122,6 +127,14 @@ class BroadClient {
 
     getUserDeviceId(): string {
         return getUserDeviceId(this.userOrError().id);
+    }
+
+    async getParticipants(roomId: string): Promise<Participant[]> {
+        const {data, error} = await this.supabase.from("room_joint").select("user_id").eq("room_id", roomId);
+        if (error) {
+            throw error;
+        }
+        return (data as Participant[]); // WARNING: this casting is based on the table structure.
     }
 }
 

@@ -33,4 +33,5 @@ export default defineConfig(({mode}) => ({
         polyfillModulePreload: true,
         sourcemap: true,
     },
+    clearScreen: false,
 }));
