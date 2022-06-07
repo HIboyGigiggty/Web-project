@@ -95,12 +95,23 @@ export class DrawBroadController {
     }
 }
 
+export interface ContextMenuEvent {
+    pageX: number,
+    pageY: number,
+    devicePixelRatio: number,
+    broadX: number,
+    broadY: number,
+}
+
+
 interface DrawBroadProps {
     onStart?: (stroke: DrawPoint[], ev: DrawEvent) => void,
     onDrawing?: (stroke: DrawPoint[], ev: DrawEvent) => void,
     onEnd?: (ev: DrawEvent) => void,
     onTouchTypeChanged?: (newTouchType: DrawTouchType) => void,
     ctl?: DrawBroadController, // The controller can control the state of the broad. WARNING: No Reactivity For This Prop.
+
+    onContextMenu?: (ev: ContextMenuEvent) => void,
 }
 
 /// Drawing broad of two-canvas. This element including two canvas: viewpoint and offscreen.
@@ -654,6 +665,22 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         }
     };
 
+    const onContextMenu = (e: MouseEvent) => {
+        if (merged.onContextMenu) {
+            e.preventDefault();
+            const pageX = e.pageX * devicePixelRatio();
+            const pageY = e.pageY * devicePixelRatio();
+            const broadX = pageX + viewpointX();
+            const broadY = pageY + viewpointY();
+            merged.onContextMenu({
+                pageX: e.pageX,
+                pageY: e.pageY,
+                broadX, broadY,
+                devicePixelRatio: devicePixelRatio(),
+            });
+        }
+    };
+
     createEffect(() => {
         if (merged.onTouchTypeChanged) {
             const newTouchType = touchType();
@@ -725,7 +752,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
             onTouchEnd={onTouchEnd}
             onTouchCancel={onTouchEnd}
             onMouseUp={onMouseEnd}
-            onContextMenu={(ev) => ev.preventDefault()}
+            onContextMenu={onContextMenu}
             onWheel={onWheel}
             onMouseLeave={resetAllIntermediateStatus}
             class="draw-broad-canvas"
