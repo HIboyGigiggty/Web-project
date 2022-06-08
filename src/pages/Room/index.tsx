@@ -14,16 +14,19 @@ import CardContent from "@suid/material/CardContent";
 import Button from "@suid/material/Button";
 import List from "@suid/material/List";
 import ListItem from "@suid/material/ListItem";
-import DrawBroad, { ContextMenuEvent, DrawBroadController, DrawTool } from "../../widgets/DrawBroad";
+import DrawBroad, { ContextMenuEvent, DrawBroadController, DrawTool, DrawPoint, DrawEvent } from "../../widgets/DrawBroad";
 import PersonIcon from "@suid/icons-material/Person";
 import Popover from "@suid/material/Popover";
 import { Peer, Router } from "../../helpers/mesh";
 import { SupabaseDatachannel } from "../../helpers/mesh/supabase";
 import LinkIcon from "@suid/icons-material/Link";
 import LinkOffIcon from "@suid/icons-material/LinkOff";
+import { Frame, Message } from "../../helpers/mesh/datachannel";
 
 const DEFAULT_DRAWING_SIZE_X = 3000;
 const DEFAULT_DRAWING_SIZE_Y = 3000;
+
+const PROTO_TYPE_SEND_DRAWING = 302;
 
 enum RoomStatus {
     "Unknown",
@@ -120,7 +123,9 @@ const RoomPage: Component = () => {
     const [currentDrawingTool, setCurrentDrawingTool] = createSignal<DrawTool>(DrawTool.pen);
     const [contextMenuPos, setContextMenuPos] = createSignal<[number, number] | undefined>();
     const [gRouter, setGRouter] = createSignal<Router>();
-    const drawCtl = new DrawBroadController("blue", 20);
+    const drawCtl = new DrawBroadController("black", 20);
+
+    const strokes: Map<string, DrawPoint[]> = new Map();
 
     const [participants, participantsCtl] = createResource<Participant[]>(() => {
         const room = roomInfo();
@@ -150,6 +155,64 @@ const RoomPage: Component = () => {
         setContextMenuPos([e.pageX, e.pageY]);
     };
 
+    const getStroke = (peerId: string): DrawPoint[] => {
+        const stroke = strokes.get(peerId);
+        if (typeof stroke === "undefined") {
+            strokes.set(peerId, []);
+            return getStroke(peerId);
+        } else {
+            return stroke;
+        }
+    };
+
+    const onDataReceived = (message: Message) => {
+        if (message.message.length >= 1) {
+            const codeFrame = message.message[0];
+            if (codeFrame.isUInt()) {
+                const code = codeFrame.toUInt();
+                console.log(code);
+                if ((code === PROTO_TYPE_SEND_DRAWING) && message.message.length >= 5) {
+                    const [, xFrame, yFrame, lineWidthFrame, colorFrame] = message.message;
+                    const point: DrawPoint = {
+                        x: xFrame.toUInt(),
+                        y: yFrame.toUInt(),
+                        lineWidth: lineWidthFrame.toUInt(),
+                        color: colorFrame.toString(),
+                    };
+                    const stroke = getStroke(message.srcUserDeviceId);
+                    stroke.push(point);
+                    drawCtl.draw(stroke);
+                } else if (code === PROTO_TYPE_SEND_DRAWING && message.message.length >= 2) {
+                    strokes.set(message.srcUserDeviceId, []);
+                }
+            }
+        }
+    };
+
+    const onDrawing = (stroke: DrawPoint[]) => {
+        const point = stroke[stroke.length-1];
+        const routerg = gRouter();
+        if (routerg) {
+            routerg.broadcast([
+                Frame.fromUInt(PROTO_TYPE_SEND_DRAWING, true),
+                Frame.fromUInt(point.x, true),
+                Frame.fromUInt(point.y, true),
+                Frame.fromUInt(point.lineWidth, true),
+                Frame.fromString(point.color, false),
+            ], true);
+        }
+    };
+
+    const onDrawingEnd = () => {
+        const routerg = gRouter();
+        if (routerg) {
+            routerg.broadcast([
+                Frame.fromUInt(PROTO_TYPE_SEND_DRAWING, true),
+                Frame.zero(0),
+            ], true);
+        }
+    };
+
     const connectMesh = (roomId: string) => {
         const alterChan = SupabaseDatachannel.ofRoom(broadCli.supabase, roomId, broadCli.getUserDeviceId());
         const router = new Router(broadCli.getUserDeviceId(), alterChan, roomId);
@@ -159,6 +222,7 @@ const RoomPage: Component = () => {
         router.bus.on("removepeer", (peer: Peer) => {
             peer.disconnect();
         });
+        router.bus.on("data", onDataReceived);
         return router;
     };
 
@@ -268,6 +332,9 @@ const RoomPage: Component = () => {
         <DrawBroad
             ctl={drawCtl}
             onContextMenu={onBroadContextMenu}
+            onStart={onDrawing}
+            onDrawing={onDrawing}
+            onEnd={onDrawingEnd}
         />
     </>;
 };
