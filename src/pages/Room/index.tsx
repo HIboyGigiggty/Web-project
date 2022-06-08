@@ -3,7 +3,7 @@ import Box from "@suid/material/Box";
 import IconButton from "@suid/material/IconButton";
 import Toolbar from "@suid/material/Toolbar";
 import { useNavigate, useParams } from "solid-app-router";
-import { Component, Show, createEffect, createResource, createSignal, onMount } from "solid-js";
+import { Component, Show, createEffect, createResource, createSignal, onCleanup, onMount } from "solid-js";
 import { useBroadClient } from "../../helpers/BroadClient/solid";
 import CloseIcon from "@suid/icons-material/Close";
 import Typography from "@suid/material/Typography";
@@ -17,6 +17,10 @@ import ListItem from "@suid/material/ListItem";
 import DrawBroad, { ContextMenuEvent, DrawBroadController, DrawTool } from "../../widgets/DrawBroad";
 import PersonIcon from "@suid/icons-material/Person";
 import Popover from "@suid/material/Popover";
+import { Peer, Router } from "../../helpers/mesh";
+import { SupabaseDatachannel } from "../../helpers/mesh/supabase";
+import LinkIcon from "@suid/icons-material/Link";
+import LinkOffIcon from "@suid/icons-material/LinkOff";
 
 const DEFAULT_DRAWING_SIZE_X = 3000;
 const DEFAULT_DRAWING_SIZE_Y = 3000;
@@ -115,6 +119,7 @@ const RoomPage: Component = () => {
     const [roomInfo, setRoomInfo] = createSignal<Room>();
     const [currentDrawingTool, setCurrentDrawingTool] = createSignal<DrawTool>(DrawTool.pen);
     const [contextMenuPos, setContextMenuPos] = createSignal<[number, number] | undefined>();
+    const [gRouter, setGRouter] = createSignal<Router>();
     const drawCtl = new DrawBroadController("blue", 20);
 
     const [participants, participantsCtl] = createResource<Participant[]>(() => {
@@ -143,6 +148,18 @@ const RoomPage: Component = () => {
 
     const onBroadContextMenu = (e: ContextMenuEvent) => {
         setContextMenuPos([e.pageX, e.pageY]);
+    };
+
+    const connectMesh = (roomId: string) => {
+        const alterChan = SupabaseDatachannel.ofRoom(broadCli.supabase, roomId, broadCli.getUserDeviceId());
+        const router = new Router(broadCli.getUserDeviceId(), alterChan, roomId);
+        router.bus.on("addpeer", (peer: Peer) => {
+            console.log("addpeer", peer);
+        });
+        router.bus.on("removepeer", (peer: Peer) => {
+            peer.disconnect();
+        });
+        return router;
     };
 
     onMount(async () => {
@@ -181,6 +198,36 @@ const RoomPage: Component = () => {
         }
     });
 
+    createEffect(() => {
+        const room = roomInfo();
+        if (room) {
+            setGRouter(prev => {
+                if (prev && prev.roomId !== room.id) {
+                    prev.stop();
+                    return connectMesh(room.id);
+                } else if (typeof prev === "undefined") {
+                    return connectMesh(room.id);
+                } else {
+                    return prev;
+                }
+            });
+        }
+    });
+
+    createEffect(() => {
+        const routerg = gRouter();
+        if (routerg) {
+            routerg.broadcastPeerList();
+        }
+    });
+
+    onCleanup(() => {
+        const routerg = gRouter();
+        if (routerg) {
+            routerg.stop();
+        }
+    });
+
     const shouldShowJoiningNotice = () => status() === RoomStatus.Unknown || status() === RoomStatus.Found;
 
     const shouldShowRoomNotFound = () => status() === RoomStatus.NotFound;
@@ -208,6 +255,9 @@ const RoomPage: Component = () => {
                     <Typography variant="h6" component="div" sx={{flexGrow: 1}}>
                         {() => roomInfo()?.name}
                     </Typography>
+                    <Button size="large" color="inherit" variant="text">
+                        <Show when={gRouter()} fallback={<LinkOffIcon />}><LinkIcon /></Show>
+                    </Button>
                     <Button
                         size="large" color="inherit" variant="text">
                         <PersonIcon />{participants.loading? "..." : participants()?.length}
