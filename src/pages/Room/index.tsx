@@ -14,7 +14,7 @@ import CardContent from "@suid/material/CardContent";
 import Button from "@suid/material/Button";
 import List from "@suid/material/List";
 import ListItem from "@suid/material/ListItem";
-import DrawBroad, { ContextMenuEvent, DrawBroadController, DrawTool, DrawPoint, DrawEvent } from "../../widgets/DrawBroad";
+import DrawBroad, { ContextMenuEvent, DrawBroadController, DrawPoint, DrawTool } from "../../widgets/DrawBroad";
 import PersonIcon from "@suid/icons-material/Person";
 import Popover from "@suid/material/Popover";
 import { Peer, Router } from "../../helpers/mesh";
