@@ -12,6 +12,11 @@ export interface Participant {
     user_id: string,
 }
 
+export interface RoomOpts {
+    size_x?: number,
+    size_y?: number,
+}
+
 class BroadClient {
     supabase: SupabaseClient;
 
@@ -139,6 +144,27 @@ class BroadClient {
             throw error;
         }
         return (data as Participant[]); // WARNING: this casting is based on the table structure.
+    }
+
+    async getRoomOpts(roomId: string): Promise<RoomOpts> {
+        const {data, error} = await this.supabase.from("room_opts").select("size_x, size_y").eq("room_id", roomId).limit(1);
+        if (error) {
+            throw error;
+        }
+        if (typeof data[0] === "object") {
+            return data[0] as RoomOpts;
+        } else {
+            return {};
+        }
+    }
+
+    async setRoomOpts(roomId: string, opts: Partial<RoomOpts>) {
+        const {error} = await this.supabase.from("room_opts").upsert(
+            {...opts, room_id: roomId},
+        ).eq("room_id", roomId);
+        if (error) {
+            throw error;
+        }
     }
 }
 
