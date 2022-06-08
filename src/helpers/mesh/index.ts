@@ -328,6 +328,7 @@ export class Router {
             this.peers.pop();
         }
         this.bus.emit("stopped", this);
+        this.bus.detachAll();
     }
 
     async provideRTCOffer(dstUserDevId: string, offer: RTCSessionDescriptionInit) {
