@@ -93,6 +93,39 @@ export class DrawBroadController {
             return color.hex();
         }
     }
+
+    draw(stroke: DrawPoint[]) {
+        const context = this.ctx2d;
+        context.lineCap = "round";
+        context.lineJoin = "round";
+        if (stroke.length <= 0) {
+            return;
+        }
+      
+        const l = stroke.length - 1;
+        if (stroke.length >= 3) {
+            const xc = (stroke[l].x + stroke[l - 1].x) / 2;
+            const yc = (stroke[l].y + stroke[l - 1].y) / 2;
+            context.lineWidth = stroke[l - 1].lineWidth;
+            context.quadraticCurveTo(stroke[l - 1].x, stroke[l - 1].y, xc, yc);
+            context.strokeStyle = chroma.mix(
+                this.translateColor(stroke[l-1].color),
+                this.translateColor(stroke[l].color)
+            ).hex();
+            context.stroke();
+            context.beginPath();
+            context.moveTo(xc, yc);
+        } else {
+            const point = stroke[l];
+            context.lineWidth = point.lineWidth;
+            context.strokeStyle = this.translateColor(point.color);
+            context.beginPath();
+            context.moveTo(point.x, point.y);
+            context.stroke();
+        }
+
+        this.isBufferDirty = true;
+    }
 }
 
 export interface ContextMenuEvent {
@@ -242,9 +275,6 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
     /// Draw `stroke` on the broad. This function will mark buffer is dirty after drawing.
     const draw = function (stroke: DrawPoint[]) {
         const context = ctl.ctx2d;
-        if (!context) {
-            return;
-        }
         context.lineCap = "round";
         context.lineJoin = "round";
         if (stroke.length <= 0) {
