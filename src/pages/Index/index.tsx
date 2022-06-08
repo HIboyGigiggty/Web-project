@@ -21,11 +21,17 @@ import Popover from "@suid/material/Popover";
 import Chip from "@suid/material/Chip";
 import ListItemText from "@suid/material/ListItemText";
 import { Room } from "../../helpers/BroadClient";
+import Divider from "@suid/material/Divider";
 
 const UserAvatar: Component = () => {//头像组件
     const auth = createSupabaseAuth();
     const user = auth.user();
     let buttomRef: HTMLButtonElement;
+    const navigate = useNavigate();
+    const UserSignOut = async () => {
+        await auth.signOut();
+        navigate("/login");
+    };
     const [datailPopoverOpen, setdatailPopoverOpen] = createSignal<boolean>(false);
     return (
         <>
@@ -73,10 +79,16 @@ const UserAvatar: Component = () => {//头像组件
                                 }}>
                                     用户ID:<br></br>
                                     {user?.id}
+
                                 </ListItem>
+                                <Divider></Divider>
                             </List>
                         </Typography>
+                    </CardContent >
+                    <CardContent sx={{ padding: 0 }} style="padding:10px">
+                        <Button color="error" variant="contained" size="small" sx={{ ml: "35%" }} onClick={UserSignOut}>SIGN OUT</Button>
                     </CardContent>
+
                 </Card>
             </Popover>
         </>
@@ -103,7 +115,7 @@ const RoomListItem: Component<RoomListItemProps> = (props) => {
             }
         }
         return owner_id;
-    }, { initialValue: "You"});
+    }, { initialValue: "You" });
 
     createEffect(() => {
         ownerNameCtl.refetch(props.owner_id);
@@ -114,7 +126,7 @@ const RoomListItem: Component<RoomListItemProps> = (props) => {
             if (props.onClick) {
                 props.onClick({}, props.room_id);
             }
-        }} sx={{cursor: "pointer"}}> 
+        }} sx={{ cursor: "pointer" }}>
             <ListItemText
                 primary={<Typography sx={{ marginBottom: "8px" }}>{props.name}</Typography>}
                 secondary={
@@ -193,7 +205,7 @@ const RoomCreatingDialog: Component<RoomCreatingDialogProps> = (props) => {
                 }} onClick={async () => {
                     await creating();
                     props.onClose({}, "roomCreated");
-                }} disabled={isCreating()}>{isCreating() ? "Creating...": "Create"}</Button>
+                }} disabled={isCreating()}>{isCreating() ? "Creating..." : "Create"}</Button>
             </CardActions>
         </Card>
     </Modal>;
@@ -265,19 +277,19 @@ const Index: Component = () => {
         {/*--------------------List---------------------*/}
         <div >
             <Box sx={{ ml: "50%", transform: "translate(-50%, 0)", padding: 0, marginTop: "60px" }}>
-                <Card sx={{ minWidth: "120%", ml: "50%", transform: "translate(-50%,0)" , width:"auto"}}>
+                <Card sx={{ minWidth: "120%", ml: "50%", transform: "translate(-50%,0)", width: "auto" }}>
                     <CardContent sx={{ padding: 0 }} style="padding: 0;">
                         <TextField sx={{ width: "100%" }} placeholder="房间ID"></TextField>
                     </CardContent>
                 </Card>
 
-                <Card sx={{ minWidth: "110%", ml: "50%", transform: "translate(-50%,0)", marginTop: "30px" ,width:"auto",height:"auto"}}>
+                <Card sx={{ minWidth: "110%", ml: "50%", transform: "translate(-50%,0)", marginTop: "30px", width: "auto", height: "auto" }}>
                     <CardContent sx={{ padding: 0 }} style="padding: 0;">
                         <List sx={{ padding: 0 }}>
                             <For each={rooms()} fallback={<List>No rooms here.</List>}>
                                 {
                                     (item) => {
-                                        return <RoomListItem owner_id={item.owner} name={item.name} room_id={item.id} onClick={onNavigateRoom}/>;
+                                        return <RoomListItem owner_id={item.owner} name={item.name} room_id={item.id} onClick={onNavigateRoom} />;
                                     }
                                 }
                             </For>
