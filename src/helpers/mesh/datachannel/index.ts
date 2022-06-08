@@ -54,7 +54,7 @@ export class Frame {
         if (this.byteLength > 1) {
             const headerSize = this.getFlags().long? Frame.LONG_HEADER_SIZE: Frame.SHORT_HEADER_SIZE;
             if (this.byteLength >= headerSize) {
-                if (this.byteLength === (headerSize + this.length)) {
+                if (this.byteLength >= (headerSize + this.length)) {
                     return this.length;
                 }
             }
@@ -68,10 +68,10 @@ export class Frame {
      */
     get length(): number {
         if (this.getFlags().long) {
-            const view = new DataView(this.buffer.buffer, 1, 4);
+            const view = new DataView(this.buffer.buffer, 1 + this.buffer.byteOffset, 4);
             return view.getUint32(0);
         } else {
-            const view = new DataView(this.buffer.buffer, 1, 2);
+            const view = new DataView(this.buffer.buffer, 1 + this.buffer.byteOffset, 2);
             return view.getUint16(0);
         }
     }
@@ -81,9 +81,9 @@ export class Frame {
      */
     set length(len: number) {
         if (this.getFlags().long) {
-            new DataView(this.buffer.buffer, 1, 4).setInt32(0, len);
+            new DataView(this.buffer.buffer, 1 + this.buffer.byteOffset, 4).setInt32(0, len);
         } else {
-            new DataView(this.buffer.buffer, 1, 2).setInt16(0, len);
+            new DataView(this.buffer.buffer, 1 + this.buffer.byteOffset, 2).setInt16(0, len);
         }
     }
 
@@ -114,7 +114,7 @@ export class Frame {
     dataView(expected_length?: number): DataView {
         const length = typeof expected_length !== "undefined" ? Math.min(expected_length, this.length) : this.length;
         const headerSize = this.headerLength;
-        return new DataView(this.buffer.buffer, headerSize, length);
+        return new DataView(this.buffer.buffer, headerSize + this.buffer.byteOffset, length);
     }
 
     static fromArray(array: Uint8Array, more?: boolean): Frame {
