@@ -7,7 +7,7 @@ import { Component, Show, createEffect, createResource, createSignal, onMount } 
 import { useBroadClient } from "../../helpers/BroadClient/solid";
 import CloseIcon from "@suid/icons-material/Close";
 import Typography from "@suid/material/Typography";
-import { Participant, Room } from "../../helpers/BroadClient";
+import { Participant, Room, RoomOpts } from "../../helpers/BroadClient";
 import Modal from "@suid/material/Modal";
 import Card from "@suid/material/Card";
 import CardContent from "@suid/material/CardContent";
@@ -17,6 +17,9 @@ import ListItem from "@suid/material/ListItem";
 import DrawBroad, { ContextMenuEvent, DrawBroadController, DrawTool } from "../../widgets/DrawBroad";
 import PersonIcon from "@suid/icons-material/Person";
 import Popover from "@suid/material/Popover";
+
+const DEFAULT_DRAWING_SIZE_X = 3000;
+const DEFAULT_DRAWING_SIZE_Y = 3000;
 
 enum RoomStatus {
     "Unknown",
@@ -122,12 +125,27 @@ const RoomPage: Component = () => {
         return [];
     });
 
+    const [roomOpts, roomOptsCtl] = createResource<RoomOpts | undefined>(() => {
+        const room = roomInfo();
+        if (room) {
+            return (broadCli.getRoomOpts(room.id)
+                .then(async (opts) => {
+                    if (!(opts.size_x && opts.size_y)) {
+                        await broadCli.setRoomOpts(room.id, {size_x: DEFAULT_DRAWING_SIZE_X, size_y: DEFAULT_DRAWING_SIZE_Y});
+                        return await broadCli.getRoomOpts(room.id);
+                    } else {
+                        return opts;
+                    }
+                }));
+        }
+        return Promise.resolve(undefined);
+    });
+
     const onBroadContextMenu = (e: ContextMenuEvent) => {
         setContextMenuPos([e.pageX, e.pageY]);
     };
 
     onMount(async () => {
-        drawCtl.setOffscreenSize([3000, 3000]);
         const room = await broadCli.findRoomById(params.id);
         if (room) {
             setStatus(RoomStatus.Found);
@@ -136,6 +154,7 @@ const RoomPage: Component = () => {
                 await broadCli.joinRoomById(room.id);
             }
             setStatus(RoomStatus.Joined);
+            roomOptsCtl.refetch();
         } else {
             setStatus(RoomStatus.NotFound);
         }
@@ -149,6 +168,17 @@ const RoomPage: Component = () => {
 
     createEffect(() => {
         drawCtl.setTool(currentDrawingTool());
+    });
+
+    createEffect(() => {
+        const opts = roomOpts();
+        if (opts) {
+            if (opts.size_x && opts.size_y) {
+                drawCtl.setOffscreenSize([opts.size_x, opts.size_y]);
+            }
+        } else {
+            roomOptsCtl.refetch();
+        }
     });
 
     const shouldShowJoiningNotice = () => status() === RoomStatus.Unknown || status() === RoomStatus.Found;
