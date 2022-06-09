@@ -6,7 +6,7 @@ export interface FrameFlags {
 }
 
 export class Frame {
-    buffer: Uint8Array;
+    buffer: Uint8ClampedArray;
     
     static FLAG_MORE = 1;
     static FLAG_LONG = 1 << 1;
@@ -15,14 +15,14 @@ export class Frame {
     static SHORT_HEADER_SIZE = 1 + 2;
     static LONG_HEADER_SIZE = 1 + 4;
 
-    constructor(buffer: Uint8Array) {
+    constructor(buffer: Uint8ClampedArray) {
         this.buffer = buffer;
     }
 
     static zero(expected_data_length: number): Frame {
         const isLongHeader = (expected_data_length > Frame.SHORT_MAX_LENGTH);
         const totalLength = (isLongHeader ? Frame.LONG_HEADER_SIZE : Frame.SHORT_HEADER_SIZE) + expected_data_length;
-        const buffer = new Uint8Array(totalLength);
+        const buffer = new Uint8ClampedArray(totalLength);
         const f = new Frame(buffer);
         f.setFlag("long", isLongHeader);
         f.length = expected_data_length;
@@ -99,7 +99,7 @@ export class Frame {
      * 
      * WARNING: The length must be valid when using this method.
      */
-    data(): Uint8Array {
+    data(): Uint8ClampedArray {
         if (this.getFlags().long) {
             return this.buffer.subarray(Frame.LONG_HEADER_SIZE, Frame.LONG_HEADER_SIZE+this.length);
         } else {
@@ -181,7 +181,7 @@ export class Frame {
      * @param array the array to read.
      * @returns the flags of header and the length of payload.
      */
-    static readHeader(array: Uint8Array): [FrameFlags, number] | null {
+    static readHeader(array: Uint8ClampedArray): [FrameFlags, number] | null {
         if (array.length === 0) return null;
         const flags = array[0];
         const more = (flags & this.FLAG_MORE) > 0;
@@ -204,7 +204,7 @@ export class Frame {
      * @param array the array to unpack.
      * @returns the frames read, the rest data and the length required for next frame.
      */
-    static unpack(array: Uint8Array): [Frame[], Uint8Array, number] {
+    static unpack(array: Uint8ClampedArray): [Frame[], Uint8ClampedArray, number] {
         let rest = array;
         const frames: Frame[] = [];
         while (rest.length > 0) {
@@ -220,7 +220,7 @@ export class Frame {
                     return [frames, rest, (length + headerSize) - rest.length];
                 }
             } else {
-                rest = new Uint8Array(0);
+                rest = new Uint8ClampedArray(0);
             }
         }
         return [frames, rest, 0];
@@ -246,7 +246,7 @@ export class Frame {
      * @returns a new frame.
      */
     clone(padding?: number): Frame {
-        const array = new Uint8Array(this.headerLength + this.length + (padding || 0));
+        const array = new Uint8ClampedArray(this.headerLength + this.length + (padding || 0));
         array.set(this.buffer.slice(0, this.headerLength + this.length));
         return new Frame(array);
     }

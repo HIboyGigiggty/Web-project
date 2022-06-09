@@ -26,7 +26,7 @@ export class WebRTCDatachannel implements DataChannel {
 
     async onRemoteData(ev: MessageEvent<unknown>) {
         const data = ev.data as Blob;
-        const [frames,] = Frame.unpack(new Uint8Array(await data.arrayBuffer()));
+        const [frames,] = Frame.unpack(new Uint8ClampedArray(await data.arrayBuffer()));
         const [dstId, roomId, srcId, ...payload] = frames;
         const message: Message = {
             dstUserDeviceId: dstId.toString(),
