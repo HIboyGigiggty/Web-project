@@ -28,10 +28,12 @@ const Login: Component = () => {
     const [supabaseConfigDialogOpen, setSupabaseConfigDialogOpen] = createSignal<boolean>(false);
 
     const signInWithGithub = async () => {
+        const url = new URL(window.location.href);
+        url.search = "";
         await auth.signIn({
             provider: "github",
         }, {
-            redirectTo: window.location.href,
+            redirectTo: url.toString(),
         });
     };
 
