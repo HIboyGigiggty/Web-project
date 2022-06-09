@@ -81,7 +81,7 @@ export const SupabaseConfigurationDialog: Component<Props> = (props) => {
                             onChange={(ev) => setUserKey(ev.target.value)} />
                     </ListItem>
                 </List>
-                <Typography>Your account will be sign out and unsaved progress will be lost.</Typography>
+                <Typography>Your account will be signed out and unsaved progress will be lost.</Typography>
             </CardContent>
             <CardActions>
                 <Button onClick={setDefault}><Typography>Use Default</Typography></Button>
