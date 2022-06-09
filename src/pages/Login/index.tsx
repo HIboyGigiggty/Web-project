@@ -48,7 +48,7 @@ const Login: Component = () => {
 
     onMount(() => {
         const nextJumpPath = searchParams["next"];
-        if (nextJumpPath.length > 0 && nextJumpPath.startsWith("/") && !auth.user()) {
+        if (nextJumpPath && nextJumpPath.length > 0 && nextJumpPath.startsWith("/") && !auth.user()) {
             setJumpback(nextJumpPath);
         }
     });
