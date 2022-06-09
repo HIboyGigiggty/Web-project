@@ -21,6 +21,8 @@ const Login: Component = () => {
     const signInWithGithub = async () => {
         await auth.signIn({
             provider: "github",
+        }, {
+            redirectTo: window.location.href,
         });
     };
     createOnAuthStateChange((_, session) => {
