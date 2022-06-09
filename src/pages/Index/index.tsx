@@ -23,16 +23,30 @@ import ListItemText from "@suid/material/ListItemText";
 import { Room } from "../../helpers/BroadClient";
 import Divider from "@suid/material/Divider";
 
+const getNavigatePath = (path: string, search?: Record<string, string>) => {
+    if (search) {
+        path += "?";
+        for (const k in search) {
+            path += `${encodeURIComponent(k)}=${encodeURIComponent(search[k])}`;
+        }
+    }
+    return path;
+};
+
 const UserAvatar: Component = () => {//头像组件
     const auth = createSupabaseAuth();
+    const navigate = useNavigate();
+    const [datailPopoverOpen, setdatailPopoverOpen] = createSignal<boolean>(false);
+
     const user = auth.user();
     let buttomRef: HTMLButtonElement;
-    const navigate = useNavigate();
-    const UserSignOut = async () => {
+
+
+    const userSignOut = async () => {
         await auth.signOut();
-        navigate("/login");
+        navigate(getNavigatePath("/login", {next: "/"}));
     };
-    const [datailPopoverOpen, setdatailPopoverOpen] = createSignal<boolean>(false);
+
     return (
         <>
             <Button
@@ -86,7 +100,7 @@ const UserAvatar: Component = () => {//头像组件
                         </Typography>
                     </CardContent >
                     <CardContent sx={{ padding: 0 }} style="padding:10px">
-                        <Button color="error" variant="contained" size="small" sx={{ ml: "35%" }} onClick={UserSignOut}>SIGN OUT</Button>
+                        <Button color="error" variant="contained" size="small" sx={{ ml: "35%" }} onClick={userSignOut}>SIGN OUT</Button>
                     </CardContent>
 
                 </Card>
@@ -221,7 +235,7 @@ const Index: Component = () => {
         if (user) {
             return await broadCli.getAllRooms();
         } else {
-            navigate("/login");
+            navigate(getNavigatePath("/login", {next: "/"}));
         }
     };
 
@@ -234,14 +248,14 @@ const Index: Component = () => {
     const handleClose = () => setOpen(false);
 
     const onSignInNeeded = () => {
-        navigate("/login");
+        navigate(getNavigatePath("/login", {next: "/"}));
     };
 
     const onNavigateRoom = (event: Record<string, never>, room_id: string) => {
         navigate(`/rooms/${room_id}`);
     };
 
-    return <Show when={auth.user()} fallback={<Navigate href="/login" />}>
+    return <Show when={auth.user()} fallback={<Navigate href={getNavigatePath("/login", {next: "/"})} />}>
         {/*---------------------App bar--------------------*/}
         <Box sx={{ flexGrow: 1 }}>
             <AppBar position="static">
