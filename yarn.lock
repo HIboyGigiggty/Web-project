@@ -1724,7 +1724,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@supabase/supabase-js@npm:^1.31.2, @supabase/supabase-js@npm:^1.35.3":
+"@supabase/supabase-js@npm:^1.35.3":
   version: 1.35.3
   resolution: "@supabase/supabase-js@npm:1.35.3"
   dependencies:
@@ -4254,7 +4254,7 @@ __metadata:
     solid-js: ^1.3.15
     solid-services: ^3.0.4
     solid-styled-jsx: ^0.27.1
-    solid-supabase: ^0.2.6
+    solid-supabase: ^0.2.7
     styled-jsx: 3.4.4
     stylus: ^0.58.0
     typescript: ^4.6.3
@@ -4956,7 +4956,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"solid-js@npm:^1.3.10, solid-js@npm:^1.3.15, solid-js@npm:^1.3.3":
+"solid-js@npm:^1.3.15, solid-js@npm:^1.3.3":
   version: 1.4.3
   resolution: "solid-js@npm:1.4.3"
   checksum: c542491e4d91054f0781eddd6a54254da1272c888c0559dbadac47293b573234906ebdf0e9c1a45e23fa6fed35bc380aaff24663fa1b114760715ff3e99ceaa2
@@ -4997,15 +4997,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"solid-supabase@npm:^0.2.6":
-  version: 0.2.6
-  resolution: "solid-supabase@npm:0.2.6"
+"solid-supabase@npm:^0.2.7":
+  version: 0.2.7
+  resolution: "solid-supabase@npm:0.2.7"
   dependencies:
-    "@supabase/supabase-js": ^1.31.2
-    solid-js: ^1.3.10
+    "@supabase/supabase-js": ^1.35.3
   peerDependencies:
-    solid-js: ^1.3.0
-  checksum: 4e214a7b177504978b69464be9355d7eabb818d8871945ff0bb7678c7ea1cfc7f9599aaf7d03e27f0ca50c6e0f19d9e11b9b2e57d2a7b2dcd8d2d7fc0350a6bf
+    solid-js: ">=1.3.0"
+  checksum: 311f6f060fd83fdec850ccddc399a663980cf82cce4fc1dc63fa1572ccfbed828e5ebfc2d06f80a605e3f182848b630b993a6559bd34490bba67585ea405684e
   languageName: node
   linkType: hard
 

@@ -10,7 +10,6 @@ import "./index.styl";
 import "@fontsource/roboto";
 
 render(() => (
-    // @ts-expect-error: solid-supabase does not updated for solidjs 1.4, include the children property.
     <SupabaseProvider client={supabase_client}>
         <Router>
             <App />
