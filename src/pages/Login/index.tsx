@@ -1,4 +1,4 @@
-import { Component, onMount } from "solid-js";
+import { Component, createSignal, onMount } from "solid-js";
 import { createOnAuthStateChange, createSupabaseAuth } from "solid-supabase";
 import { useNavigate, useSearchParams } from "solid-app-router";
 import getDeviceId from "../../helpers/getDeviceId";
@@ -15,11 +15,18 @@ import ListItemIcon from "@suid/material/ListItemIcon";
 import ListItemText from "@suid/material/ListItemText";
 import SvgIcon from "@suid/material/SvgIcon";
 import { getAndClearJumpback, setJumpback } from "../../helpers/jumpback";
+import { supabaseURL } from "../../stores/supabase";
+import { useStore } from "@nanostores/solid";
+import { SupabaseConfigurationDialog } from "./configure_supabase";
+import Link from "@suid/material/Link";
 
 const Login: Component = () => {
     const auth = createSupabaseAuth();
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
+    const supabaseServiceURL = useStore(supabaseURL);
+    const [supabaseConfigDialogOpen, setSupabaseConfigDialogOpen] = createSignal<boolean>(false);
+
     const signInWithGithub = async () => {
         await auth.signIn({
             provider: "github",
@@ -47,6 +54,13 @@ const Login: Component = () => {
     });
 
     return (<>
+        <SupabaseConfigurationDialog open={supabaseConfigDialogOpen()}
+            onClose={(ev, reason) => {
+                if (reason === "configSet") {
+                    window.location.reload();
+                }
+                setSupabaseConfigDialogOpen(false);
+            }} />
         <Box id="login-methods"  sx={{position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)"}}>
             <Card sx={{ minWidth: 300 }}>
                 <CardHeader title={<Typography variant="h6">登录</Typography>} />
@@ -70,6 +84,9 @@ const Login: Component = () => {
 
                 </Typography>
             </Card>
+            <Box sx={{textAlign: "end"}}>
+                <Link sx={{cursor: "pointer"}} onClick={() => setSupabaseConfigDialogOpen(true)}><Typography variant="caption">Supabase Service: {new URL(supabaseServiceURL()).host}</Typography></Link>
+            </Box>
         </Box>
     </>);
 };

@@ -1448,6 +1448,27 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nanostores/persistent@npm:^0.5.3":
+  version: 0.5.3
+  resolution: "@nanostores/persistent@npm:0.5.3"
+  peerDependencies:
+    nanostores: ^0.5.0
+  checksum: 1edc5f39d7cc6f6b2f68b7c6f568e6b001a0b654eec08d70b4fb066d7127da3175fcb0159718f4a580645e8fe0af3589b76125998491697b093e381c6141513d
+  languageName: node
+  linkType: hard
+
+"@nanostores/solid@npm:^0.1.6":
+  version: 0.1.6
+  resolution: "@nanostores/solid@npm:0.1.6"
+  dependencies:
+    nanostores: ^0.5.12
+    solid-js: ^1.3.13
+  peerDependencies:
+    nanostores: ^0.5.10
+  checksum: 9cc590aebd0cbb4ca5fe0c729f516da6128d7c8fd72a5484f511f95002cae42d05b2eb22087b38a7f5503ab96b3a93a5f5ccc08d52ba89085bdd683cfe81d186
+  languageName: node
+  linkType: hard
+
 "@nicolo-ribaudo/chokidar-2@npm:2.1.8-no-fsevents.3":
   version: 2.1.8-no-fsevents.3
   resolution: "@nicolo-ribaudo/chokidar-2@npm:2.1.8-no-fsevents.3"
@@ -4230,6 +4251,8 @@ __metadata:
     "@babel/plugin-syntax-typescript": ^7.17.12
     "@babel/preset-env": ^7.16.11
     "@fontsource/roboto": ^4.5.7
+    "@nanostores/persistent": ^0.5.3
+    "@nanostores/solid": ^0.1.6
     "@solid-primitives/raf": ^2.1.0
     "@solid-primitives/utils": ^2.0.3
     "@suid/icons-material": ^0.2.3
@@ -4248,6 +4271,7 @@ __metadata:
     eslint: ^8.16.0
     eslint-plugin-solid: ^0.4.7
     js-event-bus: ^1.1.1
+    nanostores: ^0.5.12
     prettier: ^2.6.2
     rollup-plugin-visualizer: ^5.6.0
     solid-app-router: ^0.3.3
@@ -4273,6 +4297,13 @@ __metadata:
   bin:
     nanoid: bin/nanoid.cjs
   checksum: 2fddd6dee994b7676f008d3ffa4ab16035a754f4bb586c61df5a22cf8c8c94017aadd360368f47d653829e0569a92b129979152ff97af23a558331e47e37cd9c
+  languageName: node
+  linkType: hard
+
+"nanostores@npm:^0.5.12":
+  version: 0.5.12
+  resolution: "nanostores@npm:0.5.12"
+  checksum: 87a975b00d79cd227f465a3f2933a5c6f76688e89b52230671ecc3065e0487c8bc6bb61adba4a6d12b2993d3b9e2047065586769e8c2113e671192c447d4b15c
   languageName: node
   linkType: hard
 
@@ -4956,7 +4987,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"solid-js@npm:^1.3.15, solid-js@npm:^1.3.3":
+"solid-js@npm:^1.3.13, solid-js@npm:^1.3.15, solid-js@npm:^1.3.3":
   version: 1.4.3
   resolution: "solid-js@npm:1.4.3"
   checksum: c542491e4d91054f0781eddd6a54254da1272c888c0559dbadac47293b573234906ebdf0e9c1a45e23fa6fed35bc380aaff24663fa1b114760715ff3e99ceaa2
