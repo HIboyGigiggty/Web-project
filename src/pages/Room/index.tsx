@@ -112,6 +112,58 @@ const ContextMenu: Component<ContextMenuProps> = (props) => {
     </Popover>;
 };
 
+class VoiceChatManager {
+    audioCtx: AudioContext;
+    destNode: MediaStreamAudioDestinationNode;
+    sources: Map<string, MediaStreamAudioSourceNode>;
+    removeCallbacks: Map<string, ((node: MediaStreamAudioSourceNode) => void)>;
+
+    constructor(ctx: AudioContext) {
+        this.audioCtx = ctx;
+        this.destNode = this.audioCtx.createMediaStreamDestination();
+        this.sources = new Map();
+        this.removeCallbacks = new Map();
+    }
+
+    addPeerMediaStream(usrDevId: string, media: MediaStream, removeCallback?: ((node: MediaStreamAudioSourceNode) => void)) {
+        const sourceNode = this.audioCtx.createMediaStreamSource(media);
+        sourceNode.connect(this.destNode);
+        this.sources.set(usrDevId, sourceNode);
+        if (removeCallback) {
+            this.removeCallbacks.set(usrDevId, removeCallback);
+        }
+        return sourceNode;
+    }
+
+    removePeerMediaStream(usrDevId: string) {
+        const node = this.sources.get(usrDevId);
+        if (node) {
+            node.disconnect();
+            this.sources.delete(usrDevId);
+            const callback = this.removeCallbacks.get(usrDevId);
+            if (callback) {
+                this.removeCallbacks.delete(usrDevId);
+                callback(node);
+            }
+        }
+    }
+
+    clear() {
+        for (const [usrDevId, srcNode] of this.sources.entries()) {
+            srcNode.disconnect();
+            const callback = this.removeCallbacks.get(usrDevId);
+            if (callback) {
+                this.removeCallbacks.delete(usrDevId);
+                callback(srcNode);
+            }
+        }
+    }
+
+    get mixedStream() {
+        return this.destNode.stream;
+    }
+}
+
 const RoomPage: Component = () => {
     const params = useParams();
     const broadCli = useBroadClient();
@@ -121,9 +173,13 @@ const RoomPage: Component = () => {
     const [currentDrawingTool, setCurrentDrawingTool] = createSignal<DrawTool>(DrawTool.pen);
     const [contextMenuPos, setContextMenuPos] = createSignal<{left: number, top: number} | undefined>();
     const [gRouter, setGRouter] = createSignal<Router>();
+    const [voiceChatAvailable, setVoiceChatAvailable] = createSignal<boolean>(false);
     const drawCtl = new DrawBroadController("black", 20);
 
     const strokes: Map<string, DrawPoint[]> = new Map();
+
+    const voiceChatManager = new VoiceChatManager(new AudioContext());
+    let audioEl: HTMLAudioElement;
 
     const [participants, participantsCtl] = createResource<Participant[]>(() => {
         const room = roomInfo();
@@ -224,6 +280,26 @@ const RoomPage: Component = () => {
         return router;
     };
 
+    const startVoiceChat = async () => {
+        const router = gRouter();
+        const room = roomInfo();
+        if (router && room) {
+            const media = await navigator.mediaDevices.getUserMedia({audio: true, video: false});
+            voiceChatManager.addPeerMediaStream(broadCli.getUserDeviceId(), media, (node) => {
+                node.mediaStream.getTracks().forEach(track => track.stop());
+            });
+            audioEl.srcObject = voiceChatManager.mixedStream;
+            setVoiceChatAvailable(true);
+        } else {
+            throw Error("unreachable");
+        }
+    };
+
+    const stopVoiceChat = () => {
+        voiceChatManager.clear();
+        setVoiceChatAvailable(false);
+    };
+
     onMount(async () => {
         const room = await broadCli.findRoomById(params.id);
         if (room) {
@@ -296,10 +372,23 @@ const RoomPage: Component = () => {
 
     const getTitle = () => (status() === RoomStatus.Found ? "Magicbroad Room": `Magicbroad: "${roomInfo()?.name}"`);
     
+    const toggleVoiceChat = async () => {
+        if (voiceChatAvailable()) {
+            stopVoiceChat();
+        } else {
+            await startVoiceChat();
+        }
+    };
+    
     return <>
         <Title title={getTitle()} />
         <RoomJoiningNotice open={shouldShowJoiningNotice()} />
         <RoomNotFoundDialog open={shouldShowRoomNotFound()} />
+        <audio
+            style="display: gone;"
+            // @ts-expect-error this value will be assigned by solidjs
+            ref={audioEl}
+            autoplay></audio>
         <ContextMenu
             position={contextMenuPos()}
             onClose={() => setContextMenuPos()}
@@ -320,7 +409,7 @@ const RoomPage: Component = () => {
                     <Typography variant="h6" component="div" sx={{flexGrow: 1}}>
                         {() => roomInfo()?.name}
                     </Typography>
-                    <VoiceChatIconButton alive={true} onClick={() => undefined} />
+                    <VoiceChatIconButton alive={voiceChatAvailable()} onClick={toggleVoiceChat} />
                     <Button size="large" color="inherit" variant="text">
                         <Show when={gRouter()} fallback={<LinkOffIcon />}><LinkIcon /></Show>
                     </Button>
