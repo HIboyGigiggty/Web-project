@@ -23,6 +23,7 @@ import LinkIcon from "@suid/icons-material/Link";
 import LinkOffIcon from "@suid/icons-material/LinkOff";
 import { Frame, Message } from "../../helpers/mesh/datachannel";
 import Title from "../../widgets/Title";
+import { VoiceChatIconButton } from "./widgets/voice_chat";
 
 const DEFAULT_DRAWING_SIZE_X = 3000;
 const DEFAULT_DRAWING_SIZE_Y = 3000;
@@ -323,6 +324,7 @@ const RoomPage: Component = () => {
                     <Typography variant="h6" component="div" sx={{flexGrow: 1}}>
                         {() => roomInfo()?.name}
                     </Typography>
+                    <VoiceChatIconButton alive={true} onClick={() => undefined} />
                     <Button size="large" color="inherit" variant="text">
                         <Show when={gRouter()} fallback={<LinkOffIcon />}><LinkIcon /></Show>
                     </Button>
