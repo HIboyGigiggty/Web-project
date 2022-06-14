@@ -12,7 +12,7 @@ export const VoiceChatIconButton: Component<VoiceChatIconButtonProps> = (props) 
             onClick={(e) => props.onClick(e)}
         >
             <svg classList={{"fade-in-out": props.alive}} style="max-width: 14px; max-height: 14px; margin: 8px;" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="50" cy="50" r="50" fill="#c21408"/>
+                <circle cx="50" cy="50" r="50" fill={props.alive? "#c21408": "#000000"}/>
             </svg>
         </IconButton>
         <style jsx>{
