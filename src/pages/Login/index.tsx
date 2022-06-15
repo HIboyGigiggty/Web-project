@@ -1,4 +1,4 @@
-import { Component, createSignal, Match, onMount, Switch } from "solid-js";
+import { Component, Match, Switch, createSignal, onMount } from "solid-js";
 import { createOnAuthStateChange, createSupabaseAuth } from "solid-supabase";
 import { useNavigate, useSearchParams } from "solid-app-router";
 import getDeviceId from "../../helpers/getDeviceId";
