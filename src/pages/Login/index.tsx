@@ -1,4 +1,4 @@
-import { Component, Match, Switch, createSignal, onMount } from "solid-js";
+import { Component, Match, Switch, createEffect, createSignal, onMount } from "solid-js";
 import { createOnAuthStateChange, createSupabaseAuth } from "solid-supabase";
 import { useNavigate, useSearchParams } from "solid-app-router";
 import getDeviceId from "../../helpers/getDeviceId";
@@ -75,19 +75,34 @@ type EmailLoginCardProps = LoginFlowStateCallback;
 
 const EmailLoginCard: Component<EmailLoginCardProps> = (props) => {
     const [email, setEmail] = createSignal<string>("");
-    const [password, setPassword] = createSignal<string>("");
     const auth = createSupabaseAuth();
+    const [password, setPassword] = createSignal<string>("");
+    const [accountError, setAccountError] = createSignal<boolean>(false);
 
     const loginWithEmail = async () => {
+        setAccountError(false);
         const url = new URL(window.location.href);
         url.search = "";
-        await auth.signIn({
+        const {error} = await auth.signIn({
             email: email(),
             password: password(),
         }, {
             redirectTo: url.toString(),
         });
+        if (error) {
+            if (error.status === 400) {
+                setAccountError(true);
+            } else {
+                throw error;
+            }
+        }
     };
+
+    createEffect(() => {
+        if (email().length === 0 || password().length === 0) {
+            setAccountError(false);
+        }
+    });
 
     return (<Card sx={{minWidth: "360px"}}>
         <Toolbar>
@@ -119,6 +134,8 @@ const EmailLoginCard: Component<EmailLoginCardProps> = (props) => {
                         label="Password"
                         variant="standard"
                         value={password()}
+                        helperText={accountError() ? <Typography variant="inherit" color="error">Address or Password is Not Found</Typography>: undefined}
+                        error={accountError()}
                         onChange={
                             (ev) => setPassword(ev.target.value)
                         }
