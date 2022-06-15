@@ -136,6 +136,7 @@ const EmailLoginCard: Component<EmailLoginCardProps> = (props) => {
                         value={password()}
                         helperText={accountError() ? <Typography variant="inherit" color="error">Address or Password is Not Found</Typography>: undefined}
                         error={accountError()}
+                        type="password"
                         onChange={
                             (ev) => setPassword(ev.target.value)
                         }
