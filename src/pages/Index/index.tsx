@@ -22,6 +22,11 @@ import Chip from "@suid/material/Chip";
 import ListItemText from "@suid/material/ListItemText";
 import { Room } from "../../helpers/BroadClient";
 import Divider from "@suid/material/Divider";
+import ListItemAvatar from "@suid/material/ListItemAvatar";
+import { User } from "@supabase/supabase-js";
+import { Theme } from "@suid/material";
+import SxProps from "@suid/system/sxProps";
+import AccountCircle from "@suid/icons-material/AccountCircle";
 
 const getNavigatePath = (path: string, search?: Record<string, string>) => {
     if (search) {
@@ -33,7 +38,15 @@ const getNavigatePath = (path: string, search?: Record<string, string>) => {
     return path;
 };
 
-const UserAvatar: Component = () => {//头像组件
+const UserAvatar: Component<{user: User | null, sizes?: string, sx?: SxProps<Theme>}> = (props) => {
+    return <Switch fallback={<Avatar sx={props.sx} style="background-color: initial;"><AccountCircle sx={{width: "100%", height: "100%"}}/></Avatar>}>
+        <Match when={props.user?.user_metadata.avatar_url}>
+            <Avatar src={props.user?.user_metadata.avatar_url} sizes={props.sizes} sx={props.sx} />
+        </Match>
+    </Switch>;
+};
+
+const UserInfoAvatarButton: Component = () => {//头像组件
     const auth = createSupabaseAuth();
     const navigate = useNavigate();
     const [datailPopoverOpen, setdatailPopoverOpen] = createSignal<boolean>(false);
@@ -46,6 +59,14 @@ const UserAvatar: Component = () => {//头像组件
         await auth.signOut();
         navigate(getNavigatePath("/login", {next: "/"}));
     };
+
+    const getName = () => {
+        if (typeof user?.app_metadata?.name !== "undefined") {
+            return user?.app_metadata?.name;
+        } else {
+            return "You";
+        }
+    }; 
 
     return (
         <>
@@ -63,11 +84,7 @@ const UserAvatar: Component = () => {//头像组件
                     minWidth: "25px",
                 }}
             >
-                <Switch fallback={<Avatar>?</Avatar>}>
-                    <Match when={user?.user_metadata.avatar_url}>
-                        <Avatar src={user?.user_metadata.avatar_url} />
-                    </Match>
-                </Switch>
+                <UserAvatar user={user} />
             </Button>
             <Popover
                 anchorOrigin={{
@@ -81,27 +98,20 @@ const UserAvatar: Component = () => {//头像组件
                 anchorEl={buttomRef}
             >
                 <Card>
-                    <CardContent sx={{ padding: 0 }} style="padding: 0;">
-                        <Typography sx={{
-                            padding: 0
-                        }}>
-                            <List sx={{
-                                padding: 0,
-                            }}>
-                                <ListItem sx={{
-                                    padding: 0
-                                }}>
-                                    用户ID:<br></br>
-                                    {user?.id}
-
-                                </ListItem>
-                                <Divider></Divider>
-                            </List>
-                        </Typography>
+                    <CardContent>
+                        <List disablePadding>
+                            <ListItem disablePadding>
+                                <ListItemAvatar children={<UserAvatar user={user}/>} />
+                                <ListItemText primary={getName()} secondary={user?.id || "Unknown ID"} />
+                            </ListItem>
+                        </List>
                     </CardContent >
-                    <CardContent sx={{ padding: 0 }} style="padding:10px">
-                        <Button color="error" variant="contained" size="small" sx={{ ml: "35%" }} onClick={userSignOut}>SIGN OUT</Button>
-                    </CardContent>
+                    <Divider></Divider>
+                    <CardActions sx={{ justifyContent: "end" }}>
+                        <Button sx={{padding: "8px"}} color="error" variant="text" size="small" onClick={userSignOut}>
+                            Sign out
+                        </Button>
+                    </CardActions>
 
                 </Card>
             </Popover>
@@ -150,11 +160,7 @@ const RoomListItem: Component<RoomListItemProps> = (props) => {
                 primary={<Typography sx={{ marginBottom: "8px" }}>{props.name}</Typography>}
                 secondary={
                     <Chip icon={
-                        <Switch fallback={<Avatar sizes="small" sx={smallAvatarSx}>?</Avatar>}>
-                            <Match when={auth.user()?.user_metadata.avatar_url}>
-                                <Avatar sizes="small" sx={smallAvatarSx} src={auth.user()?.user_metadata.avatar_url} />
-                            </Match>
-                        </Switch>
+                        <UserAvatar user={auth.user()?.id === props.owner_id ? auth.user(): null} sizes="small" sx={smallAvatarSx} />
                     } label={ownerName()}></Chip>
                 }
             />
@@ -269,7 +275,7 @@ const Index: Component = () => {
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                         画板
                     </Typography>
-                    <UserAvatar />
+                    <UserInfoAvatarButton />
                 </Toolbar>
             </AppBar>
         </Box>
