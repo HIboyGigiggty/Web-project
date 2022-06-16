@@ -301,6 +301,7 @@ const RoomPage: Component = () => {
 
     const stopVoiceChat = () => {
         voiceChatManager.clear();
+        audioEl.srcObject = null;
         setVoiceChatAvailable(false);
     };
 
@@ -364,6 +365,9 @@ const RoomPage: Component = () => {
     });
 
     onCleanup(() => {
+        if (voiceChatAvailable()) {
+            stopVoiceChat();
+        }
         const routerg = gRouter();
         if (routerg) {
             routerg.stop();
@@ -375,7 +379,7 @@ const RoomPage: Component = () => {
     const shouldShowRoomNotFound = () => status() === RoomStatus.NotFound;
 
     const getTitle = () => (status() === RoomStatus.Found ? "Magicbroad Room": `Magicbroad: "${roomInfo()?.name}"`);
-    
+
     const toggleVoiceChat = async () => {
         if (voiceChatAvailable()) {
             stopVoiceChat();
