@@ -17,15 +17,15 @@ export default defineConfig(({mode}) => ({
                 plugins: [solidStyledJSXPlugin]
             }
         }),
+        eslint({
+            cache: mode !== "production",
+        }),
         visualizer({
             filename: "stat.json",
             json: true,
-            sourcemap: true,
+            sourcemap: false,
             gzipSize: true,
             brotliSize: true,
-        }),
-        eslint({
-            cache: mode !== "production",
         }),
     ],
     build: {
