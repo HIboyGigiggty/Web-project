@@ -22,6 +22,7 @@ import { SupabaseDatachannel } from "../../helpers/mesh/supabase";
 import LinkIcon from "@suid/icons-material/Link";
 import LinkOffIcon from "@suid/icons-material/LinkOff";
 import { Frame, Message } from "../../helpers/mesh/datachannel";
+import Title from "../../widgets/Title";
 
 const DEFAULT_DRAWING_SIZE_X = 3000;
 const DEFAULT_DRAWING_SIZE_Y = 3000;
@@ -229,8 +230,8 @@ const RoomPage: Component = () => {
     onMount(async () => {
         const room = await broadCli.findRoomById(params.id);
         if (room) {
-            setStatus(RoomStatus.Found);
             setRoomInfo(room);
+            setStatus(RoomStatus.Found);
             if (!await broadCli.isJoinedRoomById(room.id)) {
                 await broadCli.joinRoomById(room.id);
             }
@@ -295,8 +296,11 @@ const RoomPage: Component = () => {
     const shouldShowJoiningNotice = () => status() === RoomStatus.Unknown || status() === RoomStatus.Found;
 
     const shouldShowRoomNotFound = () => status() === RoomStatus.NotFound;
+
+    const getTitle = () => (status() === RoomStatus.Found ? "Magicbroad Room": `Magicbroad: "${roomInfo()?.name}"`);
     
     return <>
+        <Title title={getTitle()} />
         <RoomJoiningNotice open={shouldShowJoiningNotice()} />
         <RoomNotFoundDialog open={shouldShowRoomNotFound()} />
         <ContextMenu

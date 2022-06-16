@@ -27,6 +27,7 @@ import CardContent from "@suid/material/CardContent";
 import TextField from "@suid/material/TextField";
 import CardActions from "@suid/material/CardActions";
 import Button from "@suid/material/Button";
+import Title from "../../widgets/Title";
 
 enum LoginFlowState {
     Start,
@@ -197,6 +198,7 @@ const Login: Component = () => {
     });
 
     return (<>
+        <Title title="Magicborad: Sign in"></Title>
         <SupabaseConfigurationDialog open={supabaseConfigDialogOpen()}
             onClose={(ev, reason) => {
                 if (reason === "configSet") {
