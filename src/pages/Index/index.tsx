@@ -27,6 +27,7 @@ import { User } from "@supabase/supabase-js";
 import { Theme } from "@suid/material";
 import SxProps from "@suid/system/sxProps";
 import AccountCircle from "@suid/icons-material/AccountCircle";
+import IconButton from "@suid/material/IconButton";
 
 const getNavigatePath = (path: string, search?: Record<string, string>) => {
     if (search) {
@@ -52,7 +53,7 @@ const UserInfoAvatarButton: Component = () => {//头像组件
     const [datailPopoverOpen, setdatailPopoverOpen] = createSignal<boolean>(false);
 
     const user = auth.user();
-    let buttomRef: HTMLButtonElement;
+    let buttonRef: HTMLButtonElement;
 
 
     const userSignOut = async () => {
@@ -70,22 +71,14 @@ const UserInfoAvatarButton: Component = () => {//头像组件
 
     return (
         <>
-            <Button
-                variant="contained"
+            <IconButton
                 size="small"
                 onClick={() => setdatailPopoverOpen(true)}
                 //@ts-expect-error :The value is assigned by SolidJS when it is used
-                ref={buttomRef}
-
-                disableElevation
-                disableRipple
-                sx={{
-                    padding: 0,
-                    minWidth: "25px",
-                }}
+                ref={buttonRef}
             >
                 <UserAvatar user={user} />
-            </Button>
+            </IconButton>
             <Popover
                 anchorOrigin={{
                     vertical: "bottom",
@@ -95,7 +88,7 @@ const UserInfoAvatarButton: Component = () => {//头像组件
 
                 onClose={() => setdatailPopoverOpen(false)}
                 //@ts-expect-error :The value is assigned by SolidJS when it is used
-                anchorEl={buttomRef}
+                anchorEl={buttonRef}
             >
                 <Card>
                     <CardContent>
@@ -106,7 +99,7 @@ const UserInfoAvatarButton: Component = () => {//头像组件
                             </ListItem>
                         </List>
                     </CardContent >
-                    <Divider></Divider>
+                    <Divider />
                     <CardActions sx={{ justifyContent: "end" }}>
                         <Button sx={{padding: "8px"}} color="error" variant="text" size="small" onClick={userSignOut}>
                             Sign out
