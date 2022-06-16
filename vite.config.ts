@@ -20,13 +20,15 @@ export default defineConfig(({mode}) => ({
         eslint({
             cache: mode !== "production",
         }),
-        visualizer({
-            filename: "stat.json",
-            json: true,
-            sourcemap: false,
-            gzipSize: true,
-            brotliSize: true,
-        }),
+        ...(mode === "production" ? [
+            visualizer({
+                filename: "stat.json",
+                json: true,
+                sourcemap: false,
+                gzipSize: true,
+                brotliSize: true,
+            }),
+        ] : [])
     ],
     build: {
         target: "modules",
