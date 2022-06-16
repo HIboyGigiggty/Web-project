@@ -1642,19 +1642,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@suid/base@npm:0.2.4":
-  version: 0.2.4
-  resolution: "@suid/base@npm:0.2.4"
+"@suid/base@npm:0.2.5":
+  version: 0.2.5
+  resolution: "@suid/base@npm:0.2.5"
   dependencies:
     "@popperjs/core": ^2.11.5
     "@suid/css": 0.1.4
-    "@suid/system": 0.4.1
+    "@suid/system": 0.4.2
     "@suid/types": 0.1.2
     "@suid/utils": 0.3.0
     clsx: ^1.1.1
   peerDependencies:
     solid-js: ^1.3.0
-  checksum: bf9231670b5c409c2fb1c1888f44c4a4fe395660f6b6ec4c5cef97e887b96477313d15426a749f0b9146de49e6c7b21c1277a9835938d5a46b08e96baa8bea3e
+  checksum: c05d245ef6dfeed300335267467891547c822d64275ac068d94e5651e063ae9dea06dfd81446c7250015e14bc33331477f78c1ae51a42df3bd6a9ccaa5aab01a
   languageName: node
   linkType: hard
 
@@ -1667,58 +1667,58 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@suid/icons-material@npm:^0.2.3":
-  version: 0.2.3
-  resolution: "@suid/icons-material@npm:0.2.3"
+"@suid/icons-material@npm:^0.2.4":
+  version: 0.2.4
+  resolution: "@suid/icons-material@npm:0.2.4"
   dependencies:
-    "@suid/material": 0.4.1
+    "@suid/material": 0.4.2
   peerDependencies:
     solid-js: ^1.3.0
-  checksum: 8ee57c9b63315d35429c03839ffe9e5f749e7b24f49e840a00d6845ce3220223c49a75237e1ca6afe7397978fc66ca028bc20ef3669ec4748adae6ac00ffeb92
+  checksum: d74986197d8b8c16f42505623bb575a3b6645c09302fd03f36743cda448da915ae8f1a19bc0ccd45220c2a5950a38f441d7b57e58b089db2a75a7ab1d5f7fea6
   languageName: node
   linkType: hard
 
-"@suid/material@npm:0.4.1, @suid/material@npm:^0.4.1":
-  version: 0.4.1
-  resolution: "@suid/material@npm:0.4.1"
+"@suid/material@npm:0.4.2, @suid/material@npm:^0.4.2":
+  version: 0.4.2
+  resolution: "@suid/material@npm:0.4.2"
   dependencies:
-    "@suid/base": 0.2.4
+    "@suid/base": 0.2.5
     "@suid/css": 0.1.4
-    "@suid/system": 0.4.1
+    "@suid/system": 0.4.2
     "@suid/types": 0.1.2
     "@suid/utils": 0.3.0
     clsx: ^1.1.1
   peerDependencies:
     solid-js: ^1.3.0
-  checksum: 847ab1bd5bd2a1a522fc02e7a1f8dcd30805d2cc4c2cc8c361fc40a54c464e19ca984a1a82efd20c849e7b5df7941ecd55722a3aa618395a11eb34fdd0ba97bc
+  checksum: 517a42e66e8af51ea1b319495d6b3b061b0c7c1871f4c3f782473bf53e0e818798ec0f1503731b6b2885bb7bacce1bf2b682c1a5e778b55b8b24cb50b8ee975a
   languageName: node
   linkType: hard
 
-"@suid/styled-engine@npm:0.1.0":
-  version: 0.1.0
-  resolution: "@suid/styled-engine@npm:0.1.0"
+"@suid/styled-engine@npm:0.1.1":
+  version: 0.1.1
+  resolution: "@suid/styled-engine@npm:0.1.1"
   dependencies:
     "@suid/css": 0.1.4
     "@suid/utils": 0.3.0
   peerDependencies:
     solid-js: ^1.3.0
-  checksum: bf14789a070eaf3cb0c5804aa90ab8479ea280f09e06136336e6dc6ee5d620996f8986762d0fd09ef0d8d7fa11703a76841602342c90a833f8c78f223c457be8
+  checksum: 3353cf3f0646d447734a0b6a2bd56c9a2b4420c7b843cddb0def6168461a282aea86e9deb493b5ab47d9a70a4efea3506b75565c73989b527e17bb64329ec49a
   languageName: node
   linkType: hard
 
-"@suid/system@npm:0.4.1":
-  version: 0.4.1
-  resolution: "@suid/system@npm:0.4.1"
+"@suid/system@npm:0.4.2":
+  version: 0.4.2
+  resolution: "@suid/system@npm:0.4.2"
   dependencies:
     "@suid/css": 0.1.4
-    "@suid/styled-engine": 0.1.0
+    "@suid/styled-engine": 0.1.1
     "@suid/types": 0.1.2
     "@suid/utils": 0.3.0
     clsx: ^1.1.1
-    csstype: ^3.0.11
+    csstype: ^3.1.0
   peerDependencies:
     solid-js: ^1.3.0
-  checksum: e3f60692e3532a653b937bb0a4acae4d8abb51dd4e7e5844b19f579972ea643260c64ea279922164643d846640fd718f9802399578e584f0a5ea6ea5e4674100
+  checksum: 53e344bf9fed0b1681b432064928739f55a66a2a8f22a2a708e97951c0299c8c2c7cee81121d15828d71e8cacf385ad3dc42189f0b0e8e9f6ca370d486afcc75
   languageName: node
   linkType: hard
 
@@ -2860,7 +2860,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"csstype@npm:^3.0.11":
+"csstype@npm:^3.1.0":
   version: 3.1.0
   resolution: "csstype@npm:3.1.0"
   checksum: 644e986cefab86525f0b674a06889cfdbb1f117e5b7d1ce0fc55b0423ecc58807a1ea42ecc75c4f18999d14fc42d1d255f84662a45003a52bb5840e977eb2ffd
@@ -5034,8 +5034,8 @@ __metadata:
     "@nanostores/solid": ^0.1.6
     "@solid-primitives/raf": ^2.1.0
     "@solid-primitives/utils": ^2.0.3
-    "@suid/icons-material": ^0.2.3
-    "@suid/material": ^0.4.1
+    "@suid/icons-material": ^0.2.4
+    "@suid/material": ^0.4.2
     "@supabase/supabase-js": ^1.35.3
     "@types/babel__core": ^7
     "@types/chroma-js": ^2
