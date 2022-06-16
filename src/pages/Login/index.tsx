@@ -58,7 +58,7 @@ const LoginMethodCard: Component<LoginMethodCardProps> = (props) => {
                             <ListItemText primary="Sign in with GitHub" />
                         </ListItemButton>
                     </ListItem>
-                    <ListItem disablePadding onClick={() => props.onRequestNext({}, LoginFlowState.PasswordFlow)} id="login-with-github">
+                    <ListItem disablePadding onClick={() => props.onRequestNext({}, LoginFlowState.PasswordFlow)} id="login-with-password">
                         <ListItemButton >
                             <ListItemIcon>
                                 <Password  sx={iconSx}/>
@@ -146,7 +146,7 @@ const EmailLoginCard: Component<EmailLoginCardProps> = (props) => {
             </List>
         </CardContent>
         <CardActions sx={{justifyContent: "end", marginX: "14px"}}>
-            <Button disabled={email().length === 0 || password().length === 0} sx={{right: 0}} variant="contained" disableElevation onClick={loginWithEmail}>
+            <Button disabled={email().length === 0 || password().length === 0} id="sign-in-with-password-button" sx={{right: 0}} variant="contained" disableElevation onClick={loginWithEmail}>
                 <Typography>Sign in</Typography>
             </Button>
         </CardActions>

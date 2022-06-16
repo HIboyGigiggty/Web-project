@@ -51,11 +51,15 @@ Cypress.Commands.add("resetDb", () => {
         });
 });
 
+Cypress.Commands.add("resetLogin", () => {
+    localStorage.removeItem("supabase.auth.token");
+});
+
 declare namespace Cypress {
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface Chainable {
         login(USER: string): void;
-        fetchProfile(USER: string): void;
         resetDb(): void;
+        resetLogin(): void;
     }
 }
