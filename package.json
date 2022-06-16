@@ -9,6 +9,7 @@
     "@babel/plugin-syntax-jsx": "^7.16.7",
     "@babel/plugin-syntax-typescript": "^7.17.12",
     "@babel/preset-env": "^7.16.11",
+    "@microsoft/eslint-formatter-sarif": "^3.0.0",
     "@types/babel__core": "^7",
     "@types/chroma-js": "^2",
     "@types/eslint": "^8",
