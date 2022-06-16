@@ -135,6 +135,11 @@ const RoomListItem: Component<RoomListItemProps> = (props) => {
         ownerNameCtl.refetch(props.owner_id);
     });
 
+    const smallAvatarSx = {
+        maxWidth: "24px",
+        maxHeight: "24px",
+    };
+
     return <>
         <ListItem divider onClick={() => {
             if (props.onClick) {
@@ -145,9 +150,9 @@ const RoomListItem: Component<RoomListItemProps> = (props) => {
                 primary={<Typography sx={{ marginBottom: "8px" }}>{props.name}</Typography>}
                 secondary={
                     <Chip icon={
-                        <Switch fallback={<Avatar>?</Avatar>}>
+                        <Switch fallback={<Avatar sizes="small" sx={smallAvatarSx}>?</Avatar>}>
                             <Match when={auth.user()?.user_metadata.avatar_url}>
-                                <Avatar sizes="small" sx={{ maxHeight: "24px", maxWidth: "24px" }} src={auth.user()?.user_metadata.avatar_url} />
+                                <Avatar sizes="small" sx={smallAvatarSx} src={auth.user()?.user_metadata.avatar_url} />
                             </Match>
                         </Switch>
                     } label={ownerName()}></Chip>
