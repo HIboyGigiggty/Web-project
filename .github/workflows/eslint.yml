@@ -26,6 +26,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+      
+      - name: Setup Node environment
+        run: |
+        sudo npm i corepack --location=global
+        corepack enable
 
       - name: Cache packages
         uses: actions/cache@v3
@@ -37,8 +42,6 @@ jobs:
       - name: Fetch packages
         if: steps.packages_cache.outputs.cache-hit != 'true'
         run: |
-          sudo npm i corepack --location=global
-          corepack enable
           yarn
 
       - name: Run ESLint
