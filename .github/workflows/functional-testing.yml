@@ -40,7 +40,7 @@ jobs:
         uses: actions/cache@v3
         id: packages_cache
         with:
-          path: main/node_modules
+          path: node_modules
           key: yarn-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
 
       - name: Fetch packages
@@ -50,7 +50,6 @@ jobs:
       
       - name: Configure testing environment
         run: |
-          cd main
           cp .github/cypress.env.json cypress.env.json
       
       - name: Cypress run
