@@ -31,11 +31,6 @@ jobs:
       - name: List all containers in docker
         run: docker ps --all
       
-      - name: Wait on supabase server
-        uses: cygnetdigital/wait_for_response@v2.0.0
-        with:
-          url: "http://localhost:54321"
-      
       - name: Setup Node environment
         run: |
           sudo npm --location=global i corepack
@@ -62,6 +57,3 @@ jobs:
         uses: cypress-io/github-action@v4
         with:
           start: yarn serve
-      
-      - name: Post Start supabase instance
-        run: supabase stop
