@@ -41,7 +41,7 @@ jobs:
         id: packages_cache
         with:
           path: main/node_modules
-          key: yarn-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+          key: yarn-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
 
       - name: Fetch packages
         if: steps.packages_cache.outputs.cache-hit != 'true'
