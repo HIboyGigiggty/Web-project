@@ -38,8 +38,8 @@ jobs:
       
       - name: Setup Node environment
         run: |
-        sudo npm --location=global i corepack
-        corepack enable
+          sudo npm --location=global i corepack
+          corepack enable
       
       - name: Cache packages
         uses: actions/cache@v3
