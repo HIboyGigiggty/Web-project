@@ -51,6 +51,7 @@ jobs:
       - name: Configure testing environment
         run: |
           cp .github/cypress.env.json cypress.env.json
+          cp .github/supabase_conf.ts src/configs/supabase_conf.ts
       
       - name: Cypress run
         uses: cypress-io/github-action@v4
