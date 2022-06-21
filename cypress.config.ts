@@ -18,6 +18,10 @@ export default defineConfig({
         },
         baseUrl: "http://localhost:8080",
         specPattern: "cypress/e2e/**/*.{js,jsx,ts,tsx}",
+        retries: {
+            runMode: 2,
+            openMode: 0,
+        },
     },
     env: {
         ...genTestingUsersEnv(),
