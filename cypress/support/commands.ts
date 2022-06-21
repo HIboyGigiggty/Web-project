@@ -43,12 +43,7 @@ Cypress.Commands.add("login", (USER) => {
 });
 
 Cypress.Commands.add("resetDb", () => {
-    return cy.exec("supabase db reset")
-        .then(subject => {
-            if (subject.code !== 0) {
-                throw Error(`Database reset failed: \n${subject.stdout}\n${subject.stderr}`);
-            }
-        });
+    return cy.exec("supabase db reset");
 });
 
 Cypress.Commands.add("resetLogin", () => {

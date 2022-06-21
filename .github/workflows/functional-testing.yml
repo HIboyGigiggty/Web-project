@@ -1,0 +1,67 @@
+name: Functional Testing
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: [ "master" ]
+
+jobs:
+  functional-testing:
+    name: Run function testing
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+      
+      - name: Install supabase CLI 0.26.1
+        run: |
+          wget https://github.com/supabase/cli/releases/download/v0.26.1/supabase_0.26.1_linux_amd64.deb -O /tmp/supabase.deb
+          sudo apt install /tmp/supabase.deb
+      
+      - name: Configure supabase local deployment
+        run: |
+          cp .github/supabase.toml supabase/config.toml
+          cp docs/testing_res/seed.sql supabase/seed.sql
+      
+      - name: Start supabase instance
+        run: supabase start
+      
+      - name: List all containers in docker
+        run: docker ps --all
+      
+      - name: Setup Node environment
+        run: |
+          sudo npm --location=global i corepack
+          corepack enable
+      
+      - name: Cache packages
+        uses: actions/cache@v3
+        id: packages_cache
+        with:
+          path: node_modules
+          key: yarn-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+
+      - name: Fetch packages
+        if: steps.packages_cache.outputs.cache-hit != 'true'
+        run: |
+          yarn
+      
+      - name: Configure testing environment
+        run: |
+          cp .github/cypress.env.json cypress.env.json
+          cp .github/supabase_conf.ts src/configs/supabase_conf.ts
+      
+      - name: Cypress run
+        uses: cypress-io/github-action@v4
+        with:
+          start: yarn serve
+          record: true
+        env:
+          # pass the Dashboard record key as an environment variable
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          # pass GitHub token to allow accurately detecting a build vs a re-run build
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # pass the project ID from the secrets through environment variable
+          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
