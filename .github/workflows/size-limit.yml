@@ -27,7 +27,11 @@ jobs:
         run: |
           yarn
         
-      - uses: andresz1/size-limit-action@v1
+      - name: Fake application configuration
+        run: cp .github/supabase_conf.ts src/configs/supabase_conf.ts
+        
+      - uses: andresz1/size-limit-action@v1.7.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           script: yarn size-limit --json
+          skip_step: install
