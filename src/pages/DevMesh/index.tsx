@@ -92,13 +92,11 @@ const DevMesh: Component = () => {
         }
     };
 
-    // We just need some cleanup:
-    // eslint-disable-next-line solid/reactivity
-    onCleanup(async () => {
+    onCleanup(() => {
         const routerg = routerG();
         if (routerg) {
-            await routerg.stop();
             setRouterG();
+            routerg.stop();
         }
     });
 
