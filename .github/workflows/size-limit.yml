@@ -1,0 +1,33 @@
+name: "size"
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  size:
+    runs-on: ubuntu-latest
+    env:
+      CI_JOB_NUMBER: 1
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node environment
+        run: "sudo npm --location=global i corepack & corepack enable"
+
+      - name: Cache packages
+        uses: actions/cache@v3
+        id: packages_cache
+        with:
+          path: node_modules
+          key: yarn-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+
+      - name: Fetch packages
+        if: steps.packages_cache.outputs.cache-hit != 'true'
+        run: |
+          yarn
+        
+      - uses: andresz1/size-limit-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          script: yarn size-limit --json
