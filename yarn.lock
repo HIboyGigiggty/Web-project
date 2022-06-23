@@ -4890,7 +4890,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lib0@npm:^0.2.49":
+"lib0@npm:^0.2.42, lib0@npm:^0.2.49":
   version: 0.2.51
   resolution: "lib0@npm:0.2.51"
   dependencies:
@@ -5297,6 +5297,7 @@ __metadata:
     vite-plugin-eslint: ^1.6.1
     vite-plugin-solid: ^2.2.6
     webrtc-adapter: ^8.1.1
+    y-protocols: ^1.0.5
     yjs: ^13.5.38
   languageName: unknown
   linkType: soft
@@ -7086,6 +7087,15 @@ __metadata:
     utf-8-validate:
       optional: true
   checksum: 76f2f90e40344bf18fd544194e7067812fb1372b2a37865678d8f12afe4b478ff2ebc0c7c0aff82cd5e6b66fc43d889eec0f1865c2365d8f7a66d92da7744a77
+  languageName: node
+  linkType: hard
+
+"y-protocols@npm:^1.0.5":
+  version: 1.0.5
+  resolution: "y-protocols@npm:1.0.5"
+  dependencies:
+    lib0: ^0.2.42
+  checksum: d19404a4ebafcf3761c28b881abe8c32ab6e457db0e5ffc7dbb749cbc2c3bb98e003a43f3e8eba7f245b2698c76f2c4cdd1c2db869f8ec0c6ef94736d9a88652
   languageName: node
   linkType: hard
 
