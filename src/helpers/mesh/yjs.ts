@@ -1,5 +1,5 @@
 import Y from "yjs";
-import {Peer, PeerConnectionState, Router} from ".";
+import {Router} from ".";
 import { Frame, Message } from "./datachannel";
 import * as awarenessProtocol from "y-protocols/awareness";
 
