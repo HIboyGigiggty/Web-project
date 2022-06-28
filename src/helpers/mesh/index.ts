@@ -309,7 +309,7 @@ export class Router {
     }
 
     tick() {
-        return this.clk++;
+        return ++this.clk;
     }
 
     buildProtocolMessage(msgType: number, obj: unknown): Frame[] {
