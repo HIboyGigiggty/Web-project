@@ -34,6 +34,8 @@ export interface DrawEvent {
     touch?: DrawTouchEvent,
 }
 
+export type DrawEndedEvent = Record<string, never>
+
 export enum DrawTool {
     "hand",
     "pen",
@@ -144,7 +146,7 @@ export interface ContextMenuEvent {
 interface DrawBroadProps {
     onStart?: (stroke: DrawPoint[], ev: DrawEvent) => void,
     onDrawing?: (stroke: DrawPoint[], ev: DrawEvent) => void,
-    onEnd?: (ev: DrawEvent) => void,
+    onEnd?: (ev: DrawEndedEvent) => void,
     onTouchTypeChanged?: (newTouchType: DrawTouchType) => void,
     ctl?: DrawBroadController, // The controller can control the state of the broad. WARNING: No Reactivity For This Prop.
 
@@ -463,50 +465,32 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
         }
     };
 
-    const onTouchDrawEnd = (e: TouchEvent) => {
-        if (e.touches.length === 1) {
-            const touch = e.touches[0];
-            const pageX = touch.pageX * devicePixelRatio();
-            const pageY = touch.pageY * devicePixelRatio();
-            dragStartX = undefined;
-            dragStartY = undefined;
+    const onTouchDrawEnd = () => {
+        dragStartX = undefined;
+        dragStartY = undefined;
             
-            if (mouseDown) {
-                const pressure = touch.force > 0? touch.force: 0.1;
-                mouseDown = false;
-                points = [];
-                lineWidth = 0;
-                draw(points);
-                const actualX = pageX + viewpointX();
-                const actualY = pageY + viewpointY();
-                if (merged.onEnd) {
-                    const ev: DrawEvent = {x: actualX, y: actualY, pressure, hasForce: true};
-                    if (touchType()) {
-                        ev.touch = {...touch, type: touchType() as DrawTouchType};
-                    }
-                    merged.onEnd(ev);
-                }
+        if (mouseDown) {
+            mouseDown = false;
+            points = [];
+            lineWidth = 0;
+            draw(points);
+            if (merged.onEnd) {
+                const ev: DrawEndedEvent = {};
+                merged.onEnd(ev);
             }
         }
     };
 
-    const onMouseDrawEnd = (e: MouseEvent) => {
-        const pressure = 1.0;
-        const pageX = e.pageX * devicePixelRatio();
-        const pageY = e.pageY * devicePixelRatio();
+    const onMouseDrawEnd = () => {
         dragStartX = undefined;
         dragStartY = undefined;
-
-        const actualX = pageX + viewpointX();
-        const actualY = pageY + viewpointY();
-
         mouseDown = false;
         points = [];
         lineWidth = 0;
         draw(points);
+
         if (merged.onEnd) {
-            const ev: DrawEvent = {x: actualX, y: actualY, pressure, hasForce: false};
-            merged.onEnd(ev);
+            merged.onEnd({});
         }
     };
 
@@ -656,7 +640,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
 
     const onTouchEnd = (e: TouchEvent) => {
         if (ctl.tool() === DrawTool.pen || ctl.tool() === DrawTool.erase) {
-            onTouchDrawEnd(e);
+            onTouchDrawEnd();
         } else if (ctl.tool() === DrawTool.hand) {
             onHandDragEnd(e);
         }
@@ -664,7 +648,7 @@ const DrawBroad: Component<DrawBroadProps> = (props) => {
 
     const onMouseEnd = (e: MouseEvent) => {
         if (ctl.tool() === DrawTool.pen || ctl.tool() === DrawTool.erase) {
-            onMouseDrawEnd(e);
+            onMouseDrawEnd();
         } else if (ctl.tool() === DrawTool.hand) {
             onHandDragEnd(e);
         }
