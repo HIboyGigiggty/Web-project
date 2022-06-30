@@ -81,24 +81,20 @@ const RoomNotFoundDialog: Component<{open: boolean}> = (props) => {
 };
 
 interface ContextMenuProps {
-    position: undefined | [number, number],
+    position: undefined | {left: number, top: number},
     onClose: (() => void),
     currentDrawingTool: DrawTool,
     onChangingDrawingTool: ((newTool: DrawTool) => void),
 }
 
 const ContextMenu: Component<ContextMenuProps> = (props) => {
-    const buildContextMenuAnchorPos = () => {
-        const [left, top] = props.position as [number, number];
-        return {left, top};
-    };
 
     const itemSx = {cursor: "pointer"};
 
     return <Popover
         open={typeof props.position !== "undefined"}
         anchorReference="anchorPosition"
-        anchorPosition={buildContextMenuAnchorPos()}
+        anchorPosition={props.position || {left: 0, top: 0}}
         onClose={() => props.onClose()}
     >
         <List>
@@ -122,7 +118,7 @@ const RoomPage: Component = () => {
     const [status, setStatus] = createSignal<RoomStatus>(RoomStatus.Unknown);
     const [roomInfo, setRoomInfo] = createSignal<Room>();
     const [currentDrawingTool, setCurrentDrawingTool] = createSignal<DrawTool>(DrawTool.pen);
-    const [contextMenuPos, setContextMenuPos] = createSignal<[number, number] | undefined>();
+    const [contextMenuPos, setContextMenuPos] = createSignal<{left: number, top: number} | undefined>();
     const [gRouter, setGRouter] = createSignal<Router>();
     const drawCtl = new DrawBroadController("black", 20);
 
@@ -153,7 +149,7 @@ const RoomPage: Component = () => {
     });
 
     const onBroadContextMenu = (e: ContextMenuEvent) => {
-        setContextMenuPos([e.pageX, e.pageY]);
+        setContextMenuPos({left: e.pageX, top: e.pageY});
     };
 
     const getStroke = (peerId: string): DrawPoint[] => {
