@@ -24,6 +24,9 @@ import LinkOffIcon from "@suid/icons-material/LinkOff";
 import { Frame, Message } from "../../helpers/mesh/datachannel";
 import Title from "../../widgets/Title";
 import { VoiceChatIconButton } from "./widgets/voice_chat";
+import { VoiceChat } from "./chatty";
+import { voiceChatSettingStore } from "../../stores/settings";
+import { useStore } from "@nanostores/solid";
 
 const DEFAULT_DRAWING_SIZE_X = 3000;
 const DEFAULT_DRAWING_SIZE_Y = 3000;
@@ -112,58 +115,6 @@ const ContextMenu: Component<ContextMenuProps> = (props) => {
     </Popover>;
 };
 
-class VoiceChatManager {
-    audioCtx: AudioContext;
-    destNode: MediaStreamAudioDestinationNode;
-    sources: Map<string, MediaStreamAudioSourceNode>;
-    removeCallbacks: Map<string, ((node: MediaStreamAudioSourceNode) => void)>;
-
-    constructor(ctx: AudioContext) {
-        this.audioCtx = ctx;
-        this.destNode = this.audioCtx.createMediaStreamDestination();
-        this.sources = new Map();
-        this.removeCallbacks = new Map();
-    }
-
-    addPeerMediaStream(usrDevId: string, media: MediaStream, removeCallback?: ((node: MediaStreamAudioSourceNode) => void)) {
-        const sourceNode = this.audioCtx.createMediaStreamSource(media);
-        sourceNode.connect(this.destNode);
-        this.sources.set(usrDevId, sourceNode);
-        if (removeCallback) {
-            this.removeCallbacks.set(usrDevId, removeCallback);
-        }
-        return sourceNode;
-    }
-
-    removePeerMediaStream(usrDevId: string) {
-        const node = this.sources.get(usrDevId);
-        if (node) {
-            node.disconnect();
-            this.sources.delete(usrDevId);
-            const callback = this.removeCallbacks.get(usrDevId);
-            if (callback) {
-                this.removeCallbacks.delete(usrDevId);
-                callback(node);
-            }
-        }
-    }
-
-    clear() {
-        for (const [usrDevId, srcNode] of this.sources.entries()) {
-            srcNode.disconnect();
-            const callback = this.removeCallbacks.get(usrDevId);
-            if (callback) {
-                this.removeCallbacks.delete(usrDevId);
-                callback(srcNode);
-            }
-        }
-    }
-
-    get mixedStream() {
-        return this.destNode.stream;
-    }
-}
-
 const RoomPage: Component = () => {
     const params = useParams();
     const broadCli = useBroadClient();
@@ -174,11 +125,13 @@ const RoomPage: Component = () => {
     const [contextMenuPos, setContextMenuPos] = createSignal<{left: number, top: number} | undefined>();
     const [gRouter, setGRouter] = createSignal<Router>();
     const [voiceChatAvailable, setVoiceChatAvailable] = createSignal<boolean>(false);
+    const voiceChatSettings = useStore(voiceChatSettingStore);
+
     const drawCtl = new DrawBroadController("black", 20);
 
     const strokes: Map<string, DrawPoint[]> = new Map();
 
-    const voiceChatManager = new VoiceChatManager(new AudioContext());
+    const voiceChatManager = new VoiceChat<string, Record<string, never>>(new AudioContext());
     let audioEl: HTMLAudioElement;
 
     const [participants, participantsCtl] = createResource<Participant[]>(() => {
@@ -284,12 +237,24 @@ const RoomPage: Component = () => {
         const router = gRouter();
         const room = roomInfo();
         if (router && room) {
-            const media = await navigator.mediaDevices.getUserMedia({audio: true, video: false});
-            voiceChatManager.addPeerMediaStream(broadCli.getUserDeviceId(), media, (node) => {
-                node.mediaStream.getTracks().forEach(track => track.stop());
+            const media = await navigator.mediaDevices.getUserMedia({audio: {
+                noiseSuppression: {ideal: voiceChatSettings().noiseSupression},
+                autoGainControl: {ideal: true},
+                echoCancellation: {ideal: voiceChatSettings().echoCancellation}, // The algorithm bulit-in in firefox is unusable.
+            }, video: false});
+            const player = voiceChatManager.addPeerMediaStream(
+                broadCli.getUserDeviceId(),
+                media,
+                {}
+            );
+            player.onRemoved = (player => {
+                player.source.mediaStream.getTracks().forEach(track => track.stop());
             });
-            audioEl.srcObject = voiceChatManager.mixedStream;
+            audioEl.srcObject = voiceChatManager.mixedStream();
             setVoiceChatAvailable(true);
+            voiceChatManager.onPlayerLevelChanged = () => {
+                // TODO: show player volume level
+            };
         } else {
             throw Error("unreachable");
         }
@@ -389,7 +354,6 @@ const RoomPage: Component = () => {
         <RoomJoiningNotice open={shouldShowJoiningNotice()} />
         <RoomNotFoundDialog open={shouldShowRoomNotFound()} />
         <audio
-            style="display: gone;"
             // @ts-expect-error this value will be assigned by solidjs
             ref={audioEl}
             autoplay></audio>
