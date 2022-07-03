@@ -1807,6 +1807,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@supabase/functions-js@npm:^1.3.4":
+  version: 1.3.4
+  resolution: "@supabase/functions-js@npm:1.3.4"
+  dependencies:
+    cross-fetch: ^3.1.5
+  checksum: 9101b90784c247efa91a761da545eb845cbad6b0c769b0e775f642de9c43394bc176d27f94598595e762a265983ecf59d625645a262891de008702dfdcdd0f0b
+  languageName: node
+  linkType: hard
+
 "@supabase/gotrue-js@npm:^1.22.14":
   version: 1.22.15
   resolution: "@supabase/gotrue-js@npm:1.22.15"
@@ -1816,12 +1825,30 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@supabase/gotrue-js@npm:^1.22.17":
+  version: 1.22.18
+  resolution: "@supabase/gotrue-js@npm:1.22.18"
+  dependencies:
+    cross-fetch: ^3.0.6
+  checksum: 17d1d4ecf88ec34113817bc67812d801241226cfdea0d4beaa7e505721b6482e5a6d1afd15cbd8aa44f8188585b281f9c24da6e9abd3765b712d78be6bce2283
+  languageName: node
+  linkType: hard
+
 "@supabase/postgrest-js@npm:^0.37.2":
   version: 0.37.2
   resolution: "@supabase/postgrest-js@npm:0.37.2"
   dependencies:
     cross-fetch: ^3.0.6
   checksum: 173bd75f315900119425b27007b69fb5517eb482d22e21f3daeb62d0982ce80199e271050181a6a29694f9a56675f381ccbfd7a0b2534815fa936511c0629992
+  languageName: node
+  linkType: hard
+
+"@supabase/postgrest-js@npm:^0.37.4":
+  version: 0.37.4
+  resolution: "@supabase/postgrest-js@npm:0.37.4"
+  dependencies:
+    cross-fetch: ^3.1.5
+  checksum: 898da6b2e77454832b0b8edfdb3db67f2a65a58ee1fe10d3e4cb517c7586c2621a022b2f332d55e8bf784a21ae62285391e591f2f1a086eaa23651d78799c9f5
   languageName: node
   linkType: hard
 
@@ -1844,6 +1871,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@supabase/storage-js@npm:^1.7.2":
+  version: 1.7.2
+  resolution: "@supabase/storage-js@npm:1.7.2"
+  dependencies:
+    cross-fetch: ^3.1.0
+  checksum: 5a5d2bf391505bc68660b2f4d3d0a0de9b8ffabe4b2375c25e40bf73a62f11fb70af85a2180dc0c5067d8d4ff50d43360f6d7f5017976c56aeda3b114cd30570
+  languageName: node
+  linkType: hard
+
 "@supabase/supabase-js@npm:^1.35.3":
   version: 1.35.3
   resolution: "@supabase/supabase-js@npm:1.35.3"
@@ -1854,6 +1890,19 @@ __metadata:
     "@supabase/realtime-js": ^1.7.2
     "@supabase/storage-js": ^1.7.0
   checksum: 2715ae245211c83fc25fa2f5f00d0af8097a96a0c834ea768d576914e155284510565e2f1245ef9713821353efb16002fdf380a38c12860fc7de92969f408503
+  languageName: node
+  linkType: hard
+
+"@supabase/supabase-js@npm:^1.35.4":
+  version: 1.35.4
+  resolution: "@supabase/supabase-js@npm:1.35.4"
+  dependencies:
+    "@supabase/functions-js": ^1.3.4
+    "@supabase/gotrue-js": ^1.22.17
+    "@supabase/postgrest-js": ^0.37.4
+    "@supabase/realtime-js": ^1.7.2
+    "@supabase/storage-js": ^1.7.2
+  checksum: fa6edb211d4cf3fb258cca45e990397516971bcb086543f101f3f0c37b527661aaafa35d221da930cbbf4668040247a12d96608b98221a410a5be500fb8eaccb
   languageName: node
   linkType: hard
 
@@ -5265,7 +5314,7 @@ __metadata:
     "@solid-primitives/utils": ^2.0.3
     "@suid/icons-material": ^0.2.4
     "@suid/material": ^0.4.2
-    "@supabase/supabase-js": ^1.35.3
+    "@supabase/supabase-js": ^1.35.4
     "@types/babel__core": ^7
     "@types/chroma-js": ^2
     "@types/eslint": ^8
