@@ -12,6 +12,10 @@ const ErrorPage = lazy(() => import("./pages/ErrorPage"));
 const DevDrawBroad = lazy(() => import("./pages/DevDrawBroad"));
 const DevMesh = lazy(() => import("./pages/DevMesh"));
 
+const DEV_PAGES = {
+    DrawBoard: lazy(() => import("./pages/dev/DrawBoardPage"))
+};
+
 const App: Component = () => {
     return (<>
         <CssBaseline />
@@ -28,6 +32,9 @@ const App: Component = () => {
             <Route path="/dev-draw-broad" element={<DevDrawBroad />} />
             <Route path="/rooms/:id" element={<Room />} />
             <Route path="/dev-mesh" element={<DevMesh />} />
+            <Route path="/_dev">
+                <Route path="/draw-board" element={<DEV_PAGES.DrawBoard />} />
+            </Route>
             <Route path="/*" element={<ErrorPage httpErrCode={404} />} />
         </Routes>
     </>);
