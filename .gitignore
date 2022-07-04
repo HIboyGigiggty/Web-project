@@ -29,3 +29,7 @@ stats.html
 /cypress.env.json
 cypress/videos
 cypress/screenshots/
+
+# Local environment variables
+.env.local
+.env.*.local
