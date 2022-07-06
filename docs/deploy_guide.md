@@ -67,14 +67,7 @@ $ supabase start
 Pulling...
 ````
 
-This command will pull images, start containers and apply database changes. You will have anon "key" and API "url". They are hard-coded in the tool(at least 0.26.1), so you can even just copy the "supabase_conf.ts" in the ".github" directory.
-
-````typescript
-export default {
-    url: "http://localhost:54321",
-    key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24ifQ.625_WdcF3KHqz5amU0x2X5WWHP-OEs_4qj0ssLNHzTs",
-};
-````
+This command will pull images, start containers and apply database changes. You will have anon "key" and API "url".
 
 All data in this Supabase instance will be erased after being stopped.
 
@@ -97,31 +90,47 @@ site_url = "http://localhost:8080"
 additional_redirect_urls = ["https://localhost:8080"]
 ````
 
+Supabase's authentication system works like OAuth 2, we recommend [OAuth 2.0 Simplified](https://www.oauth.com) if you are interested in the working detail.
+
 #### DIY
 
 There is a good starting point:
 https://supabase.com/docs/guides/hosting/overview
 
-## Configure & build the application
+## Configure runtime options
 
-We have prepared a template for you, under "docs/runtime_options". Copy them to "src/configs" first:
+Before building the application, you need to configure the runtime options. We use environment variables for the runtime options, see [Runtime Options](./runtime_options.md) for details.
 
-````
-cp docs/runtime_options/* src/configs/
-````
+If you haven't experience with `.env` files, We recommend using a new file `.env.local` for your local environment variable. All file names that start with `.env`` and end with `.local` will be ignored by Git.
 
-Open "src/supabase_conf.ts":
+Create a `.env.local` in the project root directory:
 
-````
-export default {
-    url: "SUPABASE URL",
-    key: "SUPABASE SECRET",
-};
+````shell
+touch .env.local
 ````
 
-Fill in your "url" and "key" from the last section.
+There are two blanks you must fill: `VITE_SUPABASE_API_URL` and `VITE_SUPABASE_API_KEY_PUBLIC`. We had filled the blanks with a default value, but we recommend you override these values for your needs. The default values:
 
-![](./development_env/typical_supabase_config_local.png)
+- VITE_SUPABASEA_API_URL: `http://localhost:54321`
+- VITE_SUPABASE_API_KEY_PUBLIC: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24ifQ.625_WdcF3KHqz5amU0x2X5WWHP-OEs_4qj0ssLNHzTs`
+
+
+You will have a "url" and a "key" from the last section. Write them into `.env.local` in `key=value` form:
+
+````dotenv
+VITE_SUPABASE_API_URL="<url>"
+VITE_SUPABASE_API_KEY_PUBLIC="<key>"
+````
+
+Your `.env.local` will be looked like this:
+
+````dotenv
+VITE_SUPABASE_API_URL="http://localhost:54321"
+VITE_SUPABASE_API_KEY_PUBLIC="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24ifQ.625_WdcF3KHqz5amU0x2X5WWHP-OEs_4qj0ssLNHzTs"
+
+````
+
+## Build the application
 
 Finally, build your application:
 

@@ -2,15 +2,11 @@
 
 ## Configure Application Runtime Options
 
-Before you start, you need to fill in some blanks for the application to help it works in a certain way.
+We use `.env` to manage runtime options. Default options are being shipped as `.env` in the project root directory.
 
-Copy all files under "docs/runtime_options" (the "runtime_options" directory at the same level of this file) to "src/configs".
+Vite supports multi-level `.env` files, you can check out how it works here: https://vitejs.dev/guide/env-and-mode.html.
 
-- "supabase_conf.ts"
-
-You must fill in your "anon key" and "URL" here to help the application communicate with the Supabase instance. Paste your anon key in "key", and your URL in another field.
-
-![Typical config for local Supabase deployment](./development_env/typical_supabase_config_local.png)
+For details, see [Runtime Options](./runtime_options.md).
 
 ## Editors / IDEs
 

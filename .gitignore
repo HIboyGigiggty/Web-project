@@ -1,7 +1,6 @@
 dist/
 node_modules/
 yarn-error.log
-src/configs/
 
 # Supabase
 **/supabase/.branches
@@ -30,3 +29,7 @@ stats.html
 /cypress.env.json
 cypress/videos
 cypress/screenshots/
+
+# Local environment variables
+.env.local
+.env.*.local
