@@ -1,5 +1,11 @@
 [
     {
-      "path": "./dist/assets/*.js"
+      "path": "./dist/assets/src/index__tsx.js",
+      "limit": "300ms",
+      "name": "the first open"
+    },
+    {
+      "path": "./dist/assets/**.js",
+      "name": "all files"
     }
 ]
