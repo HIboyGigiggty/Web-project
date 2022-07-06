@@ -3,9 +3,13 @@ name: Functional Testing
 on:
   push:
     branches: [ "master" ]
+    paths-ignore:
+      - "docs/**"
   pull_request:
     # The branches below must be a subset of the branches above
     branches: [ "master" ]
+    paths-ignore:
+      - "docs/**"
 
 jobs:
   functional-testing:
