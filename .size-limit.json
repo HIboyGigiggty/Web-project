@@ -1,7 +1,6 @@
 [
     {
       "path": "./dist/assets/src/index__tsx.js",
-      "limit": "300ms",
       "name": "the first open"
     },
     {
