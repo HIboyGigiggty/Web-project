@@ -6,6 +6,8 @@ We use `.env` to manage runtime options. Default options are being shipped as `.
 
 Vite supports multi-level `.env` files, you can check out how it works here: https://vitejs.dev/guide/env-and-mode.html.
 
+For details, see [Runtime Options](./runtime_options.md).
+
 ## Editors / IDEs
 
 Workspace in Magicbroad includes multiple programming languages, file formats and tools. It's recommended to have your editors' or IDEs' support for them:
