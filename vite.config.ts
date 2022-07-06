@@ -1,4 +1,4 @@
-import { defineConfig, splitVendorChunkPlugin } from "vite";
+import { defineConfig } from "vite";
 import solidPlugin from "vite-plugin-solid";
 import {undestructurePlugin} from "babel-plugin-solid-undestructure";
 import solidStyledJSXPlugin from "solid-styled-jsx/babel";
