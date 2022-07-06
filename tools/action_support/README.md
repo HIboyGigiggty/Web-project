@@ -1,1 +1,1 @@
-This directory stores supporting file for Github Actions.
+This directory stores supporting files for Github Actions.
