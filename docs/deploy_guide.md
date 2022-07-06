@@ -2,7 +2,7 @@
 
 Welcome! This file is intended to guide you in deploying your Magicboard application. As the application improves, there may be additional options or ways to configure or deploy, but the most we covered here will apply still.
 
-Thanks to "serverless architecture", you don't need to fill hundreds of blanks to start your Magicboard service. We will mention the supabase service mostly, the deployment of Magicboard itself just takes a smaller part.
+Thanks to "serverless architecture", you don't need to fill hundreds of blanks to start your Magicboard service. We will mention the Supabase service mostly, the deployment of Magicboard itself just takes a smaller part.
 
 ## Start your Supabase service
 The Supabase handles most simple and repetitive tasks - database, user authorization, user authentication... That's why Magicboard chooses a "serverless architecture".
