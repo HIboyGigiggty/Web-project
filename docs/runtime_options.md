@@ -21,3 +21,7 @@ It could be undefined, `true` or `false`. This option is only taking effect on t
 - `true` will enable hot module replacement.
 - `false` will disable hot module replacement.
 - The default behavior will be used if it's not defined.
+
+## Adding & Refering Runtime Options
+
+Application code should not directly access environment variables exposed by Vite. Environment variables should be organised in "src/configs" by their topics, and used by the rest of code.
