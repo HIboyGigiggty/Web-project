@@ -91,7 +91,7 @@ export class Peer {
                     this.connectionState = PeerConnectionState.unknown;
                     break;
                 }
-                this.bus.emit("connectionstatechange", this, this.connectionState);
+                this.bus.emit("connectionstatechange", undefined, this, this.connectionState);
             });
         } else {
             this.connection.addEventListener("iceconnectionstatechange", () => {
@@ -109,7 +109,7 @@ export class Peer {
                 } else {
                     this.connectionState = PeerConnectionState.unknown;
                 }
-                this.bus.emit("connectionstatechange", this, this.connectionState);
+                this.bus.emit("connectionstatechange", undefined, this, this.connectionState);
             });
         }
     }
@@ -137,6 +137,16 @@ export class Peer {
     }
 }
 
+/** The router object for transmiting data over channels.
+ * 
+ * Supported events:
+ * - `addpeer`
+ * - `removepeer`
+ * - `prestopping`
+ * - `stopped`
+ * - `data`
+ * - `peerconnectionstatechange`
+ */
 export class Router {
     peers: Peer[];
     alterChan: DataChannel;
@@ -147,6 +157,7 @@ export class Router {
     onNegotiate: ((peer: Peer) => void);
     onIceCandidate: ((peer: Peer, ev: RTCPeerConnectionIceEvent) => void);
     roomId: string;
+    onPeerConnectionStateChanged: ((peer: Peer, state: PeerConnectionState) => void);
 
     constructor(userDeviceId: string, alterChan: DataChannel, roomId: string) {
         this.peers = [];
@@ -180,6 +191,9 @@ export class Router {
             if (ev.candidate) {
                 this.sendRTCIceCandidate(peer.userDeviceId, ev.candidate);
             }
+        };
+        this.onPeerConnectionStateChanged = (peer: Peer, state: PeerConnectionState) => {
+            this.bus.emit("peerconnectionstatechange", undefined, this, peer, state);
         };
         alterChan.bus.on("data", this.onMessageCallback);
     }
@@ -250,6 +264,7 @@ export class Router {
         peer.datachannel.bus.on("data", this.onMessageCallback);
         peer.bus.on("negotiationneeded", this.onNegotiate);
         peer.bus.on("icecandidate", this.onIceCandidate);
+        peer.bus.on("connectionstatechange", this.onPeerConnectionStateChanged);
         this.peers.push(peer);
         this.bus.emit("addpeer", this, peer);
     }
@@ -260,6 +275,7 @@ export class Router {
         peer.datachannel.bus.detach("data", this.onMessageCallback);
         peer.bus.detach("negotiationneeded", this.onNegotiate);
         peer.bus.detach("icecandidate", this.onIceCandidate);
+        peer.bus.detach("connectionstatechange", this.onPeerConnectionStateChanged);
         this.bus.emit("removepeer", this, peer);
     }
 
@@ -317,6 +333,7 @@ export class Router {
     }
 
     async stop(): Promise<void> {
+        this.bus.emit("prestopping", undefined, this);
         const closePromise = this.alterChan.close();
         if (typeof closePromise !== "undefined") {
             await closePromise;

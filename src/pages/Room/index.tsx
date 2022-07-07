@@ -23,6 +23,10 @@ import LinkIcon from "@suid/icons-material/Link";
 import LinkOffIcon from "@suid/icons-material/LinkOff";
 import { Frame, Message } from "../../helpers/mesh/datachannel";
 import Title from "../../widgets/Title";
+import { VoiceChatIconButton } from "./widgets/voice_chat";
+import { VoiceChat } from "./chatty";
+import { voiceChatSettingStore } from "../../stores/settings";
+import { useStore } from "@nanostores/solid";
 
 const DEFAULT_DRAWING_SIZE_X = 3000;
 const DEFAULT_DRAWING_SIZE_Y = 3000;
@@ -120,9 +124,15 @@ const RoomPage: Component = () => {
     const [currentDrawingTool, setCurrentDrawingTool] = createSignal<DrawTool>(DrawTool.pen);
     const [contextMenuPos, setContextMenuPos] = createSignal<{left: number, top: number} | undefined>();
     const [gRouter, setGRouter] = createSignal<Router>();
+    const [voiceChatAvailable, setVoiceChatAvailable] = createSignal<boolean>(false);
+    const voiceChatSettings = useStore(voiceChatSettingStore);
+
     const drawCtl = new DrawBroadController("black", 20);
 
     const strokes: Map<string, DrawPoint[]> = new Map();
+
+    const voiceChatManager = new VoiceChat<string, Record<string, never>>(new AudioContext());
+    let audioEl: HTMLAudioElement;
 
     const [participants, participantsCtl] = createResource<Participant[]>(() => {
         const room = roomInfo();
@@ -223,6 +233,39 @@ const RoomPage: Component = () => {
         return router;
     };
 
+    const startVoiceChat = async () => {
+        const router = gRouter();
+        const room = roomInfo();
+        if (router && room) {
+            const media = await navigator.mediaDevices.getUserMedia({audio: {
+                noiseSuppression: {ideal: voiceChatSettings().noiseSupression},
+                autoGainControl: {ideal: true},
+                echoCancellation: {ideal: voiceChatSettings().echoCancellation}, // The algorithm bulit-in in firefox is unusable.
+            }, video: false});
+            const player = voiceChatManager.addPeerMediaStream(
+                broadCli.getUserDeviceId(),
+                media,
+                {}
+            );
+            player.onRemoved = (player => {
+                player.source.mediaStream.getTracks().forEach(track => track.stop());
+            });
+            audioEl.srcObject = voiceChatManager.mixedStream();
+            setVoiceChatAvailable(true);
+            voiceChatManager.onPlayerLevelChanged = () => {
+                // TODO: show player volume level
+            };
+        } else {
+            throw Error("unreachable");
+        }
+    };
+
+    const stopVoiceChat = () => {
+        voiceChatManager.clear();
+        audioEl.srcObject = null;
+        setVoiceChatAvailable(false);
+    };
+
     onMount(async () => {
         const room = await broadCli.findRoomById(params.id);
         if (room) {
@@ -283,6 +326,9 @@ const RoomPage: Component = () => {
     });
 
     onCleanup(() => {
+        if (voiceChatAvailable()) {
+            stopVoiceChat();
+        }
         const routerg = gRouter();
         if (routerg) {
             routerg.stop();
@@ -294,11 +340,23 @@ const RoomPage: Component = () => {
     const shouldShowRoomNotFound = () => status() === RoomStatus.NotFound;
 
     const getTitle = () => (status() === RoomStatus.Found ? "Magicbroad Room": `Magicbroad: "${roomInfo()?.name}"`);
+
+    const toggleVoiceChat = async () => {
+        if (voiceChatAvailable()) {
+            stopVoiceChat();
+        } else {
+            await startVoiceChat();
+        }
+    };
     
     return <>
         <Title title={getTitle()} />
         <RoomJoiningNotice open={shouldShowJoiningNotice()} />
         <RoomNotFoundDialog open={shouldShowRoomNotFound()} />
+        <audio
+            // @ts-expect-error this value will be assigned by solidjs
+            ref={audioEl}
+            autoplay></audio>
         <ContextMenu
             position={contextMenuPos()}
             onClose={() => setContextMenuPos()}
@@ -319,6 +377,7 @@ const RoomPage: Component = () => {
                     <Typography variant="h6" component="div" sx={{flexGrow: 1}}>
                         {() => roomInfo()?.name}
                     </Typography>
+                    <VoiceChatIconButton alive={voiceChatAvailable()} onClick={toggleVoiceChat} />
                     <Button size="large" color="inherit" variant="text">
                         <Show when={gRouter()} fallback={<LinkOffIcon />}><LinkIcon /></Show>
                     </Button>
