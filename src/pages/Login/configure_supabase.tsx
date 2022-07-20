@@ -55,7 +55,7 @@ export const SupabaseConfigurationDialog: Component<Props> = (props) => {
                 transform: "translate(-50%, -50%)",
                 minWidth: "300px",
             }}>
-            <CardHeader title="Enter Supabase Details"></CardHeader>
+            <CardHeader title="Enter Supabase Details" />
             <CardContent>
                 <Typography>This selection helps you use another supabase instance instead the built-in one.
                     The instance used here must allow auth callback url.</Typography>

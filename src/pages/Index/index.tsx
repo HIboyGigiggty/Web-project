@@ -40,7 +40,7 @@ const getNavigatePath = (path: string, search?: Record<string, string>) => {
 };
 
 const UserAvatar: Component<{user: User | null, sizes?: string, sx?: SxProps<Theme>}> = (props) => {
-    return <Switch fallback={<Avatar sx={props.sx} style="background-color: initial;"><AccountCircle sx={{width: "100%", height: "100%"}}/></Avatar>}>
+    return <Switch fallback={<Avatar sx={props.sx} style={{"background-color":"initial"}}><AccountCircle sx={{width: "100%", height: "100%"}}/></Avatar>}>
         <Match when={props.user?.user_metadata.avatar_url}>
             <Avatar src={props.user?.user_metadata.avatar_url} sizes={props.sizes} sx={props.sx} />
         </Match>
@@ -154,7 +154,7 @@ const RoomListItem: Component<RoomListItemProps> = (props) => {
                 secondary={
                     <Chip icon={
                         <UserAvatar user={auth.user()?.id === props.owner_id ? auth.user(): null} sizes="small" sx={smallAvatarSx} />
-                    } label={ownerName()}></Chip>
+                    } label={ownerName()} />
                 }
             />
         </ListItem>
@@ -296,13 +296,13 @@ const Index: Component = () => {
         <div >
             <Box sx={{ ml: "50%", transform: "translate(-50%, 0)", padding: 0, marginTop: "60px" }}>
                 <Card sx={{ minWidth: "120%", ml: "50%", transform: "translate(-50%,0)", width: "auto" }}>
-                    <CardContent sx={{ padding: 0 }} style="padding: 0;">
-                        <TextField sx={{ width: "100%" }} placeholder="房间ID"></TextField>
+                    <CardContent sx={{ padding: 0 }} style={{"padding":"0"}}>
+                        <TextField sx={{ width: "100%" }} placeholder="房间ID" />
                     </CardContent>
                 </Card>
 
                 <Card sx={{ minWidth: "110%", ml: "50%", transform: "translate(-50%,0)", marginTop: "30px", width: "auto", height: "auto" }}>
-                    <CardContent sx={{ padding: 0 }} style="padding: 0;">
+                    <CardContent sx={{ padding: 0 }} style={{"padding":"0"}}>
                         <List sx={{ padding: 0 }}>
                             <For each={rooms()} fallback={<List>No rooms here.</List>}>
                                 {
