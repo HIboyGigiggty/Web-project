@@ -34,7 +34,7 @@ export const useDevicePixelRatio = (): Accessor<number> => {
             currentQueryList.removeEventListener("change", updateRatio);
             currentQueryList = undefined;
         }
-        currentQueryList = window.matchMedia(`(resolution: ${ratio}dppx)`);
+        currentQueryList = window.matchMedia(`(resolution: ${ratio()}dppx)`);
         currentQueryList.addEventListener("change", updateRatio, {once: true});
     };
 
