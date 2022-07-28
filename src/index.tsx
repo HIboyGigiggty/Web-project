@@ -4,8 +4,6 @@ import { SupabaseProvider } from "solid-supabase";
 import supabase_client from "./supabase_client";
 import { Router } from "solid-app-router";
 
-import "solid-styled-jsx";
-
 import "./index.styl";
 import "@fontsource/roboto";
 
