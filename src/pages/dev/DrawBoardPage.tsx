@@ -20,6 +20,9 @@ import ListItemText from "@suid/material/ListItemText";
 import Divider from "@suid/material/Divider";
 import TextField from "@suid/material/TextField";
 
+import {DrawBoardView} from "../../widgets/DrawBroad/solid";
+import ScrollbarController from "../../widgets/DrawBroad/ScrollbarController";
+
 interface OverlayWindowProps {
     id: string,
     title?: string,
@@ -155,6 +158,9 @@ const DrawBoardPage: Component = () => {
 
     const board = new DrawBoard(document.createElement("canvas"));
     const boardConfigWindowState = new OverlayWindowState("DrawBoard Config");
+    const boardSampleDrawingWindowState = new OverlayWindowState("Sample Drawings");
+
+    const scrollCtl = new ScrollbarController();
 
     const onBoardResized = (event: Event) => {
         const target = (event.target as HTMLCanvasElement);
@@ -176,9 +182,24 @@ const DrawBoardPage: Component = () => {
         return (size.w === board.offscreen.width) && (size.h === board.offscreen.height);
     };
 
+    const applySampleDrawing = () => {
+        const pen = board.getPen();
+        const points = [
+            { x: 100, y: 100 },
+            { x: 150, y: 150 },
+            { x: 200, y: 200 },
+            { x: 250, y: 250 },
+            { x: 250, y: 100 },
+            { x: 100, y: 100 },
+        ];
+        for (const point of points) {
+            pen.addPoint({ color: "black", lineWidth: 40, ...point });
+        }
+    };
+
     onMount(() => {
         board.offscreen.addEventListener("resize", onBoardResized);
-        setBoardSize({w: board.offscreen.width, h: board.offscreen.height});
+        setBoardSize({ w: board.offscreen.width, h: board.offscreen.height });
     });
 
     onCleanup(() => {
@@ -206,11 +227,11 @@ const DrawBoardPage: Component = () => {
                     <Typography sx={{padding: "8px"}}>Available windows</Typography>
                     <Divider />
                     <List disablePadding>
-                        <For each={[boardConfigWindowState]}>
+                        <For each={[boardConfigWindowState, boardSampleDrawingWindowState]}>
                             {(state) => <ListItem disablePadding>
                                 <ListItemButton onClick={() => state.setOpen(prev => !prev)}>
                                     <ListItemIcon><Checkbox checked={state.open()}/></ListItemIcon>
-                                    <ListItemText primary={state.title()}></ListItemText>
+                                    <ListItemText primary={state.title()} />
                                 </ListItemButton>
                             </ListItem>}
                         </For>
@@ -220,6 +241,10 @@ const DrawBoardPage: Component = () => {
             </Toolbar>
         </AppBar>
 
+        <Box>
+            <DrawBoardView board={board} scrollCtl={scrollCtl} />
+        </Box>
+        
         <StatefulOverlayWindow id="draw-board-config" state={boardConfigWindowState}>
             <Box sx={{padding: "24px"}}>
                 <TextField
@@ -257,6 +282,15 @@ const DrawBoardPage: Component = () => {
                     <Box sx={{flexGrow: 1}} />
                     <Button onClick={applyBoardSize} disabled={isConfigBoardSizeEqualsTheActual()}>Apply</Button>
                 </Box>
+            </Box>
+        </StatefulOverlayWindow>
+
+        <StatefulOverlayWindow id="draw-board-sample-drawings" state={boardSampleDrawingWindowState}>
+            <Box sx={{ padding: "24px" }}>
+                <List>
+                    <ListItemButton onClick={() => board.reset()}><Typography>Clear</Typography></ListItemButton>
+                    <ListItemButton onClick={() => applySampleDrawing()}><Typography>Basic</Typography></ListItemButton>
+                </List>
             </Box>
         </StatefulOverlayWindow>
     </Box>;
