@@ -1,7 +1,9 @@
 import Button from "@suid/material/Button";
 import TextField from "@suid/material/TextField";
 import { Component, createSignal } from "solid-js";
-import {default as DrawBroad, DrawBroadController, DrawPoint, DrawTool, DrawTouchType} from "../../widgets/DrawBroad";
+import { default as DrawBroad, DrawBroadController, DrawPoint, DrawTool, DrawTouchType } from "../../widgets/DrawBroad";
+
+import "./index.styl";
 
 const DevDrawBroad: Component = () => {
     const [currentPoint, setCurrentPoint] = createSignal<DrawPoint>();
@@ -12,7 +14,7 @@ const DevDrawBroad: Component = () => {
     broadCtl.setOffscreenSize([3000, 3000]);
 
     return <>
-        <p style={{"position":"absolute","z-index": 1}} class="noselect">
+        <p style={{position: "absolute", "z-index": 1, }} class="noselect">
             Current Point: (x: {currentPoint()?.x}, y: {currentPoint()?.y}, lineWidth: {currentPoint()?.lineWidth}, color: {currentPoint()?.color.toString()})<br />
             hasForce: {String(hasForce())}<br />
             Pressure: {pressure()}<br />
