@@ -16,6 +16,7 @@ const mergeUpdatedArea = (u0: UpdatedArea, u1: UpdatedArea): UpdatedArea => {
         y: Math.min(u0.y, u1.y),
         w: Math.max(u0.w, u1.w),
         h: Math.max(u0.h, u1.h),
+        redraw: u0.redraw || u1.redraw,
     };
 };
 
@@ -34,7 +35,6 @@ export const DrawBoardView: Component<DrawBoardViewProps> = (p) => {
             bufferDirtyArea = typeof bufferDirtyArea !== "undefined"? mergeUpdatedArea(updated, bufferDirtyArea) : updated;
         }
         isBufferDirty = true;
-        console.log("update area", bufferDirtyArea);
     };
 
     const synchronise = (dirtyArea?: UpdatedArea) => {
@@ -53,7 +53,12 @@ export const DrawBoardView: Component<DrawBoardViewProps> = (p) => {
         const destX = dirtyArea ? dirtyArea.x - p.scrollCtl.getRangeX()[0] : 0;
         const destY = dirtyArea ? dirtyArea.y - p.scrollCtl.getRangeY()[0]: 0;
         const destW = dirtyArea ? Math.min(dirtyArea.w, element.width) : element.width;
-        const destH = dirtyArea ? Math.min(dirtyArea.h, element.height): element.height;
+        const destH = dirtyArea ? Math.min(dirtyArea.h, element.height) : element.height;
+        const redrawFlag = dirtyArea ? dirtyArea.redraw : false;
+
+        if (redrawFlag) {
+            ctx2d.clearRect(destX, destY, destW, destH);
+        }
 
         ctx2d.drawImage(
             p.board.offscreen,
@@ -66,6 +71,9 @@ export const DrawBoardView: Component<DrawBoardViewProps> = (p) => {
             destW,
             destH,
         );
+
+        isBufferDirty = false;
+        bufferDirtyArea = undefined;
     };
 
     const [, bufferSyncStart, bufferSyncStop] = createRAF(() => (isBufferDirty ? synchronise(bufferDirtyArea) : undefined));

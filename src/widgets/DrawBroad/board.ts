@@ -37,6 +37,7 @@ export interface UpdatedArea {
     y: number,
     w: number,
     h: number,
+    redraw: boolean,
 }
 
 export class DrawBoard {
@@ -57,7 +58,7 @@ export class DrawBoard {
         const width = this.offscreen.width;
         const height = this.offscreen.height;
         this.ctx2d.clearRect(0, 0, width, height);
-        this.setUpdated({x: 0, y: 0, w: width, h: height});
+        this.setUpdated({x: 0, y: 0, w: width, h: height, redraw: true});
     }
 
     setUpdated(updatedArea?: UpdatedArea) {
