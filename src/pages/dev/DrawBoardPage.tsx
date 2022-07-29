@@ -20,16 +20,20 @@ import TextField from "@suid/material/TextField";
 import {DrawBoardView} from "../../widgets/DrawBroad/solid";
 import ScrollbarController from "../../widgets/DrawBroad/ScrollbarController";
 import { OverlayWindowState, StatefulOverlayWindow } from "../../widgets/overlay_windows";
+import ListItemSecondaryAction from "@suid/material/ListItemSecondaryAction";
+import Switch from "@suid/material/Switch";
 
 const DrawBoardPage: Component = () => {
     const [isMoreMenuOpen, setIsMoreMenuOpen] = createSignal<boolean>(false);
-    const [boardSize, setBoardSize] = createSignal<{w: number, h: number}>({w: 0, h: 0});
+    const [boardSize, setBoardSize] = createSignal<{ w: number, h: number }>({ w: 0, h: 0 });
+    const [viewOutlineEnabled, setViewOutlineEnabled] = createSignal<boolean>(false);
 
     let moreIconButtonRef: HTMLButtonElement;
 
     const board = new DrawBoard(document.createElement("canvas"));
     const boardConfigWindowState = new OverlayWindowState("DrawBoard Config");
     const boardSampleDrawingWindowState = new OverlayWindowState("Sample Drawings");
+    const boardViewConfigWindowState = new OverlayWindowState("DrawBoardView Config");
 
     const scrollCtl = new ScrollbarController();
 
@@ -98,7 +102,7 @@ const DrawBoardPage: Component = () => {
                     <Typography sx={{padding: "8px"}}>Available windows</Typography>
                     <Divider />
                     <List disablePadding>
-                        <For each={[boardConfigWindowState, boardSampleDrawingWindowState]}>
+                        <For each={[boardConfigWindowState, boardSampleDrawingWindowState, boardViewConfigWindowState]}>
                             {(state) => <ListItem disablePadding>
                                 <ListItemButton onClick={() => state.setOpen(prev => !prev)}>
                                     <ListItemIcon><Checkbox checked={state.open()}/></ListItemIcon>
@@ -112,7 +116,9 @@ const DrawBoardPage: Component = () => {
             </Toolbar>
         </AppBar>
 
-        <Box>
+        <Box sx={{
+            outline: viewOutlineEnabled() ? "dashed red 2px" : undefined
+        }}>
             <DrawBoardView board={board} scrollCtl={scrollCtl} />
         </Box>
         
@@ -161,6 +167,23 @@ const DrawBoardPage: Component = () => {
                 <List>
                     <ListItemButton onClick={() => board.reset()}><Typography>Clear</Typography></ListItemButton>
                     <ListItemButton onClick={() => applySampleDrawing()}><Typography>Basic</Typography></ListItemButton>
+                </List>
+            </Box>
+        </StatefulOverlayWindow>
+
+        <StatefulOverlayWindow id="draw-board-view-config" state={boardViewConfigWindowState}>
+            <Box>
+                <List>
+                    <ListItem>
+                        <Typography>Outline</Typography>
+                        <ListItemSecondaryAction>
+                            <Switch
+                                value={viewOutlineEnabled()}
+                                onChange={
+                                    (ev, val) => setViewOutlineEnabled(val)
+                                } />
+                        </ListItemSecondaryAction>
+                    </ListItem>
                 </List>
             </Box>
         </StatefulOverlayWindow>
