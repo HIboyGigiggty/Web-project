@@ -2,11 +2,8 @@ import AppBar from "@suid/material/AppBar";
 import Box from "@suid/material/Box";
 import Toolbar from "@suid/material/Toolbar";
 import Typography from "@suid/material/Typography";
-import Popper, { PopperProps } from "@suid/material/Popper";
-import { Accessor, Component, For, JSX, Setter, Show, createEffect, createSignal, onCleanup, onMount } from "solid-js";
+import { Component, For, createSignal, onCleanup, onMount } from "solid-js";
 import { DrawBoard } from "../../widgets/DrawBroad/board";
-import Paper from "@suid/material/Paper";
-import CloseIcon from "@suid/icons-material/Close";
 import Button from "@suid/material/Button";
 import IconButton from "@suid/material/IconButton";
 import MoreVertIcon from "@suid/icons-material/MoreVert";
@@ -22,133 +19,7 @@ import TextField from "@suid/material/TextField";
 
 import {DrawBoardView} from "../../widgets/DrawBroad/solid";
 import ScrollbarController from "../../widgets/DrawBroad/ScrollbarController";
-
-interface OverlayWindowProps {
-    id: string,
-    title?: string,
-    open: boolean,
-    children?: JSX.Element,
-    position: {x: number, y: number},
-    onClose?: ((event: Record<string, never>) => void),
-    onPositionChanging?: ((newPosition: {x: number, y: number}) => void),
-}
-
-const OverlayWindow: Component<OverlayWindowProps> = (props) => {
-    const [anchorEl, setAnchorEl] = createSignal<PopperProps["anchorEl"]>(null);
-
-    const getId = () => (props.open ? props.id : undefined);
-
-    const onMouseMoving = (event: MouseEvent) => {
-        if (props.onPositionChanging) {
-            props.onPositionChanging({
-                x: event.pageX,
-                y: event.pageY - 12,
-            });
-        }
-    };
-
-    createEffect(() => {
-        const {x, y} = props.position;
-        const object = {
-            width: 0,
-            height: 0,
-            top: y,
-            right: x,
-            bottom: y,
-            left: x,
-            x: x,
-            y: y,
-            toJSON: () => {
-                return object;
-            },
-        };
-        setAnchorEl({
-            getBoundingClientRect: () => object,
-        });
-    });
-
-    return <Popper
-        id={getId()}
-        open={props.open}
-        anchorEl={anchorEl()}
-    >
-        <Paper elevation={3}>
-            <Box
-                sx={{
-                    height: "24px",
-                    width: "100%",
-                    minWidth: "240px",
-                    display: "flex",
-                    cursor: "move",
-                }}
-                backgroundColor="primary.light"
-                onMouseDown={() => {
-                    document.addEventListener("mousemove", onMouseMoving);
-                }}
-                onMouseUp={() => {
-                    document.removeEventListener("mousemove", onMouseMoving);
-                }}
-            >
-                <Typography component="div" sx={{flexGrow: 1, userSelect: "none"}} color="inherit">{props.title? props.title: ""}</Typography>
-                <Show when={!!props.onClose}>
-                    <Button
-                        variant="text"
-                        disableRipple
-                        disableFocusRipple
-                        disableTouchRipple
-                        disableElevation
-                        color="inherit"
-                        sx={{minWidth: undefined, height: "24px", width: "24px"}}
-                        onClick={() => {
-                            if (props.onClose) {
-                                props.onClose({});
-                            }
-                        }}
-                    ><CloseIcon /></Button>
-                </Show>
-            </Box>
-            {props.children}
-        </Paper>
-    </Popper>;
-};
-
-class OverlayWindowState {
-    open: Accessor<boolean>;
-    setOpen: Setter<boolean>;
-    title: Accessor<string | undefined>;
-    setTitle: Setter<string | undefined>;
-    position: Accessor<{x: number, y: number}>;
-    setPosition: Setter<{x: number, y: number}>;
-
-    constructor(defauleTitle?: string, defaultOpen = false, defaultPosition = {x: window.innerWidth / 2, y: window.innerHeight / 2}) {
-        const [open, setOpen] = createSignal<boolean>(defaultOpen);
-        this.open = open;
-        this.setOpen = setOpen;
-        const [title, setTitle] = createSignal<string | undefined>(defauleTitle);
-        this.title = title;
-        this.setTitle = setTitle;
-        const [position, setPosition] = createSignal<{x: number, y: number}>(defaultPosition);
-        this.position = position;
-        this.setPosition = setPosition;
-    }
-}
-
-interface StatefulOverlayWindow {
-    id: string,
-    state: OverlayWindowState,
-    children?: JSX.Element,
-}
-
-const StatefulOverlayWindow: Component<StatefulOverlayWindow> = (props) => {
-    return <OverlayWindow
-        id={props.id}
-        open={props.state.open()}
-        title={props.state.title()}
-        position={props.state.position()}
-        onPositionChanging={(pos) => props.state.setPosition(pos)}
-        onClose={() => props.state.setOpen(false)}
-    >{props.children}</OverlayWindow>;
-};
+import { OverlayWindowState, StatefulOverlayWindow } from "../../widgets/overlay_windows";
 
 const DrawBoardPage: Component = () => {
     const [isMoreMenuOpen, setIsMoreMenuOpen] = createSignal<boolean>(false);
