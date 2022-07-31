@@ -37,6 +37,7 @@
     "@nanostores/persistent": "^0.5.3",
     "@nanostores/solid": "^0.1.6",
     "@solid-primitives/raf": "^2.1.0",
+    "@solid-primitives/resize-observer": "^2.0.2",
     "@solid-primitives/utils": "^2.2.1",
     "@suid/icons-material": "^0.2.5",
     "@suid/material": "^0.4.3",
