@@ -72,6 +72,7 @@ const UserInfoAvatarButton: Component = () => {//头像组件
     return (
         <>
             <IconButton
+                id="user-info-avatar-button"
                 size="small"
                 onClick={() => setdatailPopoverOpen(true)}
                 //@ts-expect-error :The value is assigned by SolidJS when it is used
@@ -101,7 +102,7 @@ const UserInfoAvatarButton: Component = () => {//头像组件
                     </CardContent >
                     <Divider />
                     <CardActions sx={{ justifyContent: "end" }}>
-                        <Button sx={{padding: "8px"}} color="error" variant="text" size="small" onClick={userSignOut}>
+                        <Button id="sign-out-button" sx={{padding: "8px"}} color="error" variant="text" size="small" onClick={userSignOut}>
                             Sign out
                         </Button>
                     </CardActions>
